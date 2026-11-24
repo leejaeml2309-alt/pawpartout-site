@@ -38,8 +38,12 @@ To open one: in index.html turn its `<div class="node soon">` (wheel) and `<div 
 `<a class="node live" href="…">` / `<a class="door live" href="…">`.
 
 ## Story
-Between `<!-- STORY:START -->` and `<!-- STORY:END -->` in index.html: replace the placeholder box with the Éditeur's
-text, as `<div class="story-text"><p>…</p></div>`.
+Between `<!-- STORY:START -->` and `<!-- STORY:END -->` in index.html: the EN text of
+WHY-PAWPARTOUT-EXISTS-20261124.md (approved by Marc 24/11), verbatim, with ™ added at its first mention of Pawpartout.
+The FR version is not used. Paragraphs go in `<div class="story-text"><p>…</p></div>`.
+
+## Analytics
+None at launch (decision 24/11/2026): no GA, no tag manager, no ads. Add nothing without a new decision.
 
 ## Local preview
 `cd site && python3 -m http.server 8725` then open http://localhost:8725/

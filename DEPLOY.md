@@ -1,6 +1,7 @@
 # Deploying pawpartout.com (GitHub Pages + Porkbun DNS)
 
-Target launch: 25/11/2026, after Manager's review. Nothing has been pushed yet.
+Target launch: 25/11/2026, after Manager's review. The empty public repo exists; the site is NOT pushed and Pages is NOT enabled
+until Manager gives the green light. No analytics at launch.
 
 ## 1. DNS records at Porkbun (domain pawpartout.com)
 First, in Porkbun → Domain Management → pawpartout.com → DNS, **delete Porkbun's default records**: the parking
@@ -26,7 +27,7 @@ should return exactly the values above. (On the shared box, DNS is intercepted: 
 a public resolver, e.g. `dig @1.1.1.1 …`.)
 
 ## 2. Launch steps
-1. Create the GitHub repo **leejaeml2309-alt/pawpartout-site** (public, empty: no README, no licence).
+1. Create the GitHub repo **leejaeml2309-alt/pawpartout-site** (public, empty: no README, no licence). *Done 24/11 — empty.*
 2. Push: `git remote add origin https://github.com/leejaeml2309-alt/pawpartout-site.git && git push -u origin main`.
 3. Repo → Settings → Pages → Build and deployment → Source: **GitHub Actions**. The workflow
    `.github/workflows/pages.yml` runs on push (or run it by hand: Actions → Deploy Pawpartout → Run workflow).
