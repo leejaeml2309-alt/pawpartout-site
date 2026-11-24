@@ -169,7 +169,7 @@ html[data-style="mandala"] .nf .core svg{display:block}
 html[data-style="mandala"] .nf .core b{font-size:1.02rem}
 /* phones: one header pill on one row (all doors are on the rosace right below) */
 @media (max-width:480px){ .vbar nav a:last-child{display:none} }
-.nf{box-sizing:border-box;min-height:calc(100svh - 156px)}
+.nf{box-sizing:border-box;min-height:calc(100svh - 130px)}
 /* phones: side-door labels sit ABOVE their dot, outside the rosace ring (checked by shot_pawpartout.py: gap ≥ 6px) */
 @media (max-width:640px){
  .node.n-right .lbl,.node.n-left .lbl{top:auto;bottom:calc(100% + 6px)}
