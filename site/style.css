@@ -170,3 +170,12 @@ html[data-style="mandala"] .nf .core b{font-size:1.02rem}
 /* phones: one header pill on one row (all doors are on the rosace right below) */
 @media (max-width:480px){ .vbar nav a:last-child{display:none} }
 .nf{box-sizing:border-box;min-height:calc(100svh - 156px)}
+/* phones: side-door labels sit ABOVE their dot, outside the rosace ring (checked by shot_pawpartout.py: gap ≥ 6px) */
+@media (max-width:640px){
+ .node.n-right .lbl,.node.n-left .lbl{top:auto;bottom:calc(100% + 6px)}
+}
+/* narrow phones: footer on two centred rows instead of a ragged wrap */
+@media (max-width:400px){
+ .vfoot-in{flex-direction:column;gap:0;text-align:center;padding-top:14px;padding-bottom:12px}
+ .vfoot nav{margin-left:0}
+}
