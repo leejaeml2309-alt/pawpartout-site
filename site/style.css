@@ -179,3 +179,5 @@ html[data-style="mandala"] .nf .core b{font-size:1.02rem}
  .vfoot-in{flex-direction:column;gap:0;text-align:center;padding-top:14px;padding-bottom:12px}
  .vfoot nav{margin-left:0}
 }
+/* footer: © line only, centred (no legal pages on Pawpartout yet) */
+.vfoot-in{justify-content:center;text-align:center}
