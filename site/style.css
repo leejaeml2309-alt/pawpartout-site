@@ -181,3 +181,23 @@ html[data-style="mandala"] .nf .core b{font-size:1.02rem}
 }
 /* footer: © line only, centred (no legal pages on Pawpartout yet) */
 .vfoot-in{justify-content:center;text-align:center}
+
+/* desktop: whole rosace (buttons + labels) fits in the first screen
+   Sized from min(vw, vh) so 1280×720, 1366×768, 1440×900, 1536×864,
+   1920×1080 and 2560×1440 show every door title without scrolling.
+   Header, eyebrow and h1 stay above. Mobile (≤640px) and Fold are unchanged. */
+@media (min-width: 641px){
+ .hero{padding-top:18px}
+ h1{font-size:clamp(2.35rem, 2vw + 1.45rem, 3.45rem)}
+ .lede{font-size:1rem;max-width:46rem}
+ .wheel-sec{
+   --rosace-W:clamp(420px, min(56vw, calc((100svh - 26.25rem) / .74)), 640px);
+   padding:clamp(32px, calc(96px - .1 * var(--rosace-W)), 60px) 0 12px
+ }
+ .wheel{--W:var(--rosace-W);--R:calc(var(--W) * .40);--dot:60px}
+ html[data-style="mandala"] .core{width:max(calc(var(--W) * .24), 100px);height:max(calc(var(--W) * .24), 100px)}
+ html[data-style="mandala"] .core b{font-size:clamp(13px, calc(var(--W) * .032), 1.02rem)}
+ .node b{font-size:clamp(13px, calc(var(--W) * .028 + 4px), 1.02rem);line-height:1.15}
+ .node small{font-size:clamp(10.5px, .7rem, .72rem)}
+ .legend{margin-top:16px}
+}

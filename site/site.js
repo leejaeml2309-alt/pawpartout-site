@@ -125,7 +125,7 @@
     var svg = document.getElementById('flower'), sh = document.getElementById('sheen');
     if (!svg) return;
     var px = svg.getBoundingClientRect().width || 640;
-    var sc = px < 420 ? 1.45 : 1;                          /* thicker bands on phones so the gold still reads */
+    var sc = (px < 420 && window.innerWidth <= 640) ? 1.45 : 1;  /* thicker bands on phones so the gold still reads */
     var g = mandala(sc);
     var h = g.render(sc);
     if (g.veins) h += '<path d="' + g.veins + '" fill="none" stroke="#5a3a0b" stroke-width="' + f(2.2 * sc) + '" stroke-linecap="round"/>' +
@@ -146,7 +146,7 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', draw); else draw();
   var lastBig = null;
   window.addEventListener('resize', function () {
-    var w = (document.getElementById('flower') || {}).clientWidth || 0, big = w >= 420;
+    var w = (document.getElementById('flower') || {}).clientWidth || 0, big = !(w < 420 && window.innerWidth <= 640);
     if (big !== lastBig) { lastBig = big; draw(); }
   });
 })();
