@@ -285,7 +285,7 @@ html[data-style="mandala"] .nf .core b{font-size:1.02rem}
  .wheel{--W:min(50vw, 190px);--R:calc(var(--W) * .29);--dot:32px;margin-top:1.85rem;margin-bottom:6.6rem}
  .wheel-sec{padding-top:52px}
  html[data-style="mandala"] .core{width:max(calc(var(--W) * .22), 62px);height:max(calc(var(--W) * .22), 62px)}
- html[data-style="mandala"] .core b{font-size:.6rem}
+ html[data-style="mandala"] .core b{font-size:.44rem;letter-spacing:0;line-height:1.1}
  .node .lbl{white-space:normal;width:max-content;max-width:5.5em;padding:1px 5px;text-align:center}
  .node .lbl .br-m{display:block}
  .node b{font-size:.66rem;line-height:1.1}
