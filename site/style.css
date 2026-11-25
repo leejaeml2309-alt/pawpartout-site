@@ -290,7 +290,7 @@ html[data-style="mandala"] .nf .core b{font-size:1.02rem}
  .under{margin-top:0;gap:10px;flex-direction:column}
  .sisters a{min-height:44px;font-size:.78rem;padding:0 12px}
  .node .sub{min-width:12.2rem}
- .node.n-br .sub{top:calc(100% + 52px);bottom:auto;left:auto;right:0;transform:none}
+ .node.n-br .sub{top:auto;bottom:calc(100% + 8px);left:auto;right:0;transform:none}
  .node.n-bot .sub{top:calc(100% + 52px);bottom:auto;left:50%;margin-left:-6.1rem;transform:none}
  .node.n-tl .sub{bottom:auto;top:calc(100% + 52px);right:0;left:auto}
 }

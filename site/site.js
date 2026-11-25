@@ -193,6 +193,8 @@
       document.querySelectorAll('.wheel .lbl').forEach(function (el) {
         labels.push(el.getBoundingClientRect());
       });
+      var under = document.querySelector('.under');
+      if (under) labels.push(under.getBoundingClientRect());
       function hitsLabel(r) {
         for (var i = 0; i < labels.length; i++) if (overlaps(r, labels[i])) return labels[i];
         return null;
