@@ -150,3 +150,138 @@
     if (big !== lastBig) { lastBig = big; draw(); }
   });
 })();
+
+
+
+/* 8-petal sub-sections: click/tap toggles, keyboard + Escape, one panel at a time.
+   Panels that would overflow the viewport are nudged back in. */
+(function () {
+  'use strict';
+  var nodes = document.querySelectorAll('.node.has-sub');
+  if (!nodes.length) return;
+
+  function buttonOf(n) { return n.querySelector('.node-hit'); }
+  function subOf(n) { return n.querySelector('.sub'); }
+
+  function clearPlace(sub) {
+    if (sub) sub.style.transform = '';
+  }
+
+  function placePanel(n) {
+    var sub = subOf(n);
+    if (!sub) return;
+    sub.style.transform = '';
+    /* wait for CSS display:block to apply */
+    requestAnimationFrame(function () {
+      if (getComputedStyle(sub).display === 'none') return;
+      var q = sub.getBoundingClientRect();
+      var pad = 10, dx = 0, dy = 0, vw = window.innerWidth, vh = window.innerHeight;
+      if (q.right > vw - pad) dx -= (q.right - (vw - pad));
+      if (q.left + dx < pad) dx += (pad - (q.left + dx));
+      if (q.bottom > vh - pad) dy -= (q.bottom - (vh - pad));
+      if (q.top + dy < pad) dy += (pad - (q.top + dy));
+      function box(dx0, dy0) {
+        return {left: q.left + dx0, right: q.right + dx0, top: q.top + dy0, bottom: q.bottom + dy0};
+      }
+      function overlaps(a, b) {
+        return a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+      }
+      function inView(r) {
+        return r.left >= pad && r.right <= vw - pad && r.top >= pad && r.bottom <= vh - pad;
+      }
+      var labels = [];
+      document.querySelectorAll('.wheel .lbl').forEach(function (el) {
+        labels.push(el.getBoundingClientRect());
+      });
+      function hitsLabel(r) {
+        for (var i = 0; i < labels.length; i++) if (overlaps(r, labels[i])) return labels[i];
+        return null;
+      }
+      var hit = hitsLabel(box(dx, dy));
+      if (hit) {
+        var cand = [
+          {dx: (hit.right + 8) - q.left, dy: dy},
+          {dx: (hit.left - 8 - q.width) - q.left, dy: dy},
+          {dx: dx, dy: (hit.top - 8 - q.height) - q.top},
+          {dx: dx, dy: (hit.bottom + 8) - q.top}
+        ];
+        var k, ok = null;
+        for (k = 0; k < cand.length; k++) {
+          var r = box(cand[k].dx, cand[k].dy);
+          if (inView(r) && !hitsLabel(r)) { ok = cand[k]; break; }
+        }
+        if (ok) { dx = ok.dx; dy = ok.dy; }
+      }
+      if (q.left + dx < pad) dx = pad - q.left;
+      if (q.right + dx > vw - pad) dx = (vw - pad) - q.right;
+      if (q.top + dy < pad) dy = pad - q.top;
+      if (q.bottom + dy > vh - pad) dy = (vh - pad) - q.bottom;
+      if (dx || dy) sub.style.transform = 'translate(' + Math.round(dx) + 'px,' + Math.round(dy) + 'px)';
+    });
+  }
+
+  function setOpen(n, open) {
+    var b = buttonOf(n);
+    n.classList.toggle('is-open', open);
+    if (b) b.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) placePanel(n);
+    else clearPlace(subOf(n));
+  }
+
+  function closeAll(except) {
+    nodes.forEach(function (n) { if (n !== except) setOpen(n, false); });
+  }
+
+  function isFinePointer() {
+    return window.matchMedia && matchMedia('(hover: hover) and (pointer: fine)').matches;
+  }
+
+  nodes.forEach(function (n) {
+    var b = buttonOf(n);
+    if (!b) return;
+    b.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var open = !n.classList.contains('is-open');
+      closeAll(n);
+      setOpen(n, open);
+    });
+    n.addEventListener('mouseenter', function () {
+      if (isFinePointer()) {
+        b.setAttribute('aria-expanded', 'true');
+        placePanel(n);
+      }
+    });
+    n.addEventListener('mouseleave', function () {
+      if (isFinePointer() && !n.classList.contains('is-open') && !n.contains(document.activeElement)) {
+        b.setAttribute('aria-expanded', 'false');
+        clearPlace(subOf(n));
+      }
+    });
+    n.addEventListener('focusin', function () {
+      b.setAttribute('aria-expanded', 'true');
+      placePanel(n);
+    });
+    n.addEventListener('focusout', function (e) {
+      if (!n.contains(e.relatedTarget)) setOpen(n, false);
+    });
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.node.has-sub')) closeAll();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      var open = document.querySelector('.node.has-sub.is-open') || document.querySelector('.node.has-sub:focus-within');
+      closeAll();
+      if (open) {
+        var b = buttonOf(open);
+        if (b) b.focus();
+      }
+    }
+  });
+  window.addEventListener('resize', function () {
+    var n = document.querySelector('.node.has-sub.is-open') || document.querySelector('.node.has-sub:hover');
+    if (n) placePanel(n);
+  });
+})();

@@ -197,7 +197,105 @@ html[data-style="mandala"] .nf .core b{font-size:1.02rem}
  .wheel{--W:var(--rosace-W);--R:calc(var(--W) * .40);--dot:60px}
  html[data-style="mandala"] .core{width:max(calc(var(--W) * .24), 100px);height:max(calc(var(--W) * .24), 100px)}
  html[data-style="mandala"] .core b{font-size:clamp(13px, calc(var(--W) * .032), 1.02rem)}
- .node b{font-size:clamp(13px, calc(var(--W) * .028 + 4px), 1.02rem);line-height:1.15}
+ .node b{font-size:clamp(15px, calc(var(--W) * .028 + 4px), 1.02rem);line-height:1.15}
  .node small{font-size:clamp(10.5px, .7rem, .72rem)}
  .legend{margin-top:16px}
+}
+
+
+
+/* ===== 8-petal rosace preview (rosace8-20261125) ===== */
+.node-hit{appearance:none;background:none;border:0;color:inherit;font:inherit;padding:0;margin:0;width:var(--dot);height:var(--dot);
+ display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;position:relative}
+.node-hit:focus{outline:none}
+.node.has-sub:focus-within .dot,.node-hit:focus-visible .dot,
+.node.has-sub.is-open .dot{transform:scale(1.08);box-shadow:0 0 0 1px #3a2205,inset 0 0 0 1px #3a2205,0 0 0 4px #0a1d48,0 0 0 5px #f0d58c,0 0 28px #f0d58c88}
+
+/* diagonal labels sit outward, beside their dot */
+.node.n-tr .lbl{top:auto;bottom:calc(100% - 6px);left:calc(100% + 8px);transform:none;align-items:flex-start}
+.node.n-br .lbl{top:calc(100% - 6px);left:calc(100% + 8px);transform:none;align-items:flex-start}
+.node.n-bl .lbl{top:calc(100% - 6px);left:auto;right:calc(100% + 8px);transform:none;align-items:flex-end;text-align:right}
+.node.n-tl .lbl{top:auto;bottom:calc(100% - 6px);left:auto;right:calc(100% + 8px);transform:none;align-items:flex-end;text-align:right}
+.node.n-bot .lbl{top:calc(100% + 7px)}
+
+/* desktop: one line per title (width is max-content, not the 56px dot) */
+.node .lbl{white-space:nowrap;max-width:none;width:max-content}
+.node .lbl .br-m{display:inline}
+
+/* sub-sections panel */
+.node .sub{display:none;position:absolute;z-index:6;margin:0;padding:8px 4px;list-style:none;min-width:13.5rem;
+ background:#060f2af5;border-radius:10px;box-shadow:0 0 0 1px #d9b76566,0 14px 32px #000c;text-align:left}
+.node .sub li{font-size:.76rem;color:var(--ink);padding:5px 10px;border-bottom:1px solid #d9b76522;white-space:nowrap;line-height:1.3}
+.node .sub li:last-child{border-bottom:0}
+.node.has-sub:hover,.node.has-sub:focus-within,.node.has-sub.is-open{z-index:8}
+.node.n-br .sub{top:auto;bottom:0;left:calc(100% + 12.4em)}
+.node.n-bot .sub{top:auto;bottom:calc(100% + 52px);left:calc(50% - 6.75rem);transform:none}
+.node.n-tl .sub{bottom:calc(100% + 50px);right:calc(100% + 8px)}
+@media (hover:hover) and (pointer:fine){
+ .node.has-sub:hover .sub,.node.has-sub:focus-within .sub{display:block}
+}
+.node.has-sub.is-open .sub,.node.has-sub .node-hit[aria-expanded="true"] + .sub{display:block}
+
+/* sister sites + legend, one row under the rosace (clear of the bottom labels) */
+.under{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 28px;margin:0 auto;padding:0 16px;max-width:1080px}
+.sisters{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.sisters a{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border-radius:99px;border:1px solid #d9b76540;
+ color:var(--ink);text-decoration:none;font-size:.82rem;white-space:nowrap;background:#050e26aa}
+.sisters a svg{width:16px;height:16px;color:var(--au)}
+.sisters a:hover{border-color:var(--au)}
+.under .legend{margin:0}
+
+@media (min-width:641px){
+ .hero{padding-top:14px}
+ h1{font-size:clamp(2.15rem, 1.6vw + 1.35rem, 3.2rem)}
+ .lede{font-size:.98rem;line-height:1.45;max-width:42rem}
+ .wheel{
+   --W:var(--rosace-W);
+   --R:calc(var(--W) * .42);
+   --dot:56px;
+   margin-bottom:4.4rem; /* bottom labels sit in this reserved band */
+ }
+ .wheel-sec{
+   /* 8 labels + sister bar: leave room above for the top label, shrink the rosace on short screens */
+   --rosace-W:clamp(380px, min(52vw, calc((100svh - 29.5rem) / .86)), 620px);
+   padding:clamp(48px, calc(36px + .08 * var(--rosace-W)), 72px) 0 4px
+ }
+ .under{margin-top:0}
+}
+
+@media (min-width:641px) and (max-height:800px){
+ .hero{padding-top:8px}
+ h1{font-size:clamp(2rem, 1.4vw + 1.2rem, 2.6rem);margin:.08em 0 .12em}
+ .lede{font-size:.9rem;line-height:1.4;margin-bottom:2px}
+ .wheel-sec{padding-top:56px;padding-bottom:0}
+ .wheel{margin-bottom:3.7rem}
+}
+
+/* phones: labels sit above/below their dot (no side overflow), 2-line titles, smaller wheel */
+@media (max-width:640px){
+ .wheel{--W:min(72vw, 292px);--R:calc(var(--W) * .38);--dot:46px;margin-bottom:4.8rem}
+ .wheel-sec{padding-top:52px}
+ .node .lbl{white-space:normal;width:max-content;max-width:7em;padding:2px 7px;text-align:center}
+ .node .lbl .br-m{display:block}
+ .node b{font-size:.78rem;line-height:1.15}
+ .node small{font-size:.6rem}
+ .node.n-top .lbl{top:auto;bottom:calc(100% + 6px);left:50%;right:auto;transform:translateX(-50%);align-items:center;text-align:center}
+ .node.n-tr .lbl{top:auto;bottom:calc(100% + 6px);left:50%;right:auto;transform:translateX(-5%);align-items:center;text-align:center}
+ .node.n-right .lbl{top:auto;bottom:calc(100% + 6px);left:50%;right:auto;transform:translateX(-25%);align-items:center;text-align:center}
+ .node.n-br .lbl{top:calc(100% + 6px);bottom:auto;left:50%;right:auto;transform:translateX(-20%);align-items:center;text-align:center}
+ .node.n-bot .lbl{top:calc(100% + 6px);bottom:auto;left:50%;right:auto;transform:translateX(-50%);align-items:center;text-align:center;max-width:7.4em}
+ .node.n-bl .lbl{top:calc(100% + 6px);bottom:auto;left:auto;right:50%;transform:translateX(20%);align-items:center;text-align:center}
+ .node.n-left .lbl{top:auto;bottom:calc(100% + 6px);left:auto;right:50%;transform:translateX(25%);align-items:center;text-align:center}
+ .node.n-tl .lbl{top:auto;bottom:calc(100% + 6px);left:auto;right:50%;transform:translateX(5%);align-items:center;text-align:center}
+ .under{margin-top:0;gap:10px;flex-direction:column}
+ .sisters a{min-height:44px;font-size:.78rem;padding:0 12px}
+ .node .sub{min-width:12.2rem}
+ .node.n-br .sub{top:calc(100% + 52px);bottom:auto;left:auto;right:0;transform:none}
+ .node.n-bot .sub{top:calc(100% + 52px);bottom:auto;left:50%;margin-left:-6.1rem;transform:none}
+ .node.n-tl .sub{bottom:auto;top:calc(100% + 52px);right:0;left:auto}
+}
+@media (max-width:370px){
+ .wheel{--W:min(70vw, 270px);--dot:44px}
+ .node b{font-size:.72rem}
+ .node .lbl{max-width:6.6em}
 }
