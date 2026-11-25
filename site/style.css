@@ -273,22 +273,28 @@ html[data-style="mandala"] .nf .core b{font-size:1.02rem}
  .wheel{margin-bottom:3.7rem}
 }
 
-/* phones: labels sit above/below their dot (no side overflow), 2-line titles, smaller wheel */
+/* phones: labels sit radially outward, each on its own icon, with ≥8px between boxes.
+   Desktop (min-width:641px) is unchanged. */
 @media (max-width:640px){
- .wheel{--W:min(68vw, 276px);--R:calc(var(--W) * .36);--dot:42px;margin-bottom:4.6rem}
- .wheel-sec{padding-top:52px}
- .node .lbl{white-space:normal;width:max-content;max-width:7em;padding:2px 7px;text-align:center}
+ .wheel{--W:min(60vw, 236px);--R:calc(var(--W) * .33);--dot:38px;margin-top:1.35rem;margin-bottom:5.4rem}
+ .wheel-sec{padding-top:48px}
+ html[data-style="mandala"] .core{width:max(calc(var(--W) * .20), 68px);height:max(calc(var(--W) * .20), 68px)}
+ html[data-style="mandala"] .core b{font-size:.68rem}
+ .node .lbl{white-space:normal;width:max-content;max-width:5.8em;padding:2px 6px;text-align:center}
  .node .lbl .br-m{display:block}
- .node b{font-size:.78rem;line-height:1.15}
- .node small{font-size:.6rem}
- .node.n-top .lbl{top:auto;bottom:calc(100% + 6px);left:50%;right:auto;transform:translateX(-50%);align-items:center;text-align:center;max-width:9.5em}
- .node.n-tr .lbl{top:auto;bottom:calc(100% + 6px);left:50%;right:auto;transform:translateX(-5%);align-items:center;text-align:center}
- .node.n-ru .lbl{top:auto;bottom:calc(100% + 6px);left:50%;right:auto;transform:translateX(-20%);align-items:center;text-align:center}
- .node.n-rd .lbl,.node.n-br .lbl{top:calc(100% + 6px);bottom:auto;left:50%;right:auto;transform:translateX(-15%);align-items:center;text-align:center}
- .node.n-bot .lbl{top:calc(100% + 6px);bottom:auto;left:50%;right:auto;transform:translateX(-50%);align-items:center;text-align:center;max-width:7.4em}
- .node.n-bl .lbl,.node.n-ld .lbl{top:calc(100% + 6px);bottom:auto;left:auto;right:50%;transform:translateX(15%);align-items:center;text-align:center}
- .node.n-lu .lbl{top:auto;bottom:calc(100% + 6px);left:auto;right:50%;transform:translateX(20%);align-items:center;text-align:center}
- .node.n-tl .lbl{top:auto;bottom:calc(100% + 6px);left:auto;right:50%;transform:translateX(5%);align-items:center;text-align:center}
+ .node b{font-size:.72rem;line-height:1.15}
+ .node small{font-size:.55rem}
+ /* radial: along each door's ray, slightly offset so adjacent boxes don't meet */
+ .node.n-top .lbl{top:auto;bottom:calc(100% + 7px);left:50%;right:auto;transform:translateX(-50%);align-items:center;text-align:center;max-width:9em}
+ .node.n-tr .lbl{top:auto;bottom:calc(100% + 5px);left:calc(100% + 5px);right:auto;transform:none;align-items:flex-start;text-align:left}
+ .node.n-ru .lbl{top:28%;bottom:auto;left:calc(100% + 7px);right:auto;transform:translateY(-50%);align-items:flex-start;text-align:left}
+ .node.n-rd .lbl{top:72%;bottom:auto;left:calc(100% + 7px);right:auto;transform:translateY(-50%);align-items:flex-start;text-align:left}
+ .node.n-br .lbl{top:calc(100% + 5px);bottom:auto;left:calc(100% + 5px);right:auto;transform:none;align-items:flex-start;text-align:left}
+ .node.n-bot .lbl{top:calc(100% + 7px);bottom:auto;left:50%;right:auto;transform:translateX(-50%);align-items:center;text-align:center;max-width:7em}
+ .node.n-bl .lbl{top:calc(100% + 5px);bottom:auto;left:auto;right:calc(100% + 5px);transform:none;align-items:flex-end;text-align:right}
+ .node.n-ld .lbl{top:72%;bottom:auto;left:auto;right:calc(100% + 7px);transform:translateY(-50%);align-items:flex-end;text-align:right}
+ .node.n-lu .lbl{top:28%;bottom:auto;left:auto;right:calc(100% + 7px);transform:translateY(-50%);align-items:flex-end;text-align:right}
+ .node.n-tl .lbl{top:auto;bottom:calc(100% + 5px);left:auto;right:calc(100% + 5px);transform:none;align-items:flex-end;text-align:right}
  .under{margin-top:0;gap:10px;flex-direction:column}
  .node .sub{min-width:12.2rem}
  .node.n-bot .sub{top:auto;bottom:calc(100% + 8px);left:50%;margin-left:-6.1rem;transform:none}
@@ -296,13 +302,9 @@ html[data-style="mandala"] .nf .core b{font-size:1.02rem}
  .node.n-tl .sub{bottom:auto;top:calc(100% + 52px);right:0;left:auto}
 }
 @media (max-width:370px){
- .wheel{--W:min(70vw, 270px);--dot:42px}
- .node b{font-size:.72rem}
- .node small{font-size:.56rem}
- .node .lbl{max-width:6.4em;padding:1px 5px}
- /* separate the two pairs that kissed at 344 */
- .node.n-tl .lbl{bottom:calc(100% + 8px)}
- .node.n-lu .lbl{bottom:calc(100% + 2px)}
- .node.n-ld .lbl{top:calc(100% + 2px)}
- .node.n-bl .lbl{top:calc(100% + 10px)}
+ .wheel{--W:min(58vw, 208px);--R:calc(var(--W) * .32);--dot:36px}
+ .node b{font-size:.68rem}
+ .node small{font-size:.52rem}
+ .node .lbl{max-width:5.4em;padding:1px 5px}
+ .node.n-top .lbl{max-width:8.4em}
 }
