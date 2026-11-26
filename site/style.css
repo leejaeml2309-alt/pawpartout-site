@@ -346,3 +346,17 @@ html[data-style="mandala"] .nf .core b{font-size:1.02rem}
  .book-cover{max-width:168px;margin:0 auto}
  .book-hook{margin:0 0 14px}
 }
+
+/* ===== section geometry icons in the rosace petals (2026-11-27) ===== */
+.node .dot svg{width:82%;height:82%;overflow:visible}
+.door .dot svg{width:34px;height:34px;overflow:visible}
+/* Coming-soon petals keep a dashed outer ring, but do not desaturate or cover the metal icon */
+.node.soon .dot{filter:none}
+.node.soon .dot::after{inset:-6px;border:1.5px dashed #f0d58c88;pointer-events:none}
+.door.soon .dot{filter:none}
+@media (min-width:641px){
+ .wheel{--dot:64px}
+}
+@media (max-width:640px){
+ .node .dot svg{width:88%;height:88%}
+}

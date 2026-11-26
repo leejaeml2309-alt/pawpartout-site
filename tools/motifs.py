@@ -36,9 +36,11 @@ def JF(d):
     """jewel fill (solid metal shape)"""
     return (f'<path d="{d}" fill="#01040d" fill-opacity=".5" transform="translate(.5 .8)"/>'
             f'<path d="{d}" fill="var(--mg)"/>')
-def JC(d,w=.55,op=.4,dash=None):
-    """Faint construction stroke in the same metal (no jewel shadow, so it stays clean)."""
-    w=w*max(1.0,WMUL*.42)
+def JC(d,w=.55,op=.4,dash=None,scale=.42):
+    """Construction stroke in the same metal (no jewel shadow, so it stays clean).
+    scale=.42 (default) keeps lines thin at icon size; scale=1 lets them track WMUL
+    when a motif must stay readable at 30px (Paw News rosace)."""
+    w=w*max(1.0,WMUL*scale)
     ds=f' stroke-dasharray="{dash}"' if dash else ''
     return (f'<path d="{d}" fill="none" stroke="var(--mg)" stroke-opacity="{op}" '
             f'stroke-width="{F(w)}" stroke-linecap="round" stroke-linejoin="round"{ds}/>')
@@ -82,24 +84,33 @@ def m_phyllo(n=110,inner=0,c=3.55):  # sunflower: golden-angle florets + ring of
 
 def m_waves():  # sine wave constructed on the Seed of Life (Paw News)
     """One sine period across the rosace. Amplitude = Seed radius (tangent to the
-    top of the left circle and the bottom of the right). Verticals and horizontals
-    at 60°/90° mark the construction; the central circle is the generator."""
+    top of the left circle and the bottom of the right). The Seed of Life is drawn
+    in a stronger platinum so it still reads at 30px; the wave stays the dominant
+    motif. At icon size (WMUL>1) the 60°/90° grid is dropped, leaving the seven
+    circles, the outer circumcircle and the axis."""
     r=16
-    seed=''.join(circ(50+r*math.cos(k*math.pi/3),50+r*math.sin(k*math.pi/3),r) for k in range(6))
-    gen=circ(50,50,r)+circ(50,50,2*r)
+    # seven Seed circles (centre + 6) as one path, plus the outer circumcircle
+    seed=circ(50,50,r)+''.join(circ(50+r*math.cos(k*math.pi/3),50+r*math.sin(k*math.pi/3),r) for k in range(6))
+    outer=circ(50,50,2*r)
     T,A=4*r,r
     x0=50-2*r
     axis=f'M{F(x0-3)} 50H{F(x0+T+3)}'
-    angs=(0,60,90,120,180,240,270,300,360)
+    d=f'M{F(x0)} 50'+''.join(f'L{F(x0+T*i/180)} {F(50-A*math.sin(2*math.pi*i/180))}' for i in range(1,181))
+    small=WMUL>=1.8
+    if small:
+        # Thicker, higher-contrast Seed; no grid. scale=1 so stroke tracks WMUL fully.
+        return (JC(seed,1.25,.84,scale=1)+JC(outer,.9,.62,scale=1)+JC(axis,.8,.55,scale=1)
+                +JD(50,50,1.7,.85)+J(d,2.2))
+    # Card size: stronger Seed than v1, a light 90° construction only (no 60° net)
+    angs=(0,90,180,270,360)
     horiz=''.join(f'M{F(x0-2)} {F(50-A*math.sin(math.radians(a)))}H{F(x0+T+2)}' for a in angs)
     verts=''.join(f'M{F(x0+T*(a/360))} {F(50-A-2)}V{F(50+A+2)}' for a in angs)
-    dots=''.join(JD(x0+T*(a/360),50-A*math.sin(math.radians(a)),1.2,.72) for a in angs)
+    dots=''.join(JD(x0+T*(a/360),50-A*math.sin(math.radians(a)),1.25,.78) for a in angs)
     radii=''.join(f'M50 50L{F(50+r*math.cos(math.radians(a)-math.pi/2))} {F(50+r*math.sin(math.radians(a)-math.pi/2))}'
-                  for a in (0,60,90,120,180,240,270,300))
+                  for a in (0,90,180,270))
     angmk=f'M{F(50+5)} 50A5 5 0 0 0 50 {F(50-5)}'
-    d=f'M{F(x0)} 50'+''.join(f'L{F(x0+T*i/180)} {F(50-A*math.sin(2*math.pi*i/180))}' for i in range(1,181))
-    return (JC(seed,.55,.3)+JC(gen,.6,.4)+JC(axis,.65,.5)+JC(horiz,.32,.2)+JC(verts,.32,.2)
-            +JC(radii,.45,.32)+JC(angmk,.6,.5)+JD(50,50,1.35,.65)+dots+J(d,2.15))
+    return (JC(seed,1.15,.78)+JC(outer,.8,.5)+JC(axis,.7,.52)+JC(horiz,.4,.28)+JC(verts,.4,.28)
+            +JC(radii,.55,.4)+JC(angmk,.65,.55)+JD(50,50,1.5,.75)+dots+J(d,2.2))
 
 def m_nautilus():  # logarithmic spiral with chamber walls (Books)
     b=math.log(PHI)/(math.pi/2); pts=[]; walls=''

@@ -6,3 +6,5 @@ Backups of the four section geometries redrawn on 2026-11-26 (before the constru
 - seed-blog-gold.svg — old Blog (same Seed of Life as PetPolicyCheck)
 
 These files are archival only; they are not served on the site.
+
+- waves-paw-news-v1-redraw.svg — first sine-on-rosace redraw (commit 3d32238), kept as the “previous redraw” before the 30px-legibility retouch.
