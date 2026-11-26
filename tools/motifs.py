@@ -112,17 +112,78 @@ def m_waves():  # sine wave constructed on the Seed of Life (Paw News)
     return (JC(seed,1.15,.78)+JC(outer,.8,.5)+JC(axis,.7,.52)+JC(horiz,.4,.28)+JC(verts,.4,.28)
             +JC(radii,.55,.4)+JC(angmk,.65,.55)+JD(50,50,1.5,.75)+dots+J(d,2.2))
 
-def m_nautilus():  # logarithmic spiral with chamber walls (Books)
-    b=math.log(PHI)/(math.pi/2); pts=[]; walls=''
-    for i in range(0,421):
-        t=i/420*4.2*math.pi; r=2.2*math.exp(b*t*.92)
-        pts.append((50+r*math.cos(t),52+r*math.sin(t)))
-    d='M'+'L'.join(f'{F(x)} {F(y)}' for x,y in pts)
-    for k in range(6,22):
-        t=k*.6; r=2.2*math.exp(b*t*.92); r2=2.2*math.exp(b*(t+2*math.pi)*.92)
-        if r2>44: continue
-        walls+=f'M{F(50+r*math.cos(t))} {F(52+r*math.sin(t))}Q{F(50+(r+r2)/2*math.cos(t+.35))} {F(52+(r+r2)/2*math.sin(t+.35))} {F(50+r2*math.cos(t))} {F(52+r2*math.sin(t))}'
-    return J(d,1.8)+J(walls,.9)
+def m_nautilus():  # chambered nautilus (Books): several turns, curved septa, golden-rectangle filigree
+    """A slower-than-φ logarithmic spiral so three and a half turns wind visibly to the
+    centre inside the viewBox. Curved septa join each point to the previous turn on the
+    same ray (bowed toward the aperture). Behind, a light golden-rectangle construction
+    in filigree. At icon size: three turns, fewer septa, no filigree, so the shell stays
+    legible at 30px. Distinct from Travel memories (a silver rectangle whose spiral is
+    the frame) and from Blog (Metatron’s Cube)."""
+    small=WMUL>=1.8
+    turns=3.0 if small else 3.5
+    n_septa=8 if small else 16
+    r_in,r_out,rot,bulge=2.2,42.0,-0.55,0.36 if small else 0.42
+    tmax=2*math.pi*turns
+    gro=math.log(r_out/r_in)/tmax
+    n=520
+    raw=[]
+    for i in range(n+1):
+        t=tmax*i/n
+        r=r_in*math.exp(gro*t)
+        ang=t+rot
+        raw.append((r*math.cos(ang),r*math.sin(ang)))
+    xs=[p[0] for p in raw]; ys=[p[1] for p in raw]
+    minx,maxx,miny,maxy=min(xs),max(xs),min(ys),max(ys)
+    pad=7
+    sc=min((100-2*pad)/(maxx-minx),(100-2*pad)/(maxy-miny))
+    ox=50-(minx+maxx)/2*sc
+    oy=50-(miny+maxy)/2*sc
+    def P(x,y): return (ox+x*sc, oy+y*sc)
+    pts=[P(x,y) for x,y in raw]
+    spiral='M'+'L'.join(f'{F(x)} {F(y)}' for x,y in pts)
+    pole=P(0,0)
+    walls=''
+    t0,t1=2*math.pi+0.15,tmax-0.25
+    if n_septa>1 and t1>t0:
+        for i in range(n_septa):
+            t=t0+(t1-t0)*i/(n_septa-1)
+            r1=r_in*math.exp(gro*t)
+            r0=r_in*math.exp(gro*(t-2*math.pi))
+            a1=t+rot
+            rm=(r0+r1)/2
+            x0,y0=P(r0*math.cos(a1),r0*math.sin(a1))
+            x1,y1=P(r1*math.cos(a1),r1*math.sin(a1))
+            xc,yc=P(rm*math.cos(a1+bulge),rm*math.sin(a1+bulge))
+            walls+=f'M{F(x0)} {F(y0)}Q{F(xc)} {F(yc)} {F(x1)} {F(y1)}'
+    out=''
+    if not small:
+        # filigree: Fibonacci squares of a golden rectangle, faint, behind the shell
+        W=80; H=W/PHI
+        x0r,y0r=50-W/2,50-H/2
+        cx,cy,w,h=x0r,y0r,W,H
+        dirn=0; rects=''; arcs=''
+        for _ in range(6):
+            if dirn==0:
+                s=h; rects+=f'M{F(cx)} {F(cy)}h{F(s)}v{F(s)}h{F(-s)}z'
+                arcs+=f'M{F(cx)} {F(cy+s)}A{F(s)} {F(s)} 0 0 1 {F(cx+s)} {F(cy)}'
+                cx+=s; w-=s
+            elif dirn==1:
+                s=w; rects+=f'M{F(cx)} {F(cy)}h{F(s)}v{F(s)}h{F(-s)}z'
+                arcs+=f'M{F(cx)} {F(cy)}A{F(s)} {F(s)} 0 0 1 {F(cx+s)} {F(cy+s)}'
+                cy+=s; h-=s
+            elif dirn==2:
+                s=h; rects+=f'M{F(cx+w-s)} {F(cy)}h{F(s)}v{F(s)}h{F(-s)}z'
+                arcs+=f'M{F(cx+w)} {F(cy)}A{F(s)} {F(s)} 0 0 1 {F(cx+w-s)} {F(cy+s)}'
+                w-=s
+            else:
+                s=w; rects+=f'M{F(cx)} {F(cy+h-s)}h{F(s)}v{F(s)}h{F(-s)}z'
+                arcs+=f'M{F(cx+s)} {F(cy+h)}A{F(s)} {F(s)} 0 0 1 {F(cx)} {F(cy+h-s)}'
+                h-=s
+            dirn=(dirn+1)%4
+        frame=f'M{F(x0r)} {F(y0r)}h{F(W)}v{F(H)}h{F(-W)}z'
+        out+=JC(frame+rects,.55,.32)+JC(arcs,.5,.22)
+    out+=J(walls,1.05 if not small else .95)+J(spiral,1.95)+JD(pole[0],pole[1],1.4,.85)
+    return out
 
 def m_sierpinski():  # Sierpinski triangle (Camping & Road trip)
     """Equilateral triangle subdivided at midpoints (depth 4). Construction: circumcircle,
@@ -278,7 +339,7 @@ SECTIONS=[
  ('ppc','PetPolicyCheck','Pet travel rules','https://petpolicycheck.com/','seed','gold','The master frame: the Seed of Life is the rosace itself.'),
  ('news','Paw News','Rule updates','https://petpolicycheck.com/news/','waves','platinum','A sine wave constructed on the rosace: news travels as a measured oscillation.'),
  ('blog','Blog','Tickets & Tails','https://ticketsntails.com/','metatron','gold','Metatron\'s Cube: thirteen circles joined by straight lines — a story with its own architecture, not a spiral.'),
- ('books','Books','Future Noctis','/books/','nautilus','gold','The nautilus grows chamber by chamber, like chapters.'),
+ ('books','Books','Future Noctis','/books/','nautilus','gold','A chambered nautilus: a logarithmic spiral of several turns, curved septa, and a golden-rectangle construction.'),
  ('shop','Paw Shop','Gear for pets','/shop/','hex','copper','Beehive cells: an ordered store of good things.'),
  ('forum','Forum','EN · KO','https://petpolicycheck.com/forum/','rings','silver','Vesica Piscis: two circles through each other\'s centres; two voices meeting.'),
  ('adoption','Adoption','Open now','https://petpolicycheck.com/adoptions/','hexafoil','rose','Flower of Life petals around a heart.'),
