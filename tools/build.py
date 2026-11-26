@@ -7,7 +7,7 @@ from art import defs as art_defs, use as art_use
 ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__))); SITE=f'{ROOT}/site'
 SRC='/workspace/gifts-for-pets-20261125'; PCC_IMG='/workspace/ppc-gifts-illus-20261126/site/img/gifts'
 e=html.escape
-V='?v=20261127a'
+V='?v=20261127v9'
 d=json.load(open(f'{SRC}/products.json')); P=d['products']; CATS=d['categories']
 SLUG={'toys-enrichment':'toys','beds-cushions':'beds','travel-accessories':'travel','premium-treats':'treats'}
 DISC='As an Amazon Associate I earn from qualifying purchases.'
@@ -61,9 +61,12 @@ def head(title,desc,path,extra=''):
 <meta name="theme-color" content="#071330">
 <!-- No ads on Pawpartout. -->
 <!-- ANALYTICS PLACEHOLDER: none yet (Marc to decide). If approved, paste the measurement snippet here on every page and update /privacy/ first. -->
+<link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/favicon-16.png" type="image/png" sizes="16x16">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+<link rel="manifest" href="/site.webmanifest">
 <link rel="preload" href="/fonts/marcellus-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/pp.css{V}">
 {extra}</head>
@@ -80,7 +83,7 @@ def header(cur):
             items.append(f'<li><span class="soon" title="Coming soon">{ic}{t}</span></li>')
     return f'''<header class="pp-head">
 <div class="pp-wrap pp-head-in">
-<a class="pp-brand" href="/" aria-label="Pawpartout home: the rosace"><span class="medal">{icon('seed','gold')}</span><b class="mtext">Pawpartout<span class="tm">™</span></b></a>
+<a class="pp-brand" href="/" aria-label="Pawpartout home: the rosace"><span class="medal"><picture><source type="image/svg+xml" srcset="/mark.svg"><img src="/mark-64.png" width="42" height="42" alt=""></picture></span><b class="mtext">Pawpartout<span class="tm">™</span></b></a>
 <a class="pp-back" href="/#wheel"><svg viewBox="0 0 100 100" style="--mg:url(#m-gold)" aria-hidden="true"><use href="#g-seed"/></svg><span class="lg">Back to the rosace</span><span class="sm">Rosace</span></a>
 </div>
 <nav class="pp-rail" aria-label="Pawpartout sections"><ul>{''.join(items)}</ul></nav>
@@ -92,7 +95,7 @@ def footer():
     return f'''<footer class="pp-foot">
 {rule('gold')}
 <div class="pp-wrap pp-foot-in">
-<div><a class="pp-brand" href="/"><span class="medal">{icon('seed','gold')}</span><b class="mtext">Pawpartout<span class="tm">™</span></b></a>
+<div><a class="pp-brand" href="/"><span class="medal"><picture><source type="image/svg+xml" srcset="/mark.svg"><img src="/mark-64.png" width="42" height="42" alt=""></picture></span><b class="mtext">Pawpartout<span class="tm">™</span></b></a>
 <p class="about">One door to every place we build for travelling and living with cats and dogs.</p></div>
 <div><h2>Explore</h2><ul>
 <li><a href="/">The rosace</a></li><li><a href="/shop/">Paw Shop</a></li><li><a href="/shop/gifts/">Gifts for pets</a></li><li><a href="/books/">Books</a></li></ul></div>
@@ -233,10 +236,10 @@ open(f'{SITE}/shop/index.html','w').write(page('Paw Shop: gear and gifts for dog
 UPD='Last updated November 27, 2026.'
 priv=f'''<p class="pp-crumbs"><a href="/">Pawpartout</a> › Privacy</p>
 <section class="pp-hero metal-gold" aria-labelledby="h1"><div>
-<p class="pp-eyebrow"><svg viewBox="0 0 100 100" style="--mg:url(#m-gold)" aria-hidden="true"><use href="#g-seed"/></svg>Fine print</p>
+<p class="pp-eyebrow">Fine print</p>
 <h1 id="h1"><span class="mtext">Privacy</span></h1>
 <p class="pp-sub">What happens to your data on pawpartout.com, in plain words.</p></div>
-<div class="pp-medal metal-gold" style="max-width:220px"><span class="halo"></span>{icon('seed','gold')}</div></section>
+<div class="pp-medal" style="max-width:220px"><picture><source type="image/svg+xml" srcset="/mark.svg"><img src="/mark-256.png" width="220" height="220" alt=""></picture></div></section>
 <div class="pp-prose">
 <p class="upd">{UPD}</p>
 <h2>The short version</h2>
@@ -250,11 +253,11 @@ priv=f'''<p class="pp-crumbs"><a href="/">Pawpartout</a> › Privacy</p>
 <p>Buttons such as “Check price on Amazon” and the maker links take you to other websites, including Amazon, the product makers, PetPolicyCheck and Tickets &amp; Tails. Those sites have their own privacy policies. Amazon may use cookies to record that you arrived through one of our affiliate links; see our <a href="/affiliate-disclosure/">affiliate disclosure</a>.</p>
 </div>'''
 aff=f'''<p class="pp-crumbs"><a href="/">Pawpartout</a> › Affiliate disclosure</p>
-<section class="pp-hero metal-copper" aria-labelledby="h1"><div>
-<p class="pp-eyebrow"><svg viewBox="0 0 100 100" style="--mg:url(#m-copper)" aria-hidden="true"><use href="#g-hex"/></svg>Fine print</p>
+<section class="pp-hero metal-gold" aria-labelledby="h1"><div>
+<p class="pp-eyebrow">Fine print</p>
 <h1 id="h1"><span class="mtext">Affiliate disclosure</span></h1>
 <p class="pp-sub">How Pawpartout earns from the links on its shop pages.</p></div>
-<div class="pp-medal metal-copper" style="max-width:220px"><span class="halo"></span>{icon('hex','copper')}</div></section>
+<div class="pp-medal" style="max-width:220px"><picture><source type="image/svg+xml" srcset="/mark.svg"><img src="/mark-256.png" width="220" height="220" alt=""></picture></div></section>
 <div class="pp-prose">
 <p class="upd">{UPD}</p>
 <p><strong>{DISC}</strong></p>

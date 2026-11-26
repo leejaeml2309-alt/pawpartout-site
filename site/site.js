@@ -29,7 +29,7 @@
       '<linearGradient id="gBody" gradientUnits="userSpaceOnUse" x1="-420" y1="-480" x2="420" y2="480">' +
       '<stop offset="0" stop-color="#7a4f12"/><stop offset=".1" stop-color="#c38f2c"/><stop offset=".2" stop-color="#f7dc8a"/>' +
       '<stop offset=".28" stop-color="#d4a13a"/><stop offset=".42" stop-color="#8f6118"/><stop offset=".52" stop-color="#d7a640"/>' +
-      '<stop offset=".6" stop-color="#fff0b5"/><stop offset=".68" stop-color="#e2b24a"/><stop offset=".8" stop-color="#9a6a1c"/>' +
+      '<stop offset=".6" stop-color="#fff3c0"/><stop offset=".68" stop-color="#e8c05a"/><stop offset=".8" stop-color="#9a6a1c"/>' +
       '<stop offset=".9" stop-color="#cf9d36"/><stop offset="1" stop-color="#f1cf72"/></linearGradient>' +
       '<linearGradient id="gHi" gradientUnits="userSpaceOnUse" x1="-500" y1="-500" x2="500" y2="500">' +
       '<stop offset="0" stop-color="#fffbe8"/><stop offset=".5" stop-color="#ffe9a6"/><stop offset="1" stop-color="#f6d98a"/></linearGradient>' +
@@ -69,7 +69,7 @@
     /* 4. the gold body (+ specular lighting on wide screens) */
     layer('g-body', '<g stroke="url(#gBody)" fill="url(#gFill)">' + s(function (w) { return Math.max(1, w - 1.4 * sc); }) + fl(' stroke-width="' + f(1.2 * sc) + '"') + '</g>');
     /* 5. a fine polished ridge along each band */
-    layer('g-ridge', '<g transform="translate(' + f(-0.5 * sc) + ' ' + f(-0.7 * sc) + ')" stroke="#fff6d2" stroke-opacity=".55" fill="none">' + s(function (w) { return Math.max(.6, w * .16); }) + '</g>');
+    layer('g-ridge', '<g transform="translate(' + f(-0.5 * sc) + ' ' + f(-0.7 * sc) + ')" stroke="#fff3c0" stroke-opacity=".55" fill="none">' + s(function (w) { return Math.max(.6, w * .16); }) + '</g>');
     return out.join('');
   };
   Gold.prototype.sheen = function (sc) {

@@ -6,8 +6,8 @@ PHI=(1+5**.5)/2; GA=math.pi*(3-5**.5)  # golden angle
 F=lambda v: f'{v:.2f}'.rstrip('0').rstrip('.')
 
 METALS={ # hi, light, mid, deep, shadow
- 'gold':    ('#fff6d2','#f3d98f','#d6b25e','#9a722b','#5c3f10'),
- 'silver':  ('#ffffff','#e6eaf0','#b3bbc8','#737c8d','#3c4250'),
+ 'gold':    ('#fff3c0','#e8c05a','#d4a13a','#a06a18','#7a5410'),
+ 'silver':  ('#f5f7fa','#e8eef4','#c5d0dc','#8a9aa8','#4a5560'),
  'platinum':('#fbfdff','#e4ebf3','#c6d0dc','#8d99ab','#4a5466'),
  'copper':  ('#ffe0c6','#f0a978','#c9713f','#87401c','#4a200c'),
  'rose':    ('#fff0ea','#efbfb0','#c98c7b','#8c5448','#4d2a24'),

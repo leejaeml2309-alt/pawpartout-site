@@ -1,7 +1,7 @@
 /* Pawpartout — self-contained styles (no dependency on PetPolicyCheck CSS). */
 @font-face{font-family:"Marcellus";src:url(fonts/marcellus-latin.woff2) format("woff2");font-display:swap}
 @font-face{font-family:"Inter";src:url(fonts/inter-var-latin.woff2) format("woff2");font-weight:400 800;font-display:swap}
-:root{--nv:#071330;--nv2:#0c1f45;--nv3:#04091c;--au:#d9b765;--au-l:#f0d58c;--au-d:#9a722b;--ink:#ebe5d6;--mut:#a9b2c4;--head:#f7f0de;--live:#9fd6a0;
+:root{--nv:#071330;--nv2:#0c1f45;--nv3:#04091c;--au:#d4a13a;--au-l:#f0d58c;--au-d:#a06a18;--ink:#ebe5d6;--mut:#a9b2c4;--head:#f7f0de;--live:#9fd6a0;
  --disp:"Marcellus",Georgia,serif;--text:"Inter",system-ui,sans-serif}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -25,7 +25,7 @@ a{color:var(--au-l)}
 .eyebrow{margin:0;font:600 .72rem var(--text);letter-spacing:.24em;text-transform:uppercase;color:var(--au)}
 h1,h2{font-family:var(--disp);font-weight:400;color:var(--head)}
 h1{margin:.15em 0 .2em;font-size:clamp(2.6rem,6vw,4.4rem);line-height:1;letter-spacing:.03em;
- background:linear-gradient(180deg,#fbeec4,#d9b765 60%,#a7802f);-webkit-background-clip:text;background-clip:text;color:transparent}
+ background:linear-gradient(180deg,#fff3c0,#e8c05a 60%,#a06a18);-webkit-background-clip:text;background-clip:text;color:transparent}
 .lede{max-width:640px;margin:0 auto;color:#c6ccd9;font-size:1.04rem}
 
 /* ===== the wheel ===== */
@@ -107,7 +107,7 @@ body{background:radial-gradient(ellipse 70% 55% at 50% 34%,#12306a 0%,#0a1d48 35
 @media (prefers-reduced-motion:reduce){.sheen{display:none}}
 
 /* gold frames (medallion, doors) */
-:root{--gold-ring:conic-gradient(from 210deg,#7a4f12,#d6a53e 12%,#fff0b5 20%,#c79530 30%,#8a5c16 42%,#e2b24a 55%,#fff6cf 63%,#c08a28 74%,#7a4f12 86%,#d9a944 94%,#7a4f12)}
+:root{--gold-ring:conic-gradient(from 210deg,#7a5410,#d4a13a 12%,#fff3c0 20%,#e8c05a 30%,#a06a18 42%,#e8c05a 55%,#fff3c0 63%,#d4a13a 74%,#7a5410 86%,#e8c05a 94%,#7a5410)}
 .core{border:6px solid transparent;background:radial-gradient(circle at 50% 35%,#163a7c,#050e26 78%) padding-box,var(--gold-ring) border-box;
  box-shadow:0 0 0 1.5px #3a2205,inset 0 0 0 1.5px #3a2205,inset 0 2px 0 2px #fff3c455,0 10px 26px #000c}
 html[data-style="mandala"] .core{width:max(calc(var(--W) * .175),90px);height:max(calc(var(--W) * .175),90px);border-width:5px;padding:0 4px}
@@ -134,7 +134,7 @@ a.node:hover .dot,a.node:focus-visible .dot{transform:scale(1.08);box-shadow:0 0
  .wheel{--W:min(92vw,360px);--R:calc(var(--W) * .40);--dot:52px}
  .wheel-sec{padding-top:58px}
  .flower,.sheen{transform:scale(.86)}
- .core small,.core svg{display:none}
+ .wheel .core small{display:none}
  html[data-style="mandala"] .core b{font-size:.78rem;line-height:1.1}
  .node .lbl{padding:2px 6px}
  .node.n-right .lbl,.node.n-left .lbl{top:calc(100% + 6px);bottom:auto;left:50%;right:auto;transform:translateX(-50%);align-items:center}
@@ -179,8 +179,8 @@ html[data-style="mandala"] .nf .core b{font-size:1.02rem}
  .vfoot-in{flex-direction:column;gap:0;text-align:center;padding-top:14px;padding-bottom:12px}
  .vfoot nav{margin-left:0}
 }
-/* footer: © line only, centred (no legal pages on Pawpartout yet) */
-.vfoot-in{justify-content:center;text-align:center}
+/* footer: lockup + ©, centred */
+.vfoot-in{flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px}
 
 /* desktop: whole rosace (buttons + labels) fits in the first screen
    Sized from min(vw, vh) so 1280×720, 1366×768, 1440×900, 1536×864,
@@ -369,4 +369,48 @@ html[data-style="mandala"] .nf .core b{font-size:1.02rem}
 .door .tag,.door .go{align-self:flex-start;margin-top:.15em}
 @media (min-width:641px){
  .door-list{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+
+
+/* ===== v9 mark at the rosace centre (no title in the core) ===== */
+html[data-style="mandala"] .wheel .core{
+  width:max(calc(var(--W) * .28), 120px);
+  height:max(calc(var(--W) * .28), 120px);
+  border:0;padding:0;overflow:hidden;
+  background:transparent;box-shadow:none;
+}
+.wheel .core .core-mark{
+  display:block;width:100%;height:100%;object-fit:contain;border-radius:50%;
+}
+@media (min-width:641px){
+  html[data-style="mandala"] .wheel .core{
+    width:max(calc(var(--W) * .28), 120px);
+    height:max(calc(var(--W) * .28), 120px);
+  }
+}
+@media (max-width:640px){
+  html[data-style="mandala"] .wheel .core{
+    width:max(calc(var(--W) * .36), 72px);
+    height:max(calc(var(--W) * .36), 72px);
+  }
+}
+
+/* Home footer lockup (mark + Pawpartout™) */
+.foot-brand{display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--head);
+  font:400 1.15rem/1 var(--disp);letter-spacing:.03em;min-height:48px}
+.foot-brand img{width:36px;height:36px;border-radius:50%;display:block}
+.foot-brand b{font-weight:400}
+.vfoot-in .foot-brand{margin:0 auto}
+
+/* Books: lockup header + section nautilus at 64 px */
+.page-books .site-lockup{display:flex;align-items:center;padding:10px 0 0}
+.page-books .site-lockup .foot-brand{min-height:48px}
+.page-books .section-icon{width:64px;height:64px;margin:0 auto 10px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 30%,#18407f,#071637 80%) padding-box,var(--gold-ring) border-box;
+  border:4px solid transparent;
+  box-shadow:0 0 0 1px #3a2205,inset 0 0 0 1px #3a2205,inset 0 2px 1px #fff3c466,0 6px 14px #000b}
+.page-books .section-icon svg{width:82%;height:82%;overflow:visible}
+@media (max-width:640px){
+  .page-books .site-lockup{padding-top:6px}
 }

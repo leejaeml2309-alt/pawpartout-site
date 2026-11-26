@@ -1,0 +1,13 @@
+{
+  "name": "Pawpartout",
+  "short_name": "Pawpartout",
+  "description": "One door to every place we build for travelling and living with cats and dogs.",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "theme_color": "#071330",
+  "background_color": "#050d26",
+  "display": "browser",
+  "start_url": "/"
+}

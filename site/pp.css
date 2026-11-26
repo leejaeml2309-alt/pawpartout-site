@@ -4,13 +4,13 @@
 @font-face{font-family:"Inter";src:url(/fonts/inter-var-latin.woff2) format("woff2");font-weight:400 800;font-display:swap}
 :root{--nv:#071330;--nv2:#0c1f45;--nv3:#04091c;--ink:#ebe5d6;--mut:#aab3c5;--head:#f7f0de;
  --disp:"Marcellus",Georgia,serif;--text:"Inter",system-ui,sans-serif;
- --gold:#fff6d2,#f3d98f 30%,#d6b25e 55%,#9a722b 72%,#f3d98f 90%;
- --silver:#ffffff,#e6eaf0 30%,#b3bbc8 55%,#737c8d 72%,#e6eaf0 90%;
+ --gold:#fff3c0,#e8c05a 32%,#d4a13a 62%,#a06a18 85%,#e8c05a;
+ --silver:#ffffff,#e8eef4 30%,#c5d0dc 55%,#8a9aa8 72%,#e8eef4 90%;
  --platinum:#fbfdff,#e4ebf3 30%,#c6d0dc 55%,#8d99ab 72%,#e4ebf3 90%;
  --copper:#ffe0c6,#f0a978 30%,#c9713f 55%,#87401c 72%,#f0a978 90%;
  --rose:#fff0ea,#efbfb0 30%,#c98c7b 55%,#8c5448 72%,#efbfb0 90%;
- --m:var(--gold);--mt:#f3d98f;--mbtn:#fff6d2,#f3d98f 45%,#d6b25e}
-.metal-gold{--m:var(--gold);--mt:#f3d98f;--mbtn:#fff6d2,#f3d98f 45%,#d6b25e}
+ --m:var(--gold);--mt:#e8c05a;--mbtn:#fff3c0,#e8c05a 45%,#d4a13a}
+.metal-gold{--m:var(--gold);--mt:#e8c05a;--mbtn:#fff3c0,#e8c05a 45%,#d4a13a}
 .metal-silver{--m:var(--silver);--mt:#dfe4ec;--mbtn:#ffffff,#e6eaf0 45%,#b3bbc8}
 .metal-platinum{--m:var(--platinum);--mt:#dce4ee;--mbtn:#fbfdff,#e4ebf3 45%,#c6d0dc}
 .metal-copper{--m:var(--copper);--mt:#f3b48a;--mbtn:#ffe0c6,#f0a978 45%,#d98758}
@@ -36,8 +36,10 @@ img{max-width:100%;height:auto}
  border-image:linear-gradient(90deg,transparent,#d6b25e88 20%,#f3d98f 50%,#d6b25e88 80%,transparent) 1}
 .pp-head-in{display:flex;align-items:center;gap:18px;min-height:72px}
 .pp-brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--head);min-height:48px}
-.pp-brand .medal{width:42px;height:42px;flex:none;border-radius:50%;padding:4px;background:radial-gradient(circle at 50% 35%,#12306a,#050e26 75%);box-shadow:0 0 0 1.5px #d6b25e,0 0 0 4px var(--nv),0 0 0 5px #d6b25e55}
+.pp-brand .medal{width:42px;height:42px;flex:none;border-radius:50%;padding:0;overflow:hidden;background:transparent;box-shadow:none}
+.pp-brand .medal picture,.pp-brand .medal img{display:block;width:100%;height:100%;border-radius:50%}
 .pp-brand b{font:400 1.45rem/1 var(--disp);letter-spacing:.04em}
+.pp-medal img{display:block;width:100%;height:auto;border-radius:50%}
 .pp-back{margin-left:auto;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px 0 10px;border-radius:99px;color:var(--head);text-decoration:none;font-size:.84rem;
  border:1px solid #d6b25e66;background:#050e2699}
 .pp-back svg{width:22px;height:22px}
