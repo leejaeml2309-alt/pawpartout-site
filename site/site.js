@@ -287,3 +287,167 @@
     if (n) placePanel(n);
   });
 })();
+
+/* Centre the rosace in the viewport for #wheel / #rosace and the back-to-rosace button. */
+(function () {
+  'use strict';
+
+  var HASH = { wheel: 1, rosace: 1 };
+
+  function reduceMotion() {
+    return window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  function headerHeight() {
+    var bars = document.querySelectorAll('.vbar, .pp-head, header');
+    var h = 0, i, el, cs, r;
+    for (i = 0; i < bars.length; i++) {
+      el = bars[i];
+      cs = getComputedStyle(el);
+      if (cs.position !== 'sticky' && cs.position !== 'fixed') continue;
+      if (cs.display === 'none' || cs.visibility === 'hidden') continue;
+      r = el.getBoundingClientRect();
+      if (r.bottom > 0 && r.top < 8) h = Math.max(h, Math.round(r.bottom));
+    }
+    return h;
+  }
+
+  function rosaceBox() {
+    var wheel = document.getElementById('wheel');
+    if (!wheel) return null;
+    var top = Infinity, bottom = -Infinity, left = Infinity, right = -Infinity;
+    function inc(el) {
+      var r = el.getBoundingClientRect();
+      if (!r.width && !r.height) return;
+      if (r.top < top) top = r.top;
+      if (r.bottom > bottom) bottom = r.bottom;
+      if (r.left < left) left = r.left;
+      if (r.right > right) right = r.right;
+    }
+    inc(wheel);
+    wheel.querySelectorAll('.node, .lbl, .core, .flower').forEach(inc);
+    if (top === Infinity) return null;
+    return { top: top, bottom: bottom, height: bottom - top, mid: (top + bottom) / 2, left: left, right: right };
+  }
+
+  function targetY() {
+    var b = rosaceBox();
+    if (!b) return 0;
+    var hh = headerHeight();
+    var avail = Math.max(0, window.innerHeight - hh);
+    var y;
+    var max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    if (b.height <= avail - 4) {
+      y = (b.mid + window.scrollY) - hh - avail / 2;
+    } else {
+      y = (b.top + window.scrollY) - hh - 8;
+    }
+    if (y < 0) y = 0;
+    if (y > max) y = max;
+    return Math.round(y);
+  }
+
+  function isRosaceHash(hash) {
+    return HASH[(hash || location.hash || '').replace(/^#/, '')] === 1;
+  }
+
+  var scrolling = false;
+  var scrollTimer = 0;
+
+  function go(smooth) {
+    if (!document.getElementById('wheel')) return;
+    var y = targetY();
+    var useSmooth = !!(smooth && !reduceMotion());
+    scrolling = true;
+    window.scrollTo({ top: y, behavior: useSmooth ? 'smooth' : 'auto' });
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(function () { scrolling = false; syncButton(); }, useSmooth ? 700 : 50);
+    if (!useSmooth) {
+      /* one more pass after layout/fonts */
+      requestAnimationFrame(function () {
+        var y2 = targetY();
+        if (Math.abs(y2 - window.scrollY) > 1) window.scrollTo({ top: y2, behavior: 'auto' });
+      });
+    }
+  }
+
+  function reveal() {
+    document.documentElement.classList.remove('pp-rosace-pending');
+  }
+
+  function restoreHash() {
+    var h = window.__ppRosaceHash;
+    if (!h) return;
+    window.__ppRosaceHash = null;
+    if (location.hash !== h) history.replaceState(null, '', location.pathname + location.search + h);
+  }
+
+  function onLanding() {
+    if (!(window.__ppRosaceHash || isRosaceHash())) { reveal(); return; }
+    restoreHash();
+    go(false);
+    reveal();
+  }
+
+  function samePage(url) {
+    var here = location.pathname;
+    var there = url.pathname;
+    function norm(p) {
+      if (!p || p === '/') return '/';
+      return p.replace(/\/index\.html$/, '/').replace(/\/+$/, '/') || '/';
+    }
+    return url.origin === location.origin && norm(here) === norm(there);
+  }
+
+  function syncButton() {
+    var btn = document.querySelector('a.rosace-back');
+    if (!btn) return;
+    var b = rosaceBox();
+    var hh = headerHeight();
+    var vh = window.innerHeight;
+    var show = !!(b && (b.bottom < hh + 48 || b.top > vh - 48));
+    btn.classList.toggle('is-on', show);
+    btn.setAttribute('aria-hidden', show ? 'false' : 'true');
+    btn.setAttribute('tabindex', show ? '0' : '-1');
+  }
+
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a) return;
+    var url;
+    try { url = new URL(a.getAttribute('href'), location.href); } catch (err) { return; }
+    if (!samePage(url) || !isRosaceHash(url.hash)) return;
+    e.preventDefault();
+    if (location.hash !== url.hash) history.pushState(null, '', url.hash);
+    go(true);
+  });
+
+  window.addEventListener('hashchange', function () {
+    if (isRosaceHash()) go(true);
+  });
+  window.addEventListener('popstate', function () {
+    if (isRosaceHash()) go(false);
+  });
+  window.addEventListener('resize', function () {
+    if (isRosaceHash()) go(false);
+    syncButton();
+  });
+  window.addEventListener('scroll', function () {
+    if (!scrolling) syncButton();
+  }, { passive: true });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () {
+      onLanding();
+      syncButton();
+    });
+  } else {
+    onLanding();
+    syncButton();
+  }
+  window.addEventListener('load', function () {
+    if (isRosaceHash()) go(false);
+    reveal();
+    syncButton();
+  });
+})();
