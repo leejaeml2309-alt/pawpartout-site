@@ -237,52 +237,47 @@ def m_rule():
     lv=leaf(46,15,30,15,.3)+leaf(104,15,120,15,.3)+leaf(52,9,44,3,.35)+leaf(98,9,106,3,.35)+leaf(52,21,44,27,.35)+leaf(98,21,106,27,.35)
     return J(d,1.1)+JF(lv+dot(75,15,1.8)+dot(24,15,1.4)+dot(126,15,1.4))
 
-def m_fibspiral():  # Fibonacci squares + spiral laid on the rosace (Blog)
-    """The Seed of Life is construction only (no leaf tips, so it is not the PCC rosace).
-    A 21×13 Fibonacci rectangle is centred on the Seed; its inward square tiling and the
-    quarter-circle spiral are the identity. Distinct from Travel memories (a silver golden
-    rectangle with no rosace) and from Books (a chambered nautilus)."""
-    r=18
-    seed=circ(50,50,r)+''.join(circ(50+r*math.cos(k*math.pi/3),50+r*math.sin(k*math.pi/3),r) for k in range(6))
-    outer=circ(50,50,2*r)
-    centres=[(50+r*math.cos(k*math.pi/3),50+r*math.sin(k*math.pi/3)) for k in range(6)]
-    hexd='M'+'L'.join(f'{F(x)} {F(y)}' for x,y in centres)+'z'
-    radii=''.join(f'M50 50L{F(x)} {F(y)}' for x,y in centres)
-    W,H=21,13; scale=58/W
-    x0,y0=50-W*scale/2,50-H*scale/2
-    cx,cy,w,h=x0,y0,W*scale,H*scale
-    dirn=0; rects=''; arcs=''
-    for _ in range(7):
-        if dirn==0:
-            s=h; rects+=f'M{F(cx)} {F(cy)}h{F(s)}v{F(s)}h{F(-s)}z'
-            arcs+=f'M{F(cx)} {F(cy+s)}A{F(s)} {F(s)} 0 0 1 {F(cx+s)} {F(cy)}'
-            cx+=s; w-=s
-        elif dirn==1:
-            s=w; rects+=f'M{F(cx)} {F(cy)}h{F(s)}v{F(s)}h{F(-s)}z'
-            arcs+=f'M{F(cx)} {F(cy)}A{F(s)} {F(s)} 0 0 1 {F(cx+s)} {F(cy+s)}'
-            cy+=s; h-=s
-        elif dirn==2:
-            s=h; rects+=f'M{F(cx+w-s)} {F(cy)}h{F(s)}v{F(s)}h{F(-s)}z'
-            arcs+=f'M{F(cx+w)} {F(cy)}A{F(s)} {F(s)} 0 0 1 {F(cx+w-s)} {F(cy+s)}'
-            w-=s
-        else:
-            s=w; rects+=f'M{F(cx)} {F(cy+h-s)}h{F(s)}v{F(s)}h{F(-s)}z'
-            arcs+=f'M{F(cx+s)} {F(cy+h)}A{F(s)} {F(s)} 0 0 1 {F(cx)} {F(cy+h-s)}'
-            h-=s
-        dirn=(dirn+1)%4
-    frame=f'M{F(x0)} {F(y0)}h{F(W*scale)}v{F(H*scale)}h{F(-W*scale)}z'
-    return (JC(seed+outer,.55,.36)+JC(hexd+radii,.4,.22)+JD(50,50,1.3,.55)
-            +JC(rects,.7,.5)+JC(frame,.55,.3)+J(arcs,2.05))
+def m_metatron():  # Metatron's Cube (Blog): 13 circles of the Fruit of Life, joined by lines
+    """Centre + 6 at 2r + 6 at 4r (pointy-top). Circles are externally tangent, not the
+    overlapping Seed of Life. At card size every centre is joined to every other (the
+    classic cube). At icon size the line set is reduced (spokes, inner and outer hexagons,
+    the hexagram, and laterals) so all 13 circles stay visible at 30px. Distinct from
+    Books (nautilus) and from PetPolicyCheck (Seed of Life)."""
+    r=9.0
+    angs=[k*math.pi/3-math.pi/2 for k in range(6)]
+    mid=[(50+2*r*math.cos(a),50+2*r*math.sin(a)) for a in angs]
+    out=[(50+4*r*math.cos(a),50+4*r*math.sin(a)) for a in angs]
+    pts=[(50,50)]+mid+out
+    circles=''.join(circ(x,y,r) for x,y in pts)
+    def segs(pairs):
+        d=''
+        for i,j in pairs:
+            x1,y1=pts[i]; x2,y2=pts[j]
+            d+=f'M{F(x1)} {F(y1)}L{F(x2)} {F(y2)}'
+        return d
+    small=WMUL>=1.8
+    if not small:
+        pairs=[(i,j) for i in range(13) for j in range(i+1,13)]
+        return JC(circles,1.05,.9)+J(segs(pairs),.7)+J(circles,1.35)
+    spokes=[(0,7+k) for k in range(6)]
+    inner_hex=[(1+k,1+(k+1)%6) for k in range(6)]
+    outer_hex=[(7+k,7+(k+1)%6) for k in range(6)]
+    tri_a=[(1,3),(3,5),(5,1)]; tri_b=[(2,4),(4,6),(6,2)]
+    laterals=[]
+    for k in range(6):
+        laterals.append((1+k,7+(k+1)%6)); laterals.append((1+k,7+(k-1)%6))
+    pairs=sorted({tuple(sorted(p)) for p in spokes+inner_hex+outer_hex+tri_a+tri_b+laterals})
+    return JC(circles,1.15,.92,scale=1)+J(segs(pairs),.85)+J(circles,1.45)
 
 MOTIFS={'seed':m_seed,'hex':m_hex,'phyllo':m_phyllo,'waves':m_waves,'nautilus':m_nautilus,'sierpinski':m_sierpinski,
-        'pinecone':m_pinecone,'burst':m_burst,'golden':m_golden,'flake':m_flake,'hexafoil':m_hexafoil,'rings':m_rings,'fibspiral':m_fibspiral,'phyllo-ring':m_phyllo_ring,'rule':m_rule}
+        'pinecone':m_pinecone,'burst':m_burst,'golden':m_golden,'flake':m_flake,'hexafoil':m_hexafoil,'rings':m_rings,'metatron':m_metatron,'phyllo-ring':m_phyllo_ring,'rule':m_rule}
 
 # the 12 petals in rosace order, plus the motif + metal of each
 SECTIONS=[
  # key, label, sub, href(None=soon), motif, metal, why
  ('ppc','PetPolicyCheck','Pet travel rules','https://petpolicycheck.com/','seed','gold','The master frame: the Seed of Life is the rosace itself.'),
  ('news','Paw News','Rule updates','https://petpolicycheck.com/news/','waves','platinum','A sine wave constructed on the rosace: news travels as a measured oscillation.'),
- ('blog','Blog','Tickets & Tails','https://ticketsntails.com/','fibspiral','gold','A Fibonacci spiral and its squares, laid on the rosace: a story that turns from the same seed, with its own geometry.'),
+ ('blog','Blog','Tickets & Tails','https://ticketsntails.com/','metatron','gold','Metatron\'s Cube: thirteen circles joined by straight lines — a story with its own architecture, not a spiral.'),
  ('books','Books','Future Noctis','/books/','nautilus','gold','The nautilus grows chamber by chamber, like chapters.'),
  ('shop','Paw Shop','Gear for pets','/shop/','hex','copper','Beehive cells: an ordered store of good things.'),
  ('forum','Forum','EN · KO','https://petpolicycheck.com/forum/','rings','silver','Vesica Piscis: two circles through each other\'s centres; two voices meeting.'),
@@ -295,7 +290,7 @@ SECTIONS=[
 ]
 EXTRA=[('gifts','Gifts for pets','Inside Paw Shop','/shop/gifts/','phyllo','rose','Sunflower phyllotaxis: the golden angle, a gift that keeps unfolding.')]
 
-SMALL=('seed','hex','phyllo','waves','nautilus','sierpinski','pinecone','burst','golden','flake','hexafoil','rings','fibspiral')
+SMALL=('seed','hex','phyllo','waves','nautilus','sierpinski','pinecone','burst','golden','flake','hexafoil','rings','metatron')
 def symbols():
     """<symbol> per motif, metal applied by the user via CSS var --mg; '-s' = heavier strokes for icon sizes"""
     global WMUL

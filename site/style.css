@@ -77,7 +77,7 @@ a.door:hover{border-color:var(--au-l)}
 .door .dot svg{width:22px;height:22px}
 .door .tx{flex:1;min-width:0;display:flex;flex-direction:column}
 .door b{font:400 1.12rem var(--disp);color:var(--head)}
-.door .tx span{font-size:.86rem;color:var(--mut);line-height:1.4}
+.door .desc{font-size:.86rem;color:var(--mut);line-height:1.4}
 .door .go{color:var(--au-l);font-size:1.1rem}
 .door.soon{background:transparent;border-style:dashed}
 .door.soon .dot{color:#c9cfdb;box-shadow:inset 0 0 0 1.5px #d9b76577}
@@ -359,4 +359,14 @@ html[data-style="mandala"] .nf .core b{font-size:1.02rem}
 }
 @media (max-width:640px){
  .node .dot svg{width:88%;height:88%}
+}
+
+/* ===== All the doors: equal row heights, clean titles (2026-11-27) ===== */
+.door-list li{display:flex;min-height:0}
+.door{flex:1;width:100%;align-items:flex-start;min-height:0}
+.door .dot{align-self:center}
+.door b{line-height:1.2}
+.door .tag,.door .go{align-self:flex-start;margin-top:.15em}
+@media (min-width:641px){
+ .door-list{grid-template-columns:repeat(3,minmax(0,1fr))}
 }

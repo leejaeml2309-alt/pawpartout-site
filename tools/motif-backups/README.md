@@ -8,3 +8,4 @@ Backups of the four section geometries redrawn on 2026-11-26 (before the constru
 These files are archival only; they are not served on the site.
 
 - waves-paw-news-v1-redraw.svg — first sine-on-rosace redraw (commit 3d32238), kept as the “previous redraw” before the 30px-legibility retouch.
+- fibspiral-blog-gold.svg — Blog Fibonacci spiral (commit 7f80540), replaced by Metatron's Cube after Marc found it too close to the Books nautilus.
