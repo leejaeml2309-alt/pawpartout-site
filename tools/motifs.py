@@ -36,6 +36,16 @@ def JF(d):
     """jewel fill (solid metal shape)"""
     return (f'<path d="{d}" fill="#01040d" fill-opacity=".5" transform="translate(.5 .8)"/>'
             f'<path d="{d}" fill="var(--mg)"/>')
+def JC(d,w=.55,op=.4,dash=None):
+    """Faint construction stroke in the same metal (no jewel shadow, so it stays clean)."""
+    w=w*max(1.0,WMUL*.42)
+    ds=f' stroke-dasharray="{dash}"' if dash else ''
+    return (f'<path d="{d}" fill="none" stroke="var(--mg)" stroke-opacity="{op}" '
+            f'stroke-width="{F(w)}" stroke-linecap="round" stroke-linejoin="round"{ds}/>')
+def JD(cx,cy,r=1.1,op=.55):
+    """Construction point: a small filled disc in the same metal."""
+    r=r*max(1.0,WMUL*.35)
+    return f'<path d="{circ(cx,cy,r)}" fill="var(--mg)" fill-opacity="{op}"/>'
 def circ(cx,cy,r):
     return f'M{F(cx-r)} {F(cy)}a{F(r)} {F(r)} 0 1 0 {F(2*r)} 0a{F(r)} {F(r)} 0 1 0 {F(-2*r)} 0z'
 def dot(cx,cy,r): return circ(cx,cy,r)
@@ -70,16 +80,26 @@ def m_phyllo(n=110,inner=0,c=3.55):  # sunflower: golden-angle florets + ring of
     pet=''.join(leaf(50+37*math.cos(k*2*math.pi/21),50+37*math.sin(k*2*math.pi/21),50+48*math.cos(k*2*math.pi/21),50+48*math.sin(k*2*math.pi/21),.3) for k in range(21))
     return JF(pts)+J(pet,.8)
 
-def m_waves():  # ripples / waves inside a circle (Paw News)
-    d=''
-    for j,y in enumerate([34,44,54,64]):
-        amp=5.2-j*.4; seg=''
-        x0=14; seg=f'M{x0} {y}'
-        for k in range(6):
-            xa=x0+k*12
-            seg+=f'Q{F(xa+3)} {F(y-amp*(1 if k%2==0 else -1))} {F(xa+6)} {y}T{F(xa+12)} {y}' if False else f'C{F(xa+3)} {F(y-amp)} {F(xa+9)} {F(y-amp)} {F(xa+12)} {y}' if k%2==0 else f'C{F(xa+3)} {F(y+amp)} {F(xa+9)} {F(y+amp)} {F(xa+12)} {y}'
-        d+=seg
-    return J(circ(50,50,44),1.4)+J(d,1.5)+JF(leaf(50,7,50,17,.45)+leaf(50,83,50,93,.45))
+def m_waves():  # sine wave constructed on the Seed of Life (Paw News)
+    """One sine period across the rosace. Amplitude = Seed radius (tangent to the
+    top of the left circle and the bottom of the right). Verticals and horizontals
+    at 60°/90° mark the construction; the central circle is the generator."""
+    r=16
+    seed=''.join(circ(50+r*math.cos(k*math.pi/3),50+r*math.sin(k*math.pi/3),r) for k in range(6))
+    gen=circ(50,50,r)+circ(50,50,2*r)
+    T,A=4*r,r
+    x0=50-2*r
+    axis=f'M{F(x0-3)} 50H{F(x0+T+3)}'
+    angs=(0,60,90,120,180,240,270,300,360)
+    horiz=''.join(f'M{F(x0-2)} {F(50-A*math.sin(math.radians(a)))}H{F(x0+T+2)}' for a in angs)
+    verts=''.join(f'M{F(x0+T*(a/360))} {F(50-A-2)}V{F(50+A+2)}' for a in angs)
+    dots=''.join(JD(x0+T*(a/360),50-A*math.sin(math.radians(a)),1.2,.72) for a in angs)
+    radii=''.join(f'M50 50L{F(50+r*math.cos(math.radians(a)-math.pi/2))} {F(50+r*math.sin(math.radians(a)-math.pi/2))}'
+                  for a in (0,60,90,120,180,240,270,300))
+    angmk=f'M{F(50+5)} 50A5 5 0 0 0 50 {F(50-5)}'
+    d=f'M{F(x0)} 50'+''.join(f'L{F(x0+T*i/180)} {F(50-A*math.sin(2*math.pi*i/180))}' for i in range(1,181))
+    return (JC(seed,.55,.3)+JC(gen,.6,.4)+JC(axis,.65,.5)+JC(horiz,.32,.2)+JC(verts,.32,.2)
+            +JC(radii,.45,.32)+JC(angmk,.6,.5)+JD(50,50,1.35,.65)+dots+J(d,2.15))
 
 def m_nautilus():  # logarithmic spiral with chamber walls (Books)
     b=math.log(PHI)/(math.pi/2); pts=[]; walls=''
@@ -93,20 +113,35 @@ def m_nautilus():  # logarithmic spiral with chamber walls (Books)
         walls+=f'M{F(50+r*math.cos(t))} {F(52+r*math.sin(t))}Q{F(50+(r+r2)/2*math.cos(t+.35))} {F(52+(r+r2)/2*math.sin(t+.35))} {F(50+r2*math.cos(t))} {F(52+r2*math.sin(t))}'
     return J(d,1.8)+J(walls,.9)
 
-def m_fern():  # fractal frond (Camping & Road trip)
-    out=''
-    stem=[]
-    for i in range(41):
-        t=i/40; x=50+14*math.sin(t*1.6)-7; y=92-t*80; stem.append((x,y))
-    d='M'+'L'.join(f'{F(x)} {F(y)}' for x,y in stem)
-    lv=''
-    for k in range(2,38,3):
-        x,y=stem[k]; t=k/40; L=(1-t)*24/PHI+3
-        for sgn in (-1,1):
-            a=math.radians(-90+sgn*(58-t*18))
-            lv+=leaf(x,y,x+L*math.cos(a),y+L*math.sin(a),.28)
-    lv+=leaf(*stem[38],*stem[40],.5)
-    return J(d,1.8)+JF(lv)
+def m_sierpinski():  # Sierpinski triangle (Camping & Road trip)
+    """Equilateral triangle subdivided at midpoints (depth 4). Construction: circumcircle,
+    altitude, vertices and midpoints, first two generations of medial triangles. The
+    remaining upright triangles are solid metal. Depth 4 stays crisp at 30px and at card size
+    (a Barnsley fern was clearer at 150px but collapsed to a leaf-icon at 30px)."""
+    s=80; h=s*3**.5/2
+    top=(50,50-2*h/3); bl=(50-s/2,50+h/3); br=(50+s/2,50+h/3)
+    def mid(p,q): return ((p[0]+q[0])/2,(p[1]+q[1])/2)
+    up=[]
+    def rec(a,b,c,d):
+        if d==0: up.append((a,b,c)); return
+        ab,bc,ca=mid(a,b),mid(b,c),mid(c,a)
+        rec(a,ab,ca,d-1); rec(ab,b,bc,d-1); rec(ca,bc,c,d-1)
+    rec(top,bl,br,4)
+    fill=''.join(f'M{F(a[0])} {F(a[1])}L{F(b[0])} {F(b[1])}L{F(c[0])} {F(c[1])}z' for a,b,c in up)
+    outer=f'M{F(top[0])} {F(top[1])}L{F(bl[0])} {F(bl[1])}L{F(br[0])} {F(br[1])}z'
+    mab,mbc,mca=mid(top,bl),mid(bl,br),mid(br,top)
+    mid1=f'M{F(mab[0])} {F(mab[1])}L{F(mbc[0])} {F(mbc[1])}L{F(mca[0])} {F(mca[1])}z'
+    mid2=''
+    for a,b,c in ((top,mab,mca),(mab,bl,mbc),(mca,mbc,br)):
+        ab,bc,ca=mid(a,b),mid(b,c),mid(c,a)
+        mid2+=f'M{F(ab[0])} {F(ab[1])}L{F(bc[0])} {F(bc[1])}L{F(ca[0])} {F(ca[1])}z'
+    alt=f'M{F(top[0])} {F(top[1])}V{F(bl[1])}'
+    R=2*h/3
+    pts=(JD(*top,1.2,.65)+JD(*bl,1.2,.65)+JD(*br,1.2,.65)
+         +JD(*mab,1.1,.6)+JD(*mbc,1.1,.6)+JD(*mca,1.1,.6)+JD(50,50,1.15,.55))
+    return (JC(circ(50,50,R),.5,.28)+JC(alt,.45,.32,dash='1.2 1.6')
+            +JC(outer,.7,.42)+JC(mid1,.6,.4)+JC(mid2,.4,.28)+pts
+            +f'<path d="{fill}" fill="var(--mg)"/>'+J(outer,1.5))
 
 def m_pinecone():  # cone scales on two spiral families (Pet-friendly stays)
     out=''; sc=''
@@ -161,9 +196,29 @@ def m_hexafoil():  # Flower of Life petals with a heart (Adoption)
     heart='M50 58c-6-4.4-9.6-7.4-9.6-11.4a4.8 4.8 0 0 1 9.6-1.6a4.8 4.8 0 0 1 9.6 1.6c0 4-3.6 7-9.6 11.4z'
     return J(pet+circ(50,50,2*r+3),1.3)+JF(heart)
 
-def m_rings():  # interlocking circles (Forum: voices that overlap)
-    r=17; d=''.join(circ(50+12*math.cos(a),52+12*math.sin(a),r) for a in (-math.pi/2,math.pi/6,5*math.pi/6))
-    return J(d+circ(50,50,43),1.5)+JF(leaf(50,5,50,13,.45))
+def m_rings():  # Vesica Piscis (Forum: two voices meeting)
+    """Two circles, each through the other's centre. Construction: the axis of centres,
+    the chord through the intersection points, the two equilateral triangles, and 60°
+    arcs at each centre. The vesica (intersection) is solid metal."""
+    r=27
+    c1x,c1y,c2x,c2y=50,50-r/2,50,50+r/2
+    dx=(3**.5/2)*r; iL,iR=50-dx,50+dx
+    circles=circ(c1x,c1y,r)+circ(c2x,c2y,r)
+    axis=f'M50 {F(c1y-r-1.5)}V{F(c2y+r+1.5)}'
+    chord=f'M{F(iL-3)} 50H{F(iR+3)}'
+    tri=(f'M{F(c1x)} {F(c1y)}L{F(c2x)} {F(c2y)}L{F(iL)} 50Z'
+         f'M{F(c1x)} {F(c1y)}L{F(c2x)} {F(c2y)}L{F(iR)} 50Z')
+    def pt(cx,cy,a,rad): return F(cx+rad*math.cos(a)),F(cy+rad*math.sin(a))
+    def arc(cx,cy,a0,a1,rad):
+        x0,y0=pt(cx,cy,a0,rad); x1,y1=pt(cx,cy,a1,rad)
+        return f'M{x0} {y0}A{F(rad)} {F(rad)} 0 0 1 {x1} {y1}'
+    ar=7
+    arcs=(arc(c1x,c1y,5*math.pi/6,math.pi/2,ar)+arc(c1x,c1y,math.pi/6,math.pi/2,ar)
+         +arc(c2x,c2y,-5*math.pi/6,-math.pi/2,ar)+arc(c2x,c2y,-math.pi/6,-math.pi/2,ar))
+    ves=(f'M{F(iL)} 50A{F(r)} {F(r)} 0 0 1 {F(iR)} 50A{F(r)} {F(r)} 0 0 1 {F(iL)} 50z')
+    return (JC(axis+chord,.55,.45)+JC(tri,.45,.26)+JC(arcs,.75,.52)+JC(circles,.7,.38)
+            +JD(c1x,c1y,1.45,.72)+JD(c2x,c2y,1.45,.72)+JD(iL,50,1.45,.72)+JD(iR,50,1.45,.72)
+            +JD(50,50,1.05,.5)+JF(ves)+J(circles,1.55))
 
 def m_phyllo_ring(): return m_phyllo(n=260,inner=27.6,c=2.35)
 def m_rule():
@@ -171,20 +226,57 @@ def m_rule():
     lv=leaf(46,15,30,15,.3)+leaf(104,15,120,15,.3)+leaf(52,9,44,3,.35)+leaf(98,9,106,3,.35)+leaf(52,21,44,27,.35)+leaf(98,21,106,27,.35)
     return J(d,1.1)+JF(lv+dot(75,15,1.8)+dot(24,15,1.4)+dot(126,15,1.4))
 
-MOTIFS={'seed':m_seed,'hex':m_hex,'phyllo':m_phyllo,'waves':m_waves,'nautilus':m_nautilus,'fern':m_fern,
-        'pinecone':m_pinecone,'burst':m_burst,'golden':m_golden,'flake':m_flake,'hexafoil':m_hexafoil,'rings':m_rings,'phyllo-ring':m_phyllo_ring,'rule':m_rule}
+def m_fibspiral():  # Fibonacci squares + spiral laid on the rosace (Blog)
+    """The Seed of Life is construction only (no leaf tips, so it is not the PCC rosace).
+    A 21×13 Fibonacci rectangle is centred on the Seed; its inward square tiling and the
+    quarter-circle spiral are the identity. Distinct from Travel memories (a silver golden
+    rectangle with no rosace) and from Books (a chambered nautilus)."""
+    r=18
+    seed=circ(50,50,r)+''.join(circ(50+r*math.cos(k*math.pi/3),50+r*math.sin(k*math.pi/3),r) for k in range(6))
+    outer=circ(50,50,2*r)
+    centres=[(50+r*math.cos(k*math.pi/3),50+r*math.sin(k*math.pi/3)) for k in range(6)]
+    hexd='M'+'L'.join(f'{F(x)} {F(y)}' for x,y in centres)+'z'
+    radii=''.join(f'M50 50L{F(x)} {F(y)}' for x,y in centres)
+    W,H=21,13; scale=58/W
+    x0,y0=50-W*scale/2,50-H*scale/2
+    cx,cy,w,h=x0,y0,W*scale,H*scale
+    dirn=0; rects=''; arcs=''
+    for _ in range(7):
+        if dirn==0:
+            s=h; rects+=f'M{F(cx)} {F(cy)}h{F(s)}v{F(s)}h{F(-s)}z'
+            arcs+=f'M{F(cx)} {F(cy+s)}A{F(s)} {F(s)} 0 0 1 {F(cx+s)} {F(cy)}'
+            cx+=s; w-=s
+        elif dirn==1:
+            s=w; rects+=f'M{F(cx)} {F(cy)}h{F(s)}v{F(s)}h{F(-s)}z'
+            arcs+=f'M{F(cx)} {F(cy)}A{F(s)} {F(s)} 0 0 1 {F(cx+s)} {F(cy+s)}'
+            cy+=s; h-=s
+        elif dirn==2:
+            s=h; rects+=f'M{F(cx+w-s)} {F(cy)}h{F(s)}v{F(s)}h{F(-s)}z'
+            arcs+=f'M{F(cx+w)} {F(cy)}A{F(s)} {F(s)} 0 0 1 {F(cx+w-s)} {F(cy+s)}'
+            w-=s
+        else:
+            s=w; rects+=f'M{F(cx)} {F(cy+h-s)}h{F(s)}v{F(s)}h{F(-s)}z'
+            arcs+=f'M{F(cx+s)} {F(cy+h)}A{F(s)} {F(s)} 0 0 1 {F(cx)} {F(cy+h-s)}'
+            h-=s
+        dirn=(dirn+1)%4
+    frame=f'M{F(x0)} {F(y0)}h{F(W*scale)}v{F(H*scale)}h{F(-W*scale)}z'
+    return (JC(seed+outer,.55,.36)+JC(hexd+radii,.4,.22)+JD(50,50,1.3,.55)
+            +JC(rects,.7,.5)+JC(frame,.55,.3)+J(arcs,2.05))
+
+MOTIFS={'seed':m_seed,'hex':m_hex,'phyllo':m_phyllo,'waves':m_waves,'nautilus':m_nautilus,'sierpinski':m_sierpinski,
+        'pinecone':m_pinecone,'burst':m_burst,'golden':m_golden,'flake':m_flake,'hexafoil':m_hexafoil,'rings':m_rings,'fibspiral':m_fibspiral,'phyllo-ring':m_phyllo_ring,'rule':m_rule}
 
 # the 12 petals in rosace order, plus the motif + metal of each
 SECTIONS=[
  # key, label, sub, href(None=soon), motif, metal, why
  ('ppc','PetPolicyCheck','Pet travel rules','https://petpolicycheck.com/','seed','gold','The master frame: the Seed of Life is the rosace itself.'),
- ('news','Paw News','Rule updates','https://petpolicycheck.com/news/','waves','platinum','News travels in waves; platinum for cool, factual information.'),
- ('blog','Blog','Tickets & Tails','https://ticketsntails.com/','seed','gold','A door like PetPolicyCheck, so the same Seed of Life.'),
+ ('news','Paw News','Rule updates','https://petpolicycheck.com/news/','waves','platinum','A sine wave constructed on the rosace: news travels as a measured oscillation.'),
+ ('blog','Blog','Tickets & Tails','https://ticketsntails.com/','fibspiral','gold','A Fibonacci spiral and its squares, laid on the rosace: a story that turns from the same seed, with its own geometry.'),
  ('books','Books','Future Noctis','/books/','nautilus','gold','The nautilus grows chamber by chamber, like chapters.'),
  ('shop','Paw Shop','Gear for pets','/shop/','hex','copper','Beehive cells: an ordered store of good things.'),
- ('forum','Forum','EN · KO','https://petpolicycheck.com/forum/','rings','silver','Interlocking circles: many voices, one conversation.'),
+ ('forum','Forum','EN · KO','https://petpolicycheck.com/forum/','rings','silver','Vesica Piscis: two circles through each other\'s centres; two voices meeting.'),
  ('adoption','Adoption','Open now','https://petpolicycheck.com/adoptions/','hexafoil','rose','Flower of Life petals around a heart.'),
- ('camping','Camping & Road trip','Coming soon',None,'fern','copper','A fern frond: self-similar growth, the outdoors.'),
+ ('camping','Camping & Road trip','Coming soon',None,'sierpinski','copper','A Sierpinski triangle: a crisp fractal built from midpoints, the same rule at every scale.'),
  ('stays','Pet-friendly stays','Coming soon',None,'pinecone','rose','A pine cone: shelter, cabins, scales on two spirals.'),
  ('events','Events & festivals','Coming soon',None,'burst','gold','A golden-angle burst: fireworks without chaos.'),
  ('memories','Travel memories','Coming soon',None,'golden','silver','Golden rectangles are photo frames; the spiral is the journey.'),
@@ -192,7 +284,7 @@ SECTIONS=[
 ]
 EXTRA=[('gifts','Gifts for pets','Inside Paw Shop','/shop/gifts/','phyllo','rose','Sunflower phyllotaxis: the golden angle, a gift that keeps unfolding.')]
 
-SMALL=('seed','hex','phyllo','waves','nautilus','fern','pinecone','burst','golden','flake','hexafoil','rings')
+SMALL=('seed','hex','phyllo','waves','nautilus','sierpinski','pinecone','burst','golden','flake','hexafoil','rings','fibspiral')
 def symbols():
     """<symbol> per motif, metal applied by the user via CSS var --mg; '-s' = heavier strokes for icon sizes"""
     global WMUL
