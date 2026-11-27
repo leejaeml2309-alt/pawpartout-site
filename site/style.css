@@ -531,3 +531,88 @@ html[data-style="mandala"] .wheel .core{
  .rec-grid{grid-template-columns:1fr;gap:14px}
  .rec-sec{padding-bottom:56px}
 }
+
+
+/* Uniform rosace title frames: identical width & height, title only (2026-11-27) */
+.wheel .node.n-1 .lbl,
+.wheel .node.n-2 .lbl,
+.wheel .node.n-3 .lbl,
+.wheel .node.n-4 .lbl,
+.wheel .node.n-5 .lbl,
+.wheel .node.n-6 .lbl,
+.wheel .node.n-7 .lbl,
+.wheel .node.n-8 .lbl,
+.wheel .node.n-9 .lbl,
+.wheel .node.n-10 .lbl,
+.wheel .node.n-11 .lbl,
+.wheel .node.n-12 .lbl{
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  width:136px;
+  height:48px;
+  min-width:136px;
+  max-width:136px;
+  min-height:48px;
+  max-height:48px;
+  padding:4px 8px;
+  white-space:normal;
+  overflow:visible;
+}
+.wheel .node .lbl b{
+  display:block;
+  width:100%;
+  text-align:center;
+}
+.wheel .node .lbl .br-m{display:block}
+.wheel .node .lbl small{display:none}
+
+@media (max-width:640px){
+  .wheel .node.n-1 .lbl,
+  .wheel .node.n-2 .lbl,
+  .wheel .node.n-3 .lbl,
+  .wheel .node.n-4 .lbl,
+  .wheel .node.n-5 .lbl,
+  .wheel .node.n-6 .lbl,
+  .wheel .node.n-7 .lbl,
+  .wheel .node.n-8 .lbl,
+  .wheel .node.n-9 .lbl,
+  .wheel .node.n-10 .lbl,
+  .wheel .node.n-11 .lbl,
+  .wheel .node.n-12 .lbl{
+    width:92px;
+    height:40px;
+    min-width:92px;
+    max-width:92px;
+    min-height:40px;
+    max-height:40px;
+    padding:2px 5px;
+  }
+  .wheel .node .lbl b{font-size:.66rem;line-height:1.1}
+}
+@media (max-width:370px){
+  .wheel .node.n-1 .lbl,
+  .wheel .node.n-2 .lbl,
+  .wheel .node.n-3 .lbl,
+  .wheel .node.n-4 .lbl,
+  .wheel .node.n-5 .lbl,
+  .wheel .node.n-6 .lbl,
+  .wheel .node.n-7 .lbl,
+  .wheel .node.n-8 .lbl,
+  .wheel .node.n-9 .lbl,
+  .wheel .node.n-10 .lbl,
+  .wheel .node.n-11 .lbl,
+  .wheel .node.n-12 .lbl{
+    width:92px;
+    height:40px;
+    min-width:92px;
+    max-width:92px;
+    min-height:40px;
+    max-height:40px;
+    padding:2px 4px;
+  }
+  .wheel .node .lbl b{font-size:.64rem;line-height:1.1}
+}
