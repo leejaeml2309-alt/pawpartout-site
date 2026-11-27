@@ -148,15 +148,15 @@ img{max-width:100%;height:auto}
 .pp-feature h2{margin:4px 0 8px;font:400 clamp(1.9rem,3.6vw,2.8rem)/1.1 var(--disp);color:var(--head)}
 .pp-feature p{margin:0 0 16px;color:#cfd4df}
 .pp-doors{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:stretch;grid-auto-rows:1fr}
-.pp-doors > li,.pp-door{height:100%}
-.pp-door{display:flex;flex-direction:column;align-items:center;text-align:center;text-decoration:none;color:var(--ink);padding:0 6px 10px}
+.pp-doors > li{display:flex;height:100%}
+.pp-door{display:flex;flex-direction:column;align-items:center;text-align:center;text-decoration:none;color:var(--ink);padding:0 6px 10px;height:100%;width:100%}
 .pp-door .hx{position:relative;width:min(190px,100%);aspect-ratio:1/1.1547;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:linear-gradient(160deg,var(--m));transition:transform .2s}
 .pp-door .hx::before{content:"";position:absolute;inset:2px;clip-path:inherit;background:radial-gradient(circle at 50% 35%,#fffaf0,#efe3cc 60%,#d8c7a8)}
 .pp-door .hx svg{position:absolute;left:24%;top:26%;width:52%;height:48%;--gl:#1c2440;--gb:var(--wb,#c9713f);--ga:#fff4e2}
 .pp-door:hover .hx{transform:translateY(-3px)}
 .pp-door h3{margin:16px 0 4px;font:400 1.3rem/1.2 var(--disp);color:var(--head)}
 .pp-door p{margin:0;font-size:.88rem;color:var(--mut)}
-.pp-door .go{margin-top:10px;font:600 .74rem var(--text);letter-spacing:.14em;text-transform:uppercase;color:var(--mt)}
+.pp-door .go{margin-top:auto;padding-top:10px;font:600 .74rem var(--text);letter-spacing:.14em;text-transform:uppercase;color:var(--mt)}
 .pp-note{margin:22px 0 0;text-align:center;font-size:.86rem;color:var(--mut)}
 
 /* ---------- prose pages ---------- */
