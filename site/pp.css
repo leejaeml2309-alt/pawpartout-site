@@ -320,3 +320,21 @@ img{max-width:100%;height:auto}
   .pp-gifts-invite-btn{width:auto;max-width:100%}
   .pp-gifts-invite .orn-r{order:3;transform:none}
 }
+
+
+/* ===== Paw Shop photo doors, 2026-11-27 (local preview) ===== */
+.pp-door .hx{overflow:hidden}
+.pp-door .hx:has(img)::before{content:none;display:none}
+.pp-door .hx img{
+  position:absolute;
+  inset:2.5px;
+  width:calc(100% - 5px);
+  height:calc(100% - 5px);
+  max-width:none;
+  object-fit:cover;
+  object-position:center center;
+  clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+  display:block;
+  z-index:1;
+  pointer-events:none;
+}
