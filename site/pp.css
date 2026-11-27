@@ -168,10 +168,29 @@ img{max-width:100%;height:auto}
 /* ---------- footer ---------- */
 .pp-foot{margin-top:70px;padding:0 0 40px;background:linear-gradient(180deg,transparent,#04091c 30%)}
 .pp-foot .pp-rule{margin:0 0 30px}
-.pp-foot-in{display:grid;grid-template-columns:1.618fr 1fr 1fr;gap:28px}
+.pp-foot-in{display:grid;grid-template-columns:1.2fr 1.8fr .95fr;gap:28px}
 .pp-foot h2{margin:0 0 10px;font:600 .7rem var(--text);letter-spacing:.22em;text-transform:uppercase;color:#f3d98f}
 .pp-foot ul{list-style:none;margin:0;padding:0}
 .pp-foot li a{display:inline-flex;align-items:center;min-height:36px;color:var(--ink);text-decoration:none;font-size:.92rem}
+/* Explore: two balanced sub-columns on desktop; stack as a single list on small screens. */
+@media (min-width:721px){
+  .pp-foot-in > div:nth-child(2) > ul{
+    columns:2;
+    column-gap:22px;
+  }
+  .pp-foot-in > div:nth-child(2) > ul > li{
+    break-inside:avoid;
+    -webkit-column-break-inside:avoid;
+    page-break-inside:avoid;
+  }
+  .pp-foot-in > div:nth-child(2) > ul > li > a{
+    display:flex;
+    min-width:0;
+    max-width:100%;
+    white-space:normal;
+    line-height:1.25;
+  }
+}
 .pp-foot li a:hover{color:#f3d98f}
 .pp-foot .about{color:var(--mut);font-size:.9rem;max-width:44ch;margin:8px 0 0}
 .pp-foot .legal{margin:28px 0 0;padding-top:16px;border-top:1px solid #ffffff12;display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space-between;font-size:.8rem;color:#8f98ab}
