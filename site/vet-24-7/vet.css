@@ -319,6 +319,7 @@
 .vet-hero h1{margin:0;font-size:clamp(1.55rem,2.8vw,2.15rem)}
 .vet-badge{margin:0 0 6px}
 .vet-command{padding:0 0 22px}
+#find{scroll-margin-top:12px}
 
 .vet-box{
   border-radius:20px;overflow:hidden;
