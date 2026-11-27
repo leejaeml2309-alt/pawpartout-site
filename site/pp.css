@@ -147,7 +147,7 @@ img{max-width:100%;height:auto}
 .pp-feature .ph img{position:absolute;inset:23.5%;width:53%;height:53%;object-fit:cover;object-position:50% 46%;border-radius:50%;box-shadow:0 0 0 2px #efbfb0}
 .pp-feature h2{margin:4px 0 8px;font:400 clamp(1.9rem,3.6vw,2.8rem)/1.1 var(--disp);color:var(--head)}
 .pp-feature p{margin:0 0 16px;color:#cfd4df}
-.pp-doors{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;align-items:stretch;grid-auto-rows:1fr}
+.pp-doors{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:stretch;grid-auto-rows:1fr}
 .pp-doors > li,.pp-door{height:100%}
 .pp-door{display:flex;flex-direction:column;align-items:center;text-align:center;text-decoration:none;color:var(--ink);padding:0 6px 10px}
 .pp-door .hx{position:relative;width:min(190px,100%);aspect-ratio:1/1.1547;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:linear-gradient(160deg,var(--m));transition:transform .2s}
@@ -177,7 +177,7 @@ img{max-width:100%;height:auto}
 .pp-foot .legal{margin:28px 0 0;padding-top:16px;border-top:1px solid #ffffff12;display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space-between;font-size:.8rem;color:#8f98ab}
 
 /* ---------- responsive ---------- */
-@media (max-width:1060px){.pp-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pp-doors{grid-template-columns:repeat(2,minmax(0,1fr))}.pp-band{grid-template-columns:auto 1fr 180px}}
+@media (max-width:1060px){.pp-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pp-band{grid-template-columns:auto 1fr 180px}}
 @media (max-width:900px){
  .pp-rail ul{display:flex;overflow-x:auto;scrollbar-width:none;padding:4px 12px 8px;gap:2px;scroll-snap-type:x proximity}
  .pp-rail ul::-webkit-scrollbar{display:none}
@@ -203,7 +203,7 @@ img{max-width:100%;height:auto}
  .pp-band .bl{grid-column:1/-1}
  .pp-feature{grid-template-columns:1fr;border-radius:180px 180px 24px 24px;padding:26px 20px 24px;text-align:center;gap:14px}
  .pp-feature .ph{max-width:220px;justify-self:center;width:100%}
- .pp-doors{gap:14px}
+ .pp-doors{gap:14px;grid-template-columns:1fr}
  .pp-door h3{font-size:1.1rem;margin-top:12px}
  .pp-door p{font-size:.8rem}
  .pp-foot-in{grid-template-columns:1fr 1fr}
@@ -212,7 +212,15 @@ img{max-width:100%;height:auto}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 
 
-/* ===== Paw Shop 8-category shelves, 2026-11-27 (local preview) ===== */
+/* ===== Paw Shop 9-category shelves, 2026-11-27 (local preview) ===== */
+@media (min-width:721px){
+  .pp-doors{
+    width:calc(3 * round(down, (100% - 48px) / 3, 1px) + 48px);
+    max-width:100%;
+    margin-inline:auto;
+  }
+}
+
 .pp-copy{padding:16px 20px 14px}
 .pp-notes{padding:0 20px 14px;display:flex;flex-direction:column;gap:14px}
 .pp-notes .pp-tip,
