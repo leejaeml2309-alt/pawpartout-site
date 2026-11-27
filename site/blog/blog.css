@@ -613,8 +613,6 @@ a.jl-founder-card:hover .jl-founder-cta{color:var(--jl-gold-hi)}
 .jl-studio-link{
   margin:18px 0 0;
 }
-.jl-studio-link + .jl-studio-link{margin-top:10px}
-
 .jl-studio-link a{
   font:600 0.68rem/1.4 var(--jl-sans);
   letter-spacing:0.16em;

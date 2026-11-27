@@ -56,12 +56,20 @@ body.studio-app{
   display:grid;
   grid-template-columns:repeat(4, minmax(0,1fr));
   gap:8px;
-  padding:12px 14px 14px;
+  /* Keep camera buttons clear of 42px corner filigrees (5px inset + 42px glyph). */
+  padding:10px 72px 20px;
   background:linear-gradient(180deg, rgba(13,21,40,0.2), var(--jl-folio));
   border-top:1px solid var(--st-line);
   box-sizing:border-box;
 }
 .st-viewbar .st-btn{width:100%}
+#st-primary [data-space].st-btn{
+  height:52px;
+  min-height:52px;
+  padding:4px 8px;
+  line-height:1.2;
+  white-space:normal;
+}
 
 /* Desktop 2-column atelier: stage left, compact controls right */
 .st-atelier{display:block}
@@ -91,7 +99,7 @@ body.studio-app{
   }
   .st-stage-frame{margin:0}
   .st-stage{flex:1 1 auto;height:auto;min-height:0}
-  .st-viewbar{flex:none;padding:8px 10px 10px;gap:8px}
+  .st-viewbar{flex:none;padding:10px 72px 20px;gap:8px}
   .st-side{
     display:flex;flex-direction:column;min-height:0;height:100%;
     overflow:auto;
@@ -379,7 +387,7 @@ body.studio-app{
 
 @media (max-width:800px){
   .st-grid-3, .st-grid-calc, .st-brief-grid{grid-template-columns:minmax(0,1fr)}
-  .st-viewbar{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .st-viewbar{grid-template-columns:repeat(2, minmax(0,1fr));padding:10px 72px 22px}
   .st-atelier{margin:4px 0 18px}
   .st-stage-frame{margin:0 0 14px}
   .st-stage{height:min(34vh, 250px);min-height:200px}

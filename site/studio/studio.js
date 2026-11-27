@@ -12,18 +12,18 @@ const SPACES = {
 const NOTES = {
   interior: {
     catwall: 'Walnut and brass floating shelves, a sisal-wrapped post, and a suspended bridge.',
-    alcove: 'A fluted console with an arched velvet-lined dog niche and brushed-brass trim.',
+    alcove: 'A fluted console with an arched dog niche lined in heavy cotton-wool velvet and brushed-brass trim.',
     dining: 'A flush marble-and-wood plinth with twin ceramic bowls in brass rings.',
     litter: 'An architectural credenza with a discreet side portal and brass pulls.',
-    sofa: 'A sculptural performance-velvet sofa on a tight flat-weave rug.',
-    panelling: 'Protective lower wainscoting with a textured claw-resistant wallcovering above.',
+    sofa: 'A sculptural sofa in heavy cotton-wool velvet, set on a wool flat-weave rug.',
+    panelling: 'Protective lower wood wainscoting with a textured linen-and-hemp wallcovering above.',
   },
   garden: {
     catwall: 'A covered cedar catio perch with climbing steps against the fence.',
     alcove: 'A covered timber and stone pavilion for a dog to rest in shade.',
     dining: 'A carved limestone outdoor hydration station with twin bowls.',
     litter: 'A screened cedar and gravel relief zone, set discreetly to one side.',
-    sofa: 'An outdoor timber daybed and a woven terrace rug.',
+    sofa: 'An outdoor timber daybed and a woven hemp terrace rug.',
     panelling: 'A pet-safe cedar slatted privacy screen and a honed stone border.',
   },
 };
@@ -33,8 +33,8 @@ const EL_NAMES = {
   alcove: 'Built-In Dog Alcove Console',
   dining: 'Recessed Dining & Water Station',
   litter: 'Concealed Litter Credenza',
-  sofa: 'Claw-Resistant Sofa & Flat-Weave Rug',
-  panelling: 'Claw-Resistant Wall Panelling & Wallpaper',
+  sofa: 'Cotton-Wool Velvet Sofa & Wool Flat-Weave Rug',
+  panelling: 'Wood Wainscoting & Linen-Hemp Wallcovering',
 };
 const GARDEN_NAMES = {
   catwall: 'Covered Cedar Catio & Climbing Steps',
@@ -574,6 +574,7 @@ function addBox(parent, mat, w,h,d, x,y,z, opt={}) {
   if (opt.rotZ) m.rotation.z = opt.rotZ;
   m.castShadow = opt.cast !== false;
   m.receiveShadow = opt.receive !== false;
+  if (opt.ignoreBounds) m.userData.ignoreBounds = true;
   parent.add(m);
   return m;
 }
@@ -628,16 +629,60 @@ function clearWorld() {
   while (world.children.length) world.remove(world.children[0]);
 }
 
+let _wallPlan = null;
+function sofaAlongWidth() {
+  const { w } = dim();
+  const grand = state.elements.sofa.variant === 'grand';
+  return grand ? Math.min(2.45, w * 0.48) : Math.min(1.85, w * 0.4);
+}
+function wallPieceWidth(key, garden) {
+  const grand = state.elements[key].variant === 'grand';
+  const widths = {
+    catwall: garden ? 1.30 : (grand ? 1.64 : 1.36),
+    alcove:  garden ? (grand ? 2.00 : 1.55) : (grand ? 1.98 : 1.52),
+    dining:  grand ? 1.28 : 1.00,
+    litter:  garden ? (grand ? 1.70 : 1.35) : (grand ? 1.68 : 1.32),
+  };
+  return widths[key];
+}
+function planWall(wall) {
+  const { w, d, isGarden } = dim();
+  const marginEnd = isGarden ? 0.72 : 0.50;
+  let marginStart = isGarden ? 0.72 : 0.50;
+  if (wall === 'left' && state.elements.sofa.on && state.elements.sofa.place === 'left') {
+    marginStart = Math.max(marginStart, sofaAlongWidth() + 0.42);
+  }
+  const axisLen = wall === 'left' ? d : w;
+  const usable = Math.max(0.85, axisLen - marginStart - marginEnd);
+  const keys = ['catwall','alcove','dining','litter'].filter((k) => state.elements[k].on && state.elements[k].place === wall);
+  const gap0 = 0.20;
+  const pieces = keys.map((k) => ({ k, width: wallPieceWidth(k, isGarden) }));
+  const raw = pieces.reduce((s, p) => s + p.width, 0) + Math.max(0, pieces.length - 1) * gap0;
+  const scale = raw > usable ? usable / raw : 1;
+  let cursor = marginStart;
+  const slots = {};
+  for (const p of pieces) {
+    const width = p.width * scale;
+    const center = cursor + width / 2;
+    cursor += width + gap0 * scale;
+    slots[p.k] = { center, scale, width };
+  }
+  return { slots, marginStart, marginEnd, scale };
+}
+function getWallPlan() {
+  if (!_wallPlan) _wallPlan = { left: planWall('left'), back: planWall('back') };
+  return _wallPlan;
+}
 function wallSlot(wall, key, inset) {
   const { w, d } = dim();
-  const keys = ['catwall','alcove','dining','litter'].filter((k) => state.elements[k].on && state.elements[k].place === wall);
-  const idx = Math.max(0, keys.indexOf(key));
-  const n = Math.max(1, keys.length);
-  const t = (idx + 1) / (n + 1);
+  const plan = getWallPlan()[wall];
+  const sl = plan.slots[key];
+  const center = sl ? sl.center : (wall === 'left' ? d : w) * 0.5;
+  const scale = sl ? sl.scale : 1;
   if (wall === 'left') {
-    return { x: -w/2 + inset, z: mix(d/2 - 0.55, -d/2 + 0.55, t), rotY: Math.PI/2 };
+    return { x: -w/2 + inset, z: d/2 - center, rotY: Math.PI/2, scale };
   }
-  return { x: mix(-w/2 + 0.55, w/2 - 0.55, t), z: -d/2 + inset, rotY: 0 };
+  return { x: -w/2 + center, z: -d/2 + inset, rotY: 0, scale };
 }
 
 /* ---------- architecture ---------- */
@@ -781,29 +826,35 @@ function buildGardenShell() {
 }
 
 /* ---------- furniture families ---------- */
+function tagFurn(g, id) {
+  g.userData.role = 'furniture';
+  g.userData.id = id;
+  return g;
+}
 function addCatWall(parent, garden) {
   const grand = state.elements.catwall.variant === 'grand';
   const wall = state.elements.catwall.place;
-  const inset = garden ? 0.55 : 0.32;
+  const inset = garden ? 0.42 : 0.32;
   const p = wallSlot(wall, 'catwall', inset);
-  const g = new THREE.Group();
+  const sc = p.scale || 1;
+  const g = tagFurn(new THREE.Group(), 'catwall');
   g.position.set(p.x, 0, p.z);
   g.rotation.y = p.rotY;
   parent.add(g);
   if (garden) {
     const h = grand ? 1.85 : 1.5;
     // covered catio
-    addBox(g, mats.cedar, 1.15, 0.08, 0.7, 0, h, 0);
-    addBox(g, mats.cedar, 0.07, h, 0.07, -0.5, h/2, -0.28);
-    addBox(g, mats.cedar, 0.07, h, 0.07,  0.5, h/2, -0.28);
-    addBox(g, mats.cedar, 0.07, h, 0.07, -0.5, h/2,  0.28);
-    addBox(g, mats.cedar, 0.07, h, 0.07,  0.5, h/2,  0.28);
+    addBox(g, mats.cedar, 1.15*sc, 0.08, 0.7, 0, h, 0);
+    addBox(g, mats.cedar, 0.07, h, 0.07, -0.5*sc, h/2, -0.28);
+    addBox(g, mats.cedar, 0.07, h, 0.07,  0.5*sc, h/2, -0.28);
+    addBox(g, mats.cedar, 0.07, h, 0.07, -0.5*sc, h/2,  0.28);
+    addBox(g, mats.cedar, 0.07, h, 0.07,  0.5*sc, h/2,  0.28);
     // slatted roof
-    for (let i=0;i<7;i++) addBox(g, mats.cedar, 1.15, 0.025, 0.07, 0, h+0.04, -0.28 + i*0.1, {cast:false});
+    for (let i=0;i<7;i++) addBox(g, mats.cedar, 1.15*sc, 0.025, 0.07, 0, h+0.04, -0.28 + i*0.1, {cast:false});
     // steps / shelves
     const steps = grand ? 5 : 3;
     for (let i=0;i<steps;i++) {
-      addBox(g, mats.cedar, 0.55, 0.05, 0.36, (i%2===0?-0.2:0.2), 0.32+i*(h-0.5)/steps, 0);
+      addBox(g, mats.cedar, 0.55*sc, 0.05, 0.36, (i%2===0?-0.2:0.2)*sc, 0.32+i*(h-0.5)/steps, 0);
     }
     addBox(g, mats.linen, 0.5, 0.05, 0.4, 0, h-0.06, 0);
   } else {
@@ -815,16 +866,16 @@ function addCatWall(parent, garden) {
     for (let i=0;i<shelves;i++) {
       const y = 0.55 + i * ((postH-0.5)/shelves);
       const x = (i%2===0 ? -0.15 : 0.28);
-      addBox(g, mats.dado, grand?1.15:0.9, 0.045, 0.32, x, y, 0);
-      addBox(g, mats.metal, 0.02, 0.08, 0.18, x - 0.3, y-0.05, -0.02);
-      addBox(g, mats.metal, 0.02, 0.08, 0.18, x + 0.3, y-0.05, -0.02);
+      addBox(g, mats.dado, (grand?1.15:0.9)*sc, 0.045, 0.32, x*sc, y, 0);
+      addBox(g, mats.metal, 0.02, 0.08, 0.18, (x - 0.3)*sc, y-0.05, -0.02);
+      addBox(g, mats.metal, 0.02, 0.08, 0.18, (x + 0.3)*sc, y-0.05, -0.02);
       addBox(g, mats.velvet, (grand?0.4:0.32), 0.03, 0.22, x, y+0.035, 0, {cast:false});
     }
     if (grand) {
       // suspended bridge
-      addBox(g, mats.dado, 0.9, 0.03, 0.16, 0.05, 1.35, 0.18);
-      addCyl(g, mats.metal, 0.008, 0.008, 0.45, -0.3, 1.55, 0.18, {seg:8});
-      addCyl(g, mats.metal, 0.008, 0.008, 0.45,  0.4, 1.55, 0.18, {seg:8});
+      addBox(g, mats.dado, 0.9*sc, 0.03, 0.16, 0.05*sc, 1.35, 0.18);
+      addCyl(g, mats.metal, 0.008, 0.008, 0.45, -0.3*sc, 1.55, 0.18, {seg:8});
+      addCyl(g, mats.metal, 0.008, 0.008, 0.45,  0.4*sc, 1.55, 0.18, {seg:8});
     }
   }
 }
@@ -832,12 +883,13 @@ function addCatWall(parent, garden) {
 function addAlcove(parent, garden) {
   const grand = state.elements.alcove.variant === 'grand';
   const wall = state.elements.alcove.place;
-  const p = wallSlot(wall, 'alcove', garden ? 0.7 : 0.28);
-  const g = new THREE.Group();
+  const p = wallSlot(wall, 'alcove', garden ? 0.50 : 0.28);
+  const sc = p.scale || 1;
+  const g = tagFurn(new THREE.Group(), 'alcove');
   g.position.set(p.x, 0, p.z);
   g.rotation.y = p.rotY;
   parent.add(g);
-  const W = grand ? 1.85 : 1.4;
+  const W = (grand ? 1.85 : 1.4) * sc;
   const H = grand ? 0.92 : 0.82;
   const D = garden ? 0.85 : 0.46;
   if (garden) {
@@ -883,12 +935,13 @@ function addAlcove(parent, garden) {
 function addDining(parent, garden) {
   const grand = state.elements.dining.variant === 'grand';
   const wall = state.elements.dining.place;
-  const p = wallSlot(wall, 'dining', garden ? 0.5 : 0.32);
-  const g = new THREE.Group();
+  const p = wallSlot(wall, 'dining', garden ? 0.34 : 0.32);
+  const sc = p.scale || 1;
+  const g = tagFurn(new THREE.Group(), 'dining');
   g.position.set(p.x, 0, p.z);
   g.rotation.y = p.rotY;
   parent.add(g);
-  const W = grand ? 1.15 : 0.88, D = grand ? 0.5 : 0.42;
+  const W = (grand ? 1.15 : 0.88) * sc, D = grand ? 0.5 : 0.42;
   if (garden) {
     addBox(g, mats.stone, W, 0.18, D, 0, 0.09, 0);
     addBox(g, mats.stone, W+0.04, 0.04, D+0.04, 0, 0.2, 0);
@@ -904,22 +957,24 @@ function addDining(parent, garden) {
     inner.position.set(x, 0.205, 0);
     g.add(inner);
   };
-  bowl(-0.16); bowl(0.16);
+  bowl(-0.16*sc); bowl(0.16*sc);
 }
 
 function addLitter(parent, garden) {
   const grand = state.elements.litter.variant === 'grand';
   const wall = state.elements.litter.place;
-  const p = wallSlot(wall, 'litter', garden ? 0.6 : 0.28);
-  const g = new THREE.Group();
+  const p = wallSlot(wall, 'litter', garden ? 0.44 : 0.28);
+  const sc = p.scale || 1;
+  const g = tagFurn(new THREE.Group(), 'litter');
   g.position.set(p.x, 0, p.z);
   g.rotation.y = p.rotY;
   parent.add(g);
-  const W = grand ? 1.55 : 1.2, H = 0.78, D = garden ? 0.7 : 0.44;
+  const W = (grand ? 1.55 : 1.2) * sc, H = 0.78, D = garden ? 0.7 : 0.44;
   if (garden) {
     addBox(g, mats.cedar, W, H, D, 0, H/2, 0);
     // screen slats on front, opening at one side
-    for (let i=0;i<8;i++) addBox(g, mats.cedar, 0.05, H-0.15, 0.02, -W/2+0.2+i*0.12, H/2, D/2+0.01, {cast:false});
+    const nSlats = Math.max(3, Math.floor((W - 0.28) / 0.12));
+    for (let i=0;i<nSlats;i++) addBox(g, mats.cedar, 0.05, H-0.15, 0.02, -W/2+0.16+i*0.12, H/2, D/2+0.01, {cast:false});
     addBox(g, mats.gravel, W-0.2, 0.04, D-0.16, 0.05, 0.04, 0, {cast:false});
     addBox(g, mats.cedar, 0.08, H, 0.08, -W/2, H/2, D/2);
     addBox(g, mats.cedar, 0.08, H, 0.08,  W/2, H/2, D/2);
@@ -937,20 +992,21 @@ function addLitter(parent, garden) {
 function addSofa(parent, garden) {
   const { w, d } = dim();
   const grand = state.elements.sofa.variant === 'grand';
-  const g = new THREE.Group();
+  const g = tagFurn(new THREE.Group(), 'sofa');
   const SW = grand ? Math.min(2.45, w*0.48) : Math.min(1.85, w*0.4);
   const SD = grand ? 0.92 : 0.8;
   const rugW = SW + 0.7, rugD = SD + 1.05;
   if (state.elements.sofa.place === 'left') {
-    g.position.set(-w/2 + 1.15, 0, 0.15);
+    g.position.set(-w/2 + 1.30, 0, d/2 - (SW/2 + 0.28));
     g.rotation.y = Math.PI/2;
   } else if (garden) {
-    g.position.set(0.2, 0, -d/2 + d*0.28);
+    const terraceD = d * 0.48;
+    g.position.set(0.1, 0, -d/2 + terraceD * 0.84);
   } else {
-    g.position.set(0.15, 0, d*0.12);
+    g.position.set(0.1, 0, Math.max(d * 0.16, d/2 - 1.15));
   }
   parent.add(g);
-  addBox(g, mats.rug, rugW, 0.025, rugD, 0, 0.02, 0.1, {cast:false});
+  addBox(g, mats.rug, rugW, 0.025, rugD, 0, 0.02, 0.1, {cast:false, ignoreBounds:true});
   if (garden) {
     addBox(g, mats.cedar, SW, 0.12, SD, 0, 0.14, 0);
     addBox(g, mats.linen, SW-0.1, 0.08, SD-0.1, 0, 0.22, 0);
@@ -1006,6 +1062,7 @@ function placeLights() {
 }
 
 function rebuild() {
+  _wallPlan = null;
   buildMaterials();
   clearWorld();
   const { isGarden } = dim();
@@ -1130,7 +1187,7 @@ function elementMeasure(key, variant, garden) {
     dining: garden ? (grand ? '1.15 × 0.50 × 0.22 m' : '0.88 × 0.42 × 0.22 m') : (grand ? '1.15 × 0.50 × 0.17 m' : '0.88 × 0.42 × 0.17 m'),
     litter: garden ? (grand ? '1.55 × 0.70 × 0.78 m' : '1.20 × 0.70 × 0.78 m') : (grand ? '1.55 × 0.44 × 0.78 m' : '1.20 × 0.44 × 0.78 m'),
     sofa: garden ? (grand ? 'Daybed up to 2.45 m · rug +0.70 m' : 'Daybed up to 1.85 m · rug +0.70 m') : (grand ? 'Sofa up to 2.45 m · rug +0.70 m' : 'Sofa up to 1.85 m · rug +0.70 m'),
-    panelling: garden ? 'Cedar screen to enclosure height · stone border 0.22 m' : (grand ? 'Tall dado 1.18 m + wallpaper above' : 'Classic dado 0.92 m + wallpaper above'),
+    panelling: garden ? 'Cedar screen to enclosure height · stone border 0.22 m' : (grand ? 'Tall dado 1.18 m + linen-hemp wallcovering above' : 'Classic dado 0.92 m + linen-hemp wallcovering above'),
   };
   return table[key];
 }
@@ -1147,7 +1204,7 @@ function qtyRows(q) {
     rows.push(['Flooring, +10% cutting margin', fmtArea(q.flooring)]);
   }
   rows.push(['Paint, 2 coats (10 m²/L per coat)', `${q.liters.toFixed(1)} L · ${q.gallons.toFixed(1)} US gal`]);
-  if (!q.isGarden) rows.push(['Claw-resistant wallpaper rolls (5.3 m² + 10% match)', `${q.rolls} roll${q.rolls===1?'':'s'}`]);
+  if (!q.isGarden) rows.push(['Linen-hemp wallcovering rolls (5.3 m² + 10% match)', `${q.rolls} roll${q.rolls===1?'':'s'}`]);
   else if (state.elements.panelling.on) rows.push(['Cedar privacy screen', `Enclosure ${fmtLen(q.wallH)} on two principal sides`]);
   return rows;
 }
@@ -1252,6 +1309,92 @@ function closeBrief() {
 }
 
 /* ---------- init ---------- */
+
+function aabbOf(obj) {
+  obj.updateWorldMatrix(true, true);
+  const box = new THREE.Box3();
+  let found = false;
+  obj.traverse((child) => {
+    if (!child.isMesh || child.userData.ignoreBounds) return;
+    const b = new THREE.Box3().setFromObject(child);
+    if (!found) { box.copy(b); found = true; }
+    else box.union(b);
+  });
+  if (!found) box.setFromObject(obj);
+  return box;
+}
+function boxOverlap(a, b, pad=0.03) {
+  return (a.min.x < b.max.x - pad && a.max.x > b.min.x + pad &&
+          a.min.y < b.max.y - pad && a.max.y > b.min.y + pad &&
+          a.min.z < b.max.z - pad && a.max.z > b.min.z + pad);
+}
+function auditCalc() {
+  const q = quantities();
+  const issues = [];
+  const floor = q.w * q.d;
+  if (Math.abs(floor - q.floor) > 1e-9) issues.push(`floor area ${q.floor} != ${q.w}*${q.d}`);
+  const sq = floor * M2SQFT;
+  const prev = state.units;
+  state.units = 'm';
+  const mLabel = fmtArea(q.floor, 1);
+  state.units = 'ft';
+  const ftLabel = fmtArea(q.floor, 1);
+  state.units = prev;
+  const expectedFt = (q.floor * M2SQFT).toFixed(1) + ' sq ft';
+  if (ftLabel !== expectedFt) issues.push(`sq ft label ${ftLabel} != ${expectedFt}`);
+  const expectedM = q.floor.toFixed(1) + ' m²';
+  if (mLabel !== expectedM) issues.push(`m² label ${mLabel} != ${expectedM}`);
+  const base = q.isGarden ? q.terrace : q.floor;
+  if (Math.abs(base * 1.10 - q.flooring) > 1e-9) issues.push(`flooring +10% ${q.flooring} != ${base}*1.10`);
+  const liters = q.netWall * 2 / 10;
+  if (Math.abs(liters - q.liters) > 1e-9) issues.push(`paint liters ${q.liters} != ${liters}`);
+  const gal = liters * L2GAL;
+  if (Math.abs(gal - q.gallons) > 1e-9) issues.push(`paint gallons ${q.gallons} != ${gal}`);
+  const rolls = q.paperArea > 0 ? Math.ceil(q.paperArea * 1.10 / 5.3) : 0;
+  if (rolls !== q.rolls) issues.push(`wallpaper rolls ${q.rolls} != ${rolls}`);
+  return { ok: issues.length === 0, issues, q: { w:q.w, d:q.d, floor:q.floor, flooring:q.flooring, liters:q.liters, gallons:q.gallons, rolls:q.rolls, netWall:q.netWall, paperArea:q.paperArea, terrace:q.terrace } };
+}
+function auditGeometry() {
+  const { w, d, h, isGarden } = dim();
+  const issues = [];
+  const furnishings = [];
+  world.traverse((o) => {
+    if (o.userData && o.userData.role === 'furniture') furnishings.push(o);
+  });
+  const boxes = furnishings.map((o) => {
+    const b = aabbOf(o);
+    return { id: o.userData.id, min:{x:b.min.x,y:b.min.y,z:b.min.z}, max:{x:b.max.x,y:b.max.y,z:b.max.z}, box:b };
+  });
+  const floorTop = 0.0;
+  const slabPad = isGarden ? 0.25 : 0.12; // slight overhang of pavers/fence posts OK
+  for (const it of boxes) {
+    if (it.min.y < -0.06) issues.push(`${it.id} sinks below the floor (ymin=${it.min.y.toFixed(3)})`);
+    // floor-standing pieces should meet the floor
+    if (['alcove','dining','litter','sofa'].includes(it.id) && it.min.y > 0.12) {
+      issues.push(`${it.id} floats above the floor (ymin=${it.min.y.toFixed(3)})`);
+    }
+    if (it.min.x < -w/2 - slabPad) issues.push(`${it.id} passes through the left wall (xmin=${it.min.x.toFixed(3)}, bound=${(-w/2).toFixed(3)})`);
+    if (it.min.z < -d/2 - slabPad) issues.push(`${it.id} passes through the back wall (zmin=${it.min.z.toFixed(3)}, bound=${(-d/2).toFixed(3)})`);
+    if (it.max.x > w/2 + slabPad + 0.2) issues.push(`${it.id} overruns the open right edge (xmax=${it.max.x.toFixed(3)})`);
+    if (it.max.z > d/2 + slabPad + 0.25) issues.push(`${it.id} overruns the open front edge (zmax=${it.max.z.toFixed(3)})`);
+  }
+  for (let i=0;i<boxes.length;i++) {
+    for (let j=i+1;j<boxes.length;j++) {
+      const A=boxes[i], B=boxes[j];
+      // sofa sits on its own rug; ignore sofa overlaps with nothing else of the same group
+      if (boxOverlap(A.box, B.box, 0.04)) {
+        issues.push(`${A.id} overlaps ${B.id}`);
+      }
+    }
+  }
+  return {
+    ok: issues.length === 0,
+    issues,
+    count: boxes.length,
+    boxes: boxes.map(({id,min,max})=>({id,min,max})),
+  };
+}
+
 function bindUI() {
   document.querySelectorAll('[data-space]').forEach((b)=>b.addEventListener('click',()=>{ state.space=b.dataset.space; rebuild(); }));
   document.querySelectorAll('[data-size]').forEach((b)=>b.addEventListener('click',()=>{ state.size=b.dataset.size; rebuild(); }));
@@ -1354,7 +1497,8 @@ function init() {
     setTheme(v){ state.theme=v; rebuild(); },
     setView(v){ applyView(v); },
     setUnits(v){ state.units=v; updateReadouts(); syncLabels(); },
-    openBrief, closeBrief, rebuild, quantities,
+    setElement(k, patch){ Object.assign(state.elements[k], patch); rebuild(); },
+    openBrief, closeBrief, rebuild, quantities, auditGeometry, auditCalc, dim,
   };
 }
 
