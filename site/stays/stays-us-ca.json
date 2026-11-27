@@ -1,0 +1,258 @@
+{
+  "generated_at": "2026-11-27T16:08:00+09:00",
+  "timezone": "Korea Standard Time (UTC+9)",
+  "scope": "United States and Canada only",
+  "language": "en",
+  "section_order": [
+    "houses_inns_bnbs",
+    "small_airport_stopover_hotels",
+    "hidden_fees_rules",
+    "checklist"
+  ],
+  "counts": {
+    "houses_inns_bnbs": 8,
+    "small_airport_stopover_hotels": 6,
+    "hidden_fees_rules": 6,
+    "checklist": 6,
+    "total_items": 26,
+    "houses_inns_bnbs_by_country": {
+      "USA": 4,
+      "Canada": 4
+    },
+    "small_airport_stopover_hotels_by_country": {
+      "USA": 4,
+      "Canada": 2
+    }
+  },
+  "source_rule": "Every stay name, address, pet rule, fee, and official URL was checked on the property’s official website. No price, rule, or URL was invented. Where a pet fee or a species rule was not published, that is stated plainly and guests are told to confirm with the inn. No major hotel chain and no booking platform is listed.",
+  "houses_inns_bnbs": [
+    {
+      "name": "The Paw House Inn",
+      "stay_type": "Country Inn",
+      "city": "West Rutland",
+      "region": "VT - Vermont",
+      "country": "USA",
+      "species": "Dogs",
+      "quality_sentence": "A dog-centric country inn in Vermont’s Killington region, with guest rooms, cottages, and a fully fenced off-leash park about half a football field in size.",
+      "pet_policy_summary": "Nightly rates include two people and two dogs of any size or breed. Dogs may not be left alone in guest rooms, cottages, or the park; on-site dog care at Mario’s Bunkhouse is included. A $10 charge applies if you do not bring a dog.",
+      "google_maps_url": "https://www.google.com/maps/search/?api=1&query=The%20Paw%20House%20Inn%2C%201376%20Clarendon%20Ave%2C%20West%20Rutland%2C%20VT",
+      "official_url": "https://www.pawhouseinn.com/amenities"
+    },
+    {
+      "name": "The Country Inn at Camden Rockport",
+      "stay_type": "Country Inn",
+      "city": "Rockport",
+      "region": "ME - Maine",
+      "country": "USA",
+      "species": "Dogs",
+      "quality_sentence": "A mid-coast country inn in Rockport with main-house rooms and dog-friendly cottages, a short drive from Camden’s harbor and nearby walking paths.",
+      "pet_policy_summary": "Dogs only, in a limited number of designated rooms, with a maximum of two dogs per room. Dog-friendly rooms must be verified by phone or email. Dogs must be leashed or in a carrier outside the room and may not be left unattended. No pet fee is published on the official policy pages.",
+      "google_maps_url": "https://www.google.com/maps/search/?api=1&query=The%20Country%20Inn%20at%20Camden%20Rockport%2C%208%20Country%20Inn%20Way%2C%20Rockport%2C%20ME",
+      "official_url": "https://www.countryinnmaine.com/policies/"
+    },
+    {
+      "name": "Elk Cove Inn",
+      "stay_type": "Bed & Breakfast",
+      "city": "Elk",
+      "region": "CA - California",
+      "country": "USA",
+      "species": "Dogs",
+      "quality_sentence": "A family-run cliffside bed and breakfast on the Mendocino Coast, with ocean-view rooms, gardens, and direct access to Greenwood State Beach.",
+      "pet_policy_summary": "You must notify the inn when booking. Up to two well-behaved dogs are allowed in designated rooms only, at $30 per pet per night. Dogs may not be left alone in the room, must be leashed in public areas, and are not allowed in the dining room. Current vaccinations and flea and tick care are required.",
+      "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Elk%20Cove%20Inn%2C%206300%20S.%20Highway%20One%2C%20Elk%2C%20CA%2095432",
+      "official_url": "https://elkcoveinn.com/about-dog-friendly-lodging/"
+    },
+    {
+      "name": "O-Bar-O Cabins",
+      "stay_type": "Cottage / Cabin",
+      "city": "Durango",
+      "region": "CO - Colorado",
+      "country": "USA",
+      "species": "Dogs",
+      "quality_sentence": "Riverside cabins outside Durango, including one with a private fenced yard and a shared, fully fenced dog park beside the river.",
+      "pet_policy_summary": "Six cabins welcome dogs. A stay fee of $100 covers one or two dogs under 50 pounds; the fee is $120 for one or two dogs 50 pounds or over. Maximum two dogs per cabin, with proof of vaccination and an advance reservation required. Dogs may not be left unattended unless permission is granted in advance.",
+      "google_maps_url": "https://www.google.com/maps/search/?api=1&query=O-Bar-O%20Cabins%2C%2011998%20County%20Road%20240%2C%20Durango%2C%20CO%2081301",
+      "official_url": "https://obaro.com/dog-policies/"
+    },
+    {
+      "name": "Repère Boréal",
+      "stay_type": "Cottage / Cabin",
+      "city": "Les Éboulements",
+      "region": "QC - Quebec",
+      "country": "Canada",
+      "species": "Dogs",
+      "quality_sentence": "Quiet forest lodgings in Charlevoix, on a rural site in Les Éboulements with walking paths, a Nordic spa, and a setting above the St. Lawrence.",
+      "pet_policy_summary": "Dogs are welcome, with a $35 cleaning fee for the stay and a maximum of two animals. Dogs must be kept on a leash and should not climb on the furniture.",
+      "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Rep%C3%A8re%20Bor%C3%A9al%2C%203141%20route%20du%20Fleuve%2C%20Les%20%C3%89boulements%2C%20QC",
+      "official_url": "https://www.repereboreal.com/contact/"
+    },
+    {
+      "name": "Bayfield Boutique Bed and Breakfast",
+      "stay_type": "Bed & Breakfast",
+      "city": "Bayfield",
+      "region": "ON - Ontario",
+      "country": "Canada",
+      "species": "Dogs",
+      "quality_sentence": "A four-suite village bed and breakfast in Bayfield, with English gardens and a private dog-friendly hideaway that opens onto a fenced garden.",
+      "pet_policy_summary": "The Cozy Hideaway Suite is the inn’s dog-friendly unit, with its own entrance, patio, and fenced garden. Confirm current fees and house rules directly with the innkeepers when booking; no pet fee is published on the official site.",
+      "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Bayfield%20Boutique%20Bed%20and%20Breakfast%2C%2012%20The%20Square%2C%20Bayfield%2C%20ON",
+      "official_url": "https://bayfieldbedandbreakfast.com/"
+    },
+    {
+      "name": "Sunshine Villa B&B",
+      "stay_type": "Bed & Breakfast",
+      "city": "Pender Harbour",
+      "region": "BC - British Columbia",
+      "country": "Canada",
+      "species": "Dogs & Cats",
+      "quality_sentence": "An adults-only bed and breakfast on nine fenced acres in Pender Harbour, with an ocean-view hot tub, a vineyard, and garden walks.",
+      "pet_policy_summary": "Dogs and cats are welcome at CAD $10 per pet per night. The property includes two acres of fenced vineyard and a large garden area for walks.",
+      "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Sunshine%20Villa%20B%26B%2C%2013184%20Sunshine%20Coast%20Highway%2C%20Pender%20Harbour%2C%20BC",
+      "official_url": "https://www.sunshinevilla.ca/"
+    },
+    {
+      "name": "Seaweed and Sod Farm B&B",
+      "stay_type": "Bed & Breakfast",
+      "city": "Kempt Head",
+      "region": "NS - Nova Scotia",
+      "country": "Canada",
+      "species": "Dogs & Cats",
+      "quality_sentence": "A two-room farm bed and breakfast overlooking Bras d’Or Lake, with walking trails, a screened porch, and a quiet working-farm setting in Cape Breton.",
+      "pet_policy_summary": "The official site welcomes pets, including dogs and cats. Well-behaved dogs must be leashed when outside. Resident dogs and cats also live on the farm.",
+      "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Seaweed%20and%20Sod%20Farm%20B%26B%2C%207952%20Kempt%20Head%20Road%2C%20Kempt%20Head%2C%20NS",
+      "official_url": "https://www.seaweedandsod.ca/"
+    }
+  ],
+  "small_airport_stopover_hotels": [
+    {
+      "name": "Fagan's Haven Bed and Breakfast",
+      "hub_or_route": "Near PDX (Portland)",
+      "city": "Boring",
+      "region": "OR - Oregon",
+      "country": "USA",
+      "species": "Dogs",
+      "pet_policy_summary": "Well-behaved dogs are welcome; current vaccinations are required, and guests must clean up after their dogs. Cats are not accepted because of severe allergies on site. The official site places the inn about 30 minutes from Portland International Airport.",
+      "summary": "A small dog-friendly bed and breakfast in Boring, Oregon, a practical overnight stop about 30 minutes from Portland International Airport.",
+      "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Fagan%27s%20Haven%20Bed%20and%20Breakfast%2C%20Boring%2C%20Oregon",
+      "official_url": "https://www.faganshavenbnb.com/dogs/index.php"
+    },
+    {
+      "name": "Hotel Interurban",
+      "hub_or_route": "Near SEA (Seattle-Tacoma)",
+      "city": "Tukwila",
+      "region": "WA - Washington",
+      "country": "USA",
+      "species": "Dogs",
+      "pet_policy_summary": "Dogs only — no cats. A non-refundable fee of $75 per stay applies for 1–4 nights, or $125 for 5 nights or more. Maximum two dogs per room, each no more than 75 pounds. An advance reservation and a signed waiver are required. Dogs may not be left unattended in rooms or vehicles and must be leashed or in a carrier.",
+      "summary": "An independently branded boutique hotel in Tukwila, a practical stop for travelers flying through Seattle-Tacoma International Airport.",
+      "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Hotel%20Interurban%2C%20223%20Andover%20Park%20E%2C%20Tukwila%2C%20WA%2098188",
+      "official_url": "https://www.hotelinterurban.com/pet-friendly-hotel.php"
+    },
+    {
+      "name": "Vero Beach Inn & Suites",
+      "hub_or_route": "I-95 Corridor",
+      "city": "Vero Beach",
+      "region": "FL - Florida",
+      "country": "USA",
+      "species": "Dogs & Cats",
+      "pet_policy_summary": "Dogs and cats are welcome, with a maximum of two pets per room, a $25 fee per pet per day, and a 50-pound weight limit. Pets must be leashed or in a carrier, crated if left in the room, and kept out of the lobby, lounge, restaurant, and pool. Some breeds are restricted; confirm with the inn before booking.",
+      "summary": "An independently branded inn just off I-95 at Exit 147, a straightforward pet-friendly overnight stop on Florida’s Treasure Coast.",
+      "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Vero%20Beach%20Inn%20%26%20Suites%2C%208797%2020th%20St%2C%20Vero%20Beach%2C%20FL%2032966",
+      "official_url": "https://veroinn.com/pet-policy/"
+    },
+    {
+      "name": "Fogcatcher Inn",
+      "hub_or_route": "California Highway 1 (Central Coast)",
+      "city": "Cambria",
+      "region": "CA - California",
+      "country": "USA",
+      "species": "Dogs & Cats",
+      "pet_policy_summary": "Well-mannered dogs and cats are welcome in pet-friendly rooms. A non-refundable fee of $35 per night covers up to two pets; dogs 50 pounds and over need approval when booking. Pets may not be left unattended, must be leashed outside the room, and must be current on vaccinations. They are not permitted in the breakfast room, pool area, or recreation center.",
+      "summary": "A coastal inn on Moonstone Beach in Cambria, a convenient Highway 1 stopover between Los Angeles and the northern California coast.",
+      "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Fogcatcher%20Inn%2C%206400%20Moonstone%20Beach%20Dr%2C%20Cambria%2C%20CA%2093428",
+      "official_url": "https://www.fogcatcherinn.com/dog-friendly/"
+    },
+    {
+      "name": "Hide Away Inn",
+      "hub_or_route": "Trans-Canada Hwy (ON)",
+      "city": "Dryden",
+      "region": "ON - Ontario",
+      "country": "Canada",
+      "species": "Dogs",
+      "pet_policy_summary": "Dogs only — no cats. The fee is $10 per dog, with a maximum of two dogs per room. Notify the inn when booking. Dogs must be leashed on the property, are not allowed in the lobby or on the beds, and should not be left unattended in the room.",
+      "summary": "A small, quiet inn on Trans-Canada Highway 17 in Dryden, set in a park-like roadside setting away from the local train tracks.",
+      "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Hide%20Away%20Inn%2C%20700%20Government%20Street%2C%20Dryden%2C%20Ontario",
+      "official_url": "https://hideawayinn.ca/pet-rules/"
+    },
+    {
+      "name": "Versante Hotel",
+      "hub_or_route": "Near YVR (Vancouver)",
+      "city": "Richmond",
+      "region": "BC - British Columbia",
+      "country": "Canada",
+      "species": "Dogs",
+      "pet_policy_summary": "The official site lists the hotel as dog-friendly and offers complimentary airport transfers. Confirm the current pet fee and room rules directly with the hotel when booking; no pet fee is published on the official site.",
+      "summary": "An independent boutique hotel in Richmond, just minutes from Vancouver International Airport, with complimentary airport transfers.",
+      "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Versante%20Hotel%2C%208499%20Bridgeport%20Road%2C%20Richmond%2C%20BC",
+      "official_url": "https://www.versantehotel.com/"
+    }
+  ],
+  "hidden_fees_rules": [
+    {
+      "title": "Confirm the rules in writing before you book",
+      "summary": "At independent inns and B&Bs, pet fees, room assignments, and house rules are set by each host. Ask directly, then keep the written confirmation — do not rely on a third-party listing alone."
+    },
+    {
+      "title": "Cats are often excluded unless confirmed",
+      "summary": "Many inns that welcome dogs do not accept cats, sometimes because of resident pets or guest allergies. Do not assume a “pet-friendly” stay includes your cat without written agreement."
+    },
+    {
+      "title": "A yard is not always fenced — or private",
+      "summary": "A garden, patio, or “grounds” does not automatically mean a secure, fully fenced space. Ask whether the outdoor area is enclosed, shared, or open to the road before you arrive."
+    },
+    {
+      "title": "Do not leave a pet alone unless the inn says so",
+      "summary": "Many B&Bs and small inns prohibit unattended pets, or require a crate and a reachable phone number. Housekeeping often cannot enter a room while an animal is loose inside."
+    },
+    {
+      "title": "Cleaning fees, deposits, and damage charges",
+      "summary": "Some inns publish a non-refundable pet or cleaning fee; others add a refundable deposit or charge only if there is damage, hair, or an accident. Ask what is refundable and what is not before you pay."
+    },
+    {
+      "title": "Vaccines, size, and number limits at check-in",
+      "summary": "Independent stays often cap the number or size of animals, and some ask for current rabies or vaccination records at booking or check-in. Arrive with papers ready, and declare every animal in advance."
+    }
+  ],
+  "checklist": [
+    {
+      "step_number": 1,
+      "title": "Before you book",
+      "summary": "Start with the inn’s official website, not just a booking platform. Note the stay type, whether cats are mentioned, any published fee, and whether only a specific room or cottage is pet-friendly."
+    },
+    {
+      "step_number": 2,
+      "title": "Get the pet rules in writing",
+      "summary": "Message or call the innkeeper with your animal’s species, size, and number, and ask for written confirmation of the fee, the assigned room, and any leash, crate, or unattended-pet rules."
+    },
+    {
+      "step_number": 3,
+      "title": "Arrive, then locate the relief areas",
+      "summary": "At check-in, walk the property on leash and find the approved outdoor relief area, waste bags, and any rooms or gardens that are off-limits, before you unpack and settle in."
+    },
+    {
+      "step_number": 4,
+      "title": "Secure gardens, balconies, and windows",
+      "summary": "Check gates, balcony doors, screens, and open windows as soon as you arrive — especially with cats. A pretty garden is not a safe run unless you have confirmed it is fully enclosed."
+    },
+    {
+      "step_number": 5,
+      "title": "Keep a calm routine indoors",
+      "summary": "Set out familiar beds, bowls, and a crate, keep claws and litter contained, and respect quiet hours. A small inn shares walls, breakfast rooms, and gardens with other guests."
+    },
+    {
+      "step_number": 6,
+      "title": "Leave the room clean and walk it once more",
+      "summary": "Pack out waste, check under beds and behind doors, and do a final walk of the room or cottage with the innkeeper if offered, so no forgotten item, accident, or extra charge is waiting later."
+    }
+  ]
+}
