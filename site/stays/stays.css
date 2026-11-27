@@ -1,0 +1,382 @@
+/* Pawpartout Pet-friendly stays, 2026-11-27 (local preview) */
+@font-face{font-family:"Playfair Display";src:url(/fonts/playfair-display-700.woff2) format("woff2");font-weight:700;font-style:normal;font-display:swap}
+@font-face{font-family:"Playfair Display";src:url(/fonts/playfair-display-900.woff2) format("woff2");font-weight:900;font-style:normal;font-display:swap}
+@font-face{font-family:"IBM Plex Mono";src:url(/fonts/ibm-plex-mono-500.woff2) format("woff2");font-weight:500;font-style:normal;font-display:swap}
+
+:root{
+  --st-serif:"Playfair Display", "Marcellus", Georgia, "Times New Roman", serif;
+  --st-mono:"IBM Plex Mono", ui-monospace, "Cascadia Code", "Courier New", Courier, monospace;
+  --st-gold:#e8c05a;
+  --st-rose:#c98c7b;
+  --st-rose-hi:#efbfb0;
+  --st-silver:#c5d0dc;
+  --st-copper:#c9713f;
+}
+
+.pp-hero.metal-rose h1,
+.pp-hero.metal-rose h1 .mtext{
+  font-family:var(--st-serif);
+  font-weight:900;
+  letter-spacing:0.02em;
+}
+
+.st-section{margin:8px 0 56px}
+.st-kicker{
+  margin:0 0 8px;
+  font:500 0.72rem/1 var(--st-mono);
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:#f3d98f;
+}
+.st-h2{
+  margin:0 0 8px;
+  font-family:var(--st-serif);
+  font-weight:700;
+  font-size:clamp(1.6rem, 2.4vw, 2.15rem);
+  line-height:1.15;
+  color:#f7f0de;
+  letter-spacing:0.01em;
+}
+.st-lead{
+  margin:0 0 22px;
+  max-width:46rem;
+  color:#c5cedc;
+  font-size:1.02rem;
+  line-height:1.55;
+}
+
+.st-banner{
+  margin:0 0 22px;
+  padding:0;
+  aspect-ratio:21/9;
+  overflow:hidden;
+  background:#091228;
+  border:1px solid rgba(201,140,123,0.28);
+}
+.st-banner img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center bottom;
+}
+
+/* Filters */
+.st-filters{
+  margin:8px 0 36px;
+  padding:18px 20px 16px;
+  background:linear-gradient(180deg,#0b1736,#09132c);
+  border:1px solid rgba(201,140,123,0.32);
+  box-shadow:0 10px 28px rgba(0,0,0,0.22);
+}
+.st-fg{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  gap:8px 10px;
+  margin:0 0 10px;
+}
+.st-fg:last-of-type{margin-bottom:0}
+.st-flab{
+  flex:0 0 5.6rem;
+  margin:0;
+  font:500 0.68rem/1 var(--st-mono);
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:#efbfb0;
+}
+.st-pills{display:flex;flex-wrap:wrap;gap:6px;flex:1;min-width:0}
+.st-pill{
+  appearance:none;
+  margin:0;
+  padding:0 11px;
+  height:30px;
+  border-radius:999px;
+  border:1px solid rgba(232,192,90,0.28);
+  background:transparent;
+  color:#e8edf5;
+  font:500 0.72rem/1 var(--st-mono);
+  letter-spacing:0.04em;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.st-pill:hover{border-color:var(--st-gold);color:#fff}
+.st-pill[aria-pressed="true"]{
+  background:linear-gradient(180deg,#e8c05a,#d4a13a);
+  border-color:#e8c05a;
+  color:#1a1204;
+}
+.st-pill:focus-visible{outline:2px solid #f3d98f;outline-offset:2px}
+.st-status{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:12px 0 0;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,0.08);
+  font:500 0.78rem/1.3 var(--st-mono);
+  color:#c5cedc;
+}
+.st-reset{
+  color:#f3d98f;
+  text-decoration:none;
+  letter-spacing:0.04em;
+  background:none;
+  border:0;
+  padding:0;
+  font:inherit;
+  cursor:pointer;
+}
+.st-reset:hover{text-decoration:underline}
+.st-reset[hidden]{display:none}
+.st-reset:focus-visible{outline:2px solid #f3d98f;outline-offset:3px}
+
+/* Uniform grids — leftover / odd-count cards never stretch */
+.st-grid{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:grid;
+  gap:22px;
+  align-items:stretch;
+}
+.st-cols-2{
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+}
+.st-cols-3{
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+}
+@media (min-width:721px){
+  .st-cols-2{
+    width:calc(2 * round(down, (100% - 22px) / 2, 1px) + 22px);
+    max-width:100%;
+    margin-inline:auto;
+  }
+}
+@media (min-width:1061px){
+  .st-cols-3{
+    width:calc(3 * round(down, (100% - 44px) / 3, 1px) + 44px);
+    max-width:100%;
+    margin-inline:auto;
+  }
+}
+@media (max-width:1060px){
+  .st-cols-3{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    width:calc(2 * round(down, (100% - 22px) / 2, 1px) + 22px);
+    max-width:100%;
+    margin-inline:auto;
+  }
+}
+@media (max-width:720px){
+  .st-cols-2,
+  .st-cols-3{grid-template-columns:minmax(0,1fr);width:auto;gap:16px}
+  .st-flab{flex-basis:100%}
+  .st-actions{flex-direction:column}
+  .st-btn{flex:0 0 38px;width:100%;min-height:38px}
+}
+.st-grid > li{display:flex;min-width:0;height:100%}
+.st-grid > li[hidden]{display:none}
+
+.st-card{
+  display:flex;
+  flex-direction:column;
+  width:100%;
+  height:100%;
+  min-width:0;
+  padding:0 0 14px;
+  box-sizing:border-box;
+  background:linear-gradient(180deg,#0d1a3c,#0a1430);
+  border:1px solid rgba(201,140,123,0.28);
+  border-top:3px solid var(--st-accent, var(--st-rose));
+  color:#e8edf5;
+}
+.st-card.type-inn{--st-accent:#e8c05a}
+.st-card.type-bnb{--st-accent:#c98c7b}
+.st-card.type-cottage{--st-accent:#c5d0dc}
+.st-card.type-stopover{--st-accent:#c9713f}
+.st-card.fee{--st-accent:#e8c05a}
+.st-card.check{--st-accent:#efbfb0}
+
+.st-body{display:flex;flex-direction:column;flex:1;min-width:0;padding:16px 16px 0}
+
+/* Two-row badge bar: type+country on row 1, species on row 2 */
+.st-badges{
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  gap:6px;
+  height:50px;
+  flex:0 0 50px;
+  margin:0 0 10px;
+  overflow:hidden;
+}
+.st-badges-main,
+.st-badges-sub{
+  display:flex;
+  flex-wrap:nowrap;
+  align-items:center;
+  gap:6px;
+  height:22px;
+  flex:0 0 22px;
+  min-width:0;
+}
+.st-b{
+  display:inline-flex;
+  align-items:center;
+  flex:0 0 auto;
+  height:22px;
+  padding:0 7px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.16);
+  background:rgba(7,16,40,0.55);
+  font:500 9px/1 var(--st-mono);
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  color:#d7deea;
+  white-space:nowrap;
+  overflow:visible;
+}
+.st-b-type{border-color:color-mix(in srgb, var(--st-accent) 70%, transparent);color:#f4ead0}
+.st-b-country{border-color:rgba(197,208,220,0.35)}
+.st-b-species{border-color:rgba(232,192,90,0.28)}
+
+.st-title{
+  margin:0 0 6px;
+  height:50px;
+  flex:0 0 50px;
+  overflow:hidden;
+  font-family:var(--st-serif);
+  font-weight:700;
+  font-size:20px;
+  line-height:24px;
+  letter-spacing:0.01em;
+  color:#f7f0de;
+}
+.st-region{
+  margin:0 0 10px;
+  height:36px;
+  flex:0 0 36px;
+  overflow:hidden;
+  font:500 0.72rem/18px var(--st-mono);
+  color:#c5cedc;
+}
+
+.st-sum{
+  margin:0 0 12px;
+  height:80px;
+  flex:0 0 80px;
+  overflow:hidden;
+  font-size:14px;
+  line-height:20px;
+  color:#cfd4df;
+}
+
+.st-meta{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin:0 0 14px;
+}
+.st-row{
+  margin:0;
+  overflow:hidden;
+  font:500 0.72rem/18px var(--st-mono);
+  color:#c5cedc;
+}
+.st-row-policy{height:144px;flex:0 0 144px}
+.st-row-fees{height:72px;flex:0 0 72px}
+.st-row-access{height:72px;flex:0 0 72px}
+.st-k{
+  display:block;
+  margin:0 0 2px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:#efbfb0;
+  font-size:0.62rem;
+  line-height:16px;
+}
+
+.st-actions{
+  display:flex;
+  flex-wrap:nowrap;
+  align-items:stretch;
+  gap:8px;
+  margin-top:auto;
+  width:100%;
+}
+.st-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:1 1 0;
+  min-width:0;
+  height:38px;
+  min-height:38px;
+  flex-shrink:0;
+  padding:0 8px;
+  box-sizing:border-box;
+  border-radius:999px;
+  text-decoration:none;
+  font:600 0.62rem/1 var(--st-mono);
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  white-space:nowrap;
+  overflow:hidden;
+}
+.st-btn:focus-visible{outline:2px solid #f3d98f;outline-offset:3px}
+.st-maps{
+  border:1.5px solid #e8c05a;
+  background:#0c1730;
+  color:#f7f0de;
+}
+.st-maps:hover{filter:brightness(1.08);color:#fff}
+.st-official{
+  border:1.5px solid rgba(201,140,123,0.85);
+  background:#1a120c;
+  color:#f7f0de;
+}
+.st-official:hover{filter:brightness(1.08);color:#fff}
+
+/* Fees & checklist cards */
+.st-fee-title,
+.st-check-title{
+  margin:0 0 10px;
+  height:56px;
+  flex:0 0 56px;
+  overflow:hidden;
+  font-family:var(--st-serif);
+  font-weight:700;
+  font-size:18px;
+  line-height:22px;
+  letter-spacing:0.01em;
+  color:#f7f0de;
+}
+.st-fee-sum,
+.st-check-sum{
+  margin:0;
+  height:140px;
+  flex:0 0 140px;
+  overflow:hidden;
+  font-size:14px;
+  line-height:20px;
+  color:#cfd4df;
+}
+.st-num{
+  display:block;
+  margin:0 0 8px;
+  height:22px;
+  flex:0 0 22px;
+  font:500 0.82rem/22px var(--st-mono);
+  letter-spacing:0.14em;
+  color:#e8c05a;
+}
+
+.st-empty{
+  margin:8px 0 0;
+  text-align:center;
+  color:#c5cedc;
+  font-size:0.95rem;
+}
+.st-empty[hidden]{display:none}
