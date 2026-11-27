@@ -48,30 +48,30 @@ const GARDEN_NAMES = {
 const THEME = {
   neobaroque: {
     id: 'neobaroque', name: 'Modern Neo-Baroque',
-    floor: 'walnut', wall: [52,62,92], plaster: [58,68,98],
+    floor: 'walnut', wall: [58,68,102], plaster: [64,74,108],
     dado: 'walnut', trim: 'brass', metal: 'brass',
     velvet: [36,40,82], linen: [40,44,86],
     stone: 'darkMarble', rugA: [78,28,38], rugB: [32,34,64],
     grass: null, paver: 'darkMarble', cedar: 'walnut',
-    cushion: [96,28,42], ceramic: [236,228,214],
+    cushion: [228,208,160], pillowIvory: [244,234,214], ceramic: [236,228,214],
   },
-  warmwood: {
-    id: 'warmwood', name: 'Warm Wood & Linen',
-    floor: 'oak', wall: [232,214,190], plaster: [240,226,206],
-    dado: 'oak', trim: 'brass', metal: 'brass',
-    velvet: [214,196,170], linen: [214,196,170],
-    stone: 'travertine', rugA: [176,92,64], rugB: [210,186,150],
+  organic: {
+    id: 'organic', name: 'Organic Modern',
+    floor: 'whiteOak', wall: [234,226,210], plaster: [240,234,218],
+    dado: 'whiteOak', trim: 'brass', metal: 'brass', satin: true,
+    velvet: [216,200,176], linen: [216,200,176],
+    stone: 'travertine', rugA: [196,178,150], rugB: [232,222,204],
     paver: 'travertine', cedar: 'cedar',
-    cushion: [176,92,64], ceramic: [244,236,220],
+    cushion: [228,208,160], pillowIvory: [244,234,214], ceramic: [244,238,226],
   },
-  mineral: {
-    id: 'mineral', name: 'Minimal Mineral',
-    floor: 'travertine', wall: [228,224,216], plaster: [236,232,224],
-    dado: 'mineral', trim: 'black', metal: 'black',
-    velvet: [210,208,202], linen: [210,208,202],
-    stone: 'limestone', rugA: [186,182,174], rugB: [226,222,214],
-    paver: 'limestone', cedar: 'mineralWood',
-    cushion: [64,64,66], ceramic: [242,240,234],
+  transitional: {
+    id: 'transitional', name: 'American Transitional',
+    floor: 'oak', wall: [242,230,210], plaster: [248,238,222],
+    dado: 'oak', trim: 'bronze', metal: 'bronze',
+    velvet: [168,132,104], linen: [232,218,196],
+    stone: 'travertine', rugA: [140,92,64], rugB: [220,204,180],
+    paver: 'travertine', cedar: 'cedar',
+    cushion: [228,208,160], pillowIvory: [244,234,214], ceramic: [244,236,220],
   },
 };
 
@@ -227,6 +227,7 @@ function woodMaps(kind, herringbone, rx, ry) {
   const palettes = {
     walnut: { base:[92,58,32], dark:[52,30,16], hi:[140,96,58] },
     oak:    { base:[166,118,64], dark:[120,78,40], hi:[210,168,110] },
+    whiteOak:{ base:[198,170,126], dark:[148,118,80], hi:[232,210,172] },
     cedar:  { base:[150,92,52], dark:[98,54,28], hi:[196,132,78] },
     mineralWood: { base:[168,160,148], dark:[110,104,96], hi:[210,204,194] },
   };
@@ -320,6 +321,8 @@ function metalMaps(kind) {
       const grad = ctx.createLinearGradient(0,0,s,s*0.2);
       if (kind==='black') {
         grad.addColorStop(0,'#2a2a2c'); grad.addColorStop(0.5,'#5a5a5e'); grad.addColorStop(1,'#1a1a1c');
+      } else if (kind==='bronze') {
+        grad.addColorStop(0,'#3a2414'); grad.addColorStop(0.35,'#c4a06a'); grad.addColorStop(0.62,'#8a5a32'); grad.addColorStop(1,'#4a3018');
       } else {
         grad.addColorStop(0,'#8a6a32'); grad.addColorStop(0.35,'#e8d09a'); grad.addColorStop(0.6,'#C9A96E'); grad.addColorStop(1,'#6a4e22');
       }
@@ -495,13 +498,31 @@ function wallpaperMaps(wallRGB) {
   });
 }
 
+function daylightGlassMap() {
+  return cached('daylight-glass', () => toTex(makeCanvas(256, (ctx,s)=>{
+    const g = ctx.createLinearGradient(0, 0, 0, s);
+    g.addColorStop(0, '#fffaf0');
+    g.addColorStop(0.28, '#ffe9b8');
+    g.addColorStop(0.62, '#f3f0e6');
+    g.addColorStop(1, '#dce8f8');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, s, s);
+    // soft mullion-adjacent bloom
+    const radial = ctx.createRadialGradient(s*0.5, s*0.3, 10, s*0.5, s*0.45, s*0.8);
+    radial.addColorStop(0, 'rgba(255,248,230,0.35)');
+    radial.addColorStop(1, 'rgba(255,248,230,0)');
+    ctx.fillStyle = radial;
+    ctx.fillRect(0, 0, s, s);
+  }), { rx:1, ry:1 }));
+}
+
 function buildMaterials() {
   const T = THEME[state.theme];
   const floorKind = T.floor;
   const floor = floorKind==='travertine' || floorKind==='limestone'
     ? stoneMaps(floorKind==='travertine'?'travertine':'limestone', 2, 2)
     : woodMaps(floorKind, true, 3, 2);
-  const dado = T.dado==='mineral' ? stoneMaps('limestone', 1, 1) : woodMaps(T.dado==='oak'?'oak':'walnut', false, 2, 1);
+  const dado = woodMaps(T.dado==='oak'?'oak': T.dado==='whiteOak'?'whiteOak':'walnut', false, 2, 1);
   const wall = wallpaperMaps(T.wall);
   const plaster = wallpaperMaps(T.plaster);
   const metal = metalMaps(T.metal);
@@ -522,7 +543,7 @@ function buildMaterials() {
     dado: std({ map: dado.map, bumpMap: dado.bump, bumpScale: 0.03, roughness: 0.5, metalness: 0.04 }),
     wall: std({ map: wall.map, bumpMap: wall.bump, bumpScale: 0.012, roughness: 0.78, metalness: 0 }),
     plaster: std({ map: plaster.map, bumpMap: plaster.bump, bumpScale: 0.008, roughness: 0.82, metalness: 0 }),
-    metal: std({ map: metal.map, roughnessMap: metal.rough, metalness: T.metal==='black'?0.7:0.85, roughness: T.metal==='black'?0.42:0.28, envMapIntensity: 1.1 }),
+    metal: std({ map: metal.map, roughnessMap: metal.rough, metalness: T.metal==='black'?0.7: T.metal==='bronze'?0.78: T.satin?0.82:0.85, roughness: T.metal==='black'?0.42: T.metal==='bronze'?0.4: T.satin?0.36:0.28, envMapIntensity: 1.1 }),
     velvet: phys({ map: velvet.map, bumpMap: velvet.bump, bumpScale: 0.02, roughness: 0.82, metalness: 0, sheen: 1, sheenRoughness: 0.45, sheenColor: new THREE.Color(...T.velvet.map(v=>v/255)) }),
     linen: std({ map: linen.map, bumpMap: linen.bump, bumpScale: 0.02, roughness: 0.86, metalness: 0 }),
     rug: std({ map: rug.map, bumpMap: rug.bump, bumpScale: 0.03, roughness: 0.9, metalness: 0 }),
@@ -532,8 +553,9 @@ function buildMaterials() {
     cedar: std({ map: cedar.map, bumpMap: cedar.bump, bumpScale: 0.03, roughness: 0.62, metalness: 0.02 }),
     sisal: std({ map: sisal, bumpScale: 0.04, roughness: 0.88, metalness: 0 }),
     ceramic: std({ color: new THREE.Color(...T.ceramic.map(v=>v/255)), roughness: 0.22, metalness: 0.05 }),
-    cushion: phys({ color: new THREE.Color(...T.cushion.map(v=>v/255)), roughness: 0.8, metalness: 0, sheen: 0.8, sheenColor: new THREE.Color(...T.cushion.map(v=>v/255)) }),
-    glass: new THREE.MeshPhysicalMaterial({ color: 0xd8e8ff, roughness: 0.06, metalness: 0, transparent: true, opacity: 0.32, emissive: 0xfff4dc, emissiveIntensity: 0.85 }),
+    cushion: phys({ color: new THREE.Color(...T.cushion.map(v=>v/255)), map: fabricMaps(T.cushion, 'velvet', 2, 2).map, roughness: 0.72, metalness: 0, sheen: 1, sheenRoughness: 0.4, sheenColor: new THREE.Color(0.95,0.86,0.62) }),
+    pillowIvory: phys({ color: new THREE.Color(...(T.pillowIvory||[244,234,214]).map(v=>v/255)), map: fabricMaps(T.pillowIvory||[244,234,214], 'velvet', 2, 2).map, roughness: 0.74, metalness: 0, sheen: 1, sheenRoughness: 0.42, sheenColor: new THREE.Color(0.98,0.94,0.86) }),
+    glass: phys({ map: daylightGlassMap(), color: 0xfff6e8, roughness: 0.08, metalness: 0, transparent: true, opacity: 0.48, emissive: 0xffe7b0, emissiveMap: daylightGlassMap(), emissiveIntensity: 1.25 }),
     mullion: std({ map: metal.map, metalness: T.metal==='black'?0.7:0.85, roughness: 0.3 }),
     foliage: std({ color: 0x3d6a38, roughness: 0.86, metalness: 0 }),
     soil: std({ color: 0x3a2a1c, roughness: 0.95, metalness: 0 }),
@@ -561,6 +583,26 @@ function addCyl(parent, mat, rTop, rBot, h, x,y,z, opt={}) {
   if (opt.rotX) m.rotation.x = opt.rotX;
   if (opt.rotZ) m.rotation.z = opt.rotZ;
   m.castShadow = opt.cast !== false;
+  m.receiveShadow = true;
+  parent.add(m);
+  return m;
+}
+function addPillow(parent, mat, w, h, d, x, y, z, rotY=0) {
+  const m = new THREE.Mesh(new THREE.SphereGeometry(0.5, 28, 20), mat);
+  m.scale.set(w, h, d);
+  m.position.set(x, y, z);
+  m.rotation.y = rotY;
+  m.castShadow = true;
+  m.receiveShadow = true;
+  parent.add(m);
+  return m;
+}
+function addBolster(parent, mat, length, radius, x, y, z, rotY=0) {
+  const m = new THREE.Mesh(new THREE.CapsuleGeometry(radius, Math.max(0.02, length - radius * 2), 8, 20), mat);
+  m.position.set(x, y, z);
+  m.rotation.z = Math.PI / 2;
+  m.rotation.y = rotY;
+  m.castShadow = true;
   m.receiveShadow = true;
   parent.add(m);
   return m;
@@ -628,6 +670,8 @@ function buildInteriorShell() {
   // Window: glass + mullions + jambs
   const glass = addBox(g, mats.glass, winW - 0.06, winH - 0.06, 0.03, 0, sill + winH/2, -d/2 + 0.01, {cast:false});
   glass.receiveShadow = false;
+  const dayMat = new THREE.MeshBasicMaterial({ map: daylightGlassMap(), color: 0xfff3d2, toneMapped: true });
+  addBox(g, dayMat, winW - 0.02, winH - 0.02, 0.02, 0, sill + winH/2, -d/2 - 0.08, {cast:false, receive:false});
   // frame
   const fw = 0.05;
   addBox(g, mats.mullion, winW + 0.04, fw, 0.07, 0, sill, -d/2 + 0.02);
@@ -806,6 +850,7 @@ function addAlcove(parent, garden) {
     // arched niche suggestion: back + sides + velvet bed
     addBox(g, mats.cedar, W-0.2, H-0.2, 0.04, 0, (H-0.2)/2+0.1, -D/2+0.12);
     addBox(g, mats.velvet, W-0.4, 0.08, D-0.3, 0, 0.16, 0.04);
+    addBolster(g, mats.pillowIvory, Math.min(W-0.5, 0.8), 0.08, 0, 0.24, 0.04);
     addCyl(g, mats.cedar, (W-0.3)/2, (W-0.3)/2, 0.05, 0, H-0.18, -D/2+0.14, {rotX:Math.PI/2, seg:16, cast:false});
   } else {
     // fluted console body
@@ -820,8 +865,14 @@ function addAlcove(parent, garden) {
     addBox(g, mats.metal, W+0.02, 0.02, D+0.02, 0, 0.02, 0);
     // arched niche cut visually: dark recess + velvet + brass arch
     const nw = grand ? 0.78 : 0.62, nh = grand ? 0.55 : 0.46;
-    addBox(g, mats.velvet, nw, nh, 0.08, 0, 0.14+nh/2, D/2-0.06, {cast:false});
-    addBox(g, mats.cushion, nw-0.1, 0.07, 0.28, 0, 0.16, D/2-0.05);
+    const nicheMat = mats.velvet.clone();
+    nicheMat.emissive = new THREE.Color(0xffc888);
+    nicheMat.emissiveIntensity = 0.28;
+    addBox(g, nicheMat, nw, nh, 0.08, 0, 0.14+nh/2, D/2-0.06, {cast:false});
+    addBolster(g, mats.pillowIvory, Math.min(nw-0.16, 0.62), 0.075, 0, 0.20, D/2-0.02);
+    const glow = new THREE.PointLight(0xffc48a, 1.85, 2.8, 2);
+    glow.position.set(0, 0.42, D/2 + 0.18);
+    g.add(glow);
     // brass arch as a thin torus-like half: use boxes + cylinder
     addBox(g, mats.metal, 0.025, nh, 0.025, -nw/2, 0.14+nh/2, D/2+0.01);
     addBox(g, mats.metal, 0.025, nh, 0.025,  nw/2, 0.14+nh/2, D/2+0.01);
@@ -904,16 +955,16 @@ function addSofa(parent, garden) {
     addBox(g, mats.cedar, SW, 0.12, SD, 0, 0.14, 0);
     addBox(g, mats.linen, SW-0.1, 0.08, SD-0.1, 0, 0.22, 0);
     addBox(g, mats.cedar, SW, 0.45, 0.08, 0, 0.4, -SD/2+0.04);
-    addBox(g, mats.cushion, 0.32, 0.18, 0.32, -SW*0.28, 0.34, 0.05);
-    addBox(g, mats.cushion, 0.32, 0.18, 0.32,  SW*0.28, 0.34, 0.05);
+    addPillow(g, mats.cushion, 0.38, 0.16, 0.32, -SW*0.26, 0.36, 0.06, 0.25);
+    addPillow(g, mats.pillowIvory, 0.36, 0.15, 0.3,  SW*0.26, 0.35, 0.07, -0.2);
   } else {
     addBox(g, mats.velvet, SW, 0.38, SD, 0, 0.28, 0);
     addBox(g, mats.velvet, SW-0.12, 0.12, SD-0.16, 0, 0.5, 0.04);
     addBox(g, mats.velvet, SW, 0.48, 0.16, 0, 0.62, -SD/2+0.08);
     addBox(g, mats.velvet, 0.16, 0.46, SD, -SW/2+0.08, 0.48, 0);
     addBox(g, mats.velvet, 0.16, 0.46, SD,  SW/2-0.08, 0.48, 0);
-    addBox(g, mats.cushion, 0.28, 0.22, 0.28, -SW*0.22, 0.58, 0.08);
-    addBox(g, mats.cushion, 0.28, 0.22, 0.28,  SW*0.22, 0.58, 0.08);
+    addPillow(g, mats.cushion, 0.42, 0.2, 0.34, -SW*0.2, 0.62, 0.12, 0.35);
+    addPillow(g, mats.pillowIvory, 0.4, 0.18, 0.32,  SW*0.18, 0.61, 0.14, -0.28);
     // floor lamp
     addCyl(g, mats.metal, 0.12, 0.14, 0.03, SW/2+0.28, 0.03, -0.1, {seg:16});
     addCyl(g, mats.metal, 0.015, 0.015, 1.42, SW/2+0.28, 0.74, -0.1, {seg:10});
@@ -927,14 +978,14 @@ function addSofa(parent, garden) {
 /* ---------- lights ---------- */
 function placeLights() {
   const { w, d, h, isGarden } = dim();
-  lights.hemi.intensity = isGarden ? 1.05 : 0.82;
-  lights.sun.intensity = isGarden ? 2.7 : 2.35;
+  lights.hemi.intensity = isGarden ? 1.15 : 1.18;
+  lights.sun.intensity = isGarden ? 2.85 : 2.9;
   lights.sun.position.set(w * 0.2, h * 1.4, isGarden ? d * 0.6 : -d/2 - 3.2);
   lights.sun.target.position.set(0, 0.2, isGarden ? 0 : -d * 0.1);
   lights.sun.target.updateMatrixWorld();
   if (lights.fill) {
     lights.fill.position.set(w * 0.85, h * 1.15, d * 0.95);
-    lights.fill.intensity = isGarden ? 0.45 : 0.75;
+    lights.fill.intensity = isGarden ? 0.55 : 1.05;
   }
   const shadowSpan = Math.max(w, d) * 0.7;
   const cam = lights.sun.shadow.camera;
@@ -947,10 +998,10 @@ function placeLights() {
   lights.sconceB.position.set(w*0.28, 1.55, -d/2 + 0.18);
   lights.lamp.position.set(w*0.28, isGarden ? 1.2 : 1.48, d*0.05);
   const interior = !isGarden;
-  lights.sconceL.intensity = interior ? 1.15 : 0.35;
-  lights.sconceL2.intensity = interior ? 0.95 : 0.25;
-  lights.sconceB.intensity = interior ? 1.05 : 0.2;
-  lights.lamp.intensity = interior ? 1.35 : 0.4;
+  lights.sconceL.intensity = interior ? 1.45 : 0.35;
+  lights.sconceL2.intensity = interior ? 1.2 : 0.25;
+  lights.sconceB.intensity = interior ? 1.3 : 0.2;
+  lights.lamp.intensity = interior ? 1.65 : 0.4;
   lights.sconceL.visible = lights.sconceL2.visible = lights.sconceB.visible = lights.lamp.visible = true;
 }
 
@@ -1239,14 +1290,14 @@ function init() {
   renderer.setSize(el.clientWidth, el.clientHeight, false);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.28;
+  renderer.toneMappingExposure = 1.38;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
   el.appendChild(renderer.domElement);
 
-  lights.hemi = new THREE.HemisphereLight(0xd5e2f4, 0x4a3824, 0.82);
+  lights.hemi = new THREE.HemisphereLight(0xe8f0fa, 0x5a4430, 1.18);
   scene.add(lights.hemi);
-  lights.sun = new THREE.DirectionalLight(0xffe6c4, 2.35);
+  lights.sun = new THREE.DirectionalLight(0xffebb8, 2.9);
   lights.sun.castShadow = true;
   lights.sun.shadow.mapSize.set(2048, 2048);
   lights.sun.shadow.bias = -0.00035;
