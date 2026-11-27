@@ -1,0 +1,1310 @@
+/* Pawpartout 3D Pet-Interior Studio V1 — local preview, 2026-11-27 */
+import * as THREE from './vendor/three.module.min.js';
+import { OrbitControls } from './vendor/OrbitControls.js';
+
+const SPACES = {
+  living:  { name: 'Living Room', ceiling: 2.8, sizes: { S:{w:4.2,d:3.6}, M:{w:5.6,d:4.6}, L:{w:7.2,d:5.6} } },
+  studio:  { name: 'Studio', ceiling: 2.7, sizes: { S:{w:4.0,d:3.4}, M:{w:5.0,d:4.2}, L:{w:6.2,d:5.0} } },
+  bedroom: { name: 'Bedroom', ceiling: 2.7, sizes: { S:{w:3.6,d:3.2}, M:{w:4.6,d:4.0}, L:{w:5.8,d:4.8} } },
+  garden:  { name: 'Garden / Terrace', enclosure: 1.9, sizes: { S:{w:5.0,d:4.0}, M:{w:7.0,d:5.5}, L:{w:9.5,d:7.0} } },
+};
+
+const NOTES = {
+  interior: {
+    catwall: 'Walnut and brass floating shelves, a sisal-wrapped post, and a suspended bridge.',
+    alcove: 'A fluted console with an arched velvet-lined dog niche and brushed-brass trim.',
+    dining: 'A flush marble-and-wood plinth with twin ceramic bowls in brass rings.',
+    litter: 'An architectural credenza with a discreet side portal and brass pulls.',
+    sofa: 'A sculptural performance-velvet sofa on a tight flat-weave rug.',
+    panelling: 'Protective lower wainscoting with a textured claw-resistant wallcovering above.',
+  },
+  garden: {
+    catwall: 'A covered cedar catio perch with climbing steps against the fence.',
+    alcove: 'A covered timber and stone pavilion for a dog to rest in shade.',
+    dining: 'A carved limestone outdoor hydration station with twin bowls.',
+    litter: 'A screened cedar and gravel relief zone, set discreetly to one side.',
+    sofa: 'An outdoor timber daybed and a woven terrace rug.',
+    panelling: 'A pet-safe cedar slatted privacy screen and a honed stone border.',
+  },
+};
+
+const EL_NAMES = {
+  catwall: 'Architectural Cat Wall & Tree',
+  alcove: 'Built-In Dog Alcove Console',
+  dining: 'Recessed Dining & Water Station',
+  litter: 'Concealed Litter Credenza',
+  sofa: 'Claw-Resistant Sofa & Flat-Weave Rug',
+  panelling: 'Claw-Resistant Wall Panelling & Wallpaper',
+};
+const GARDEN_NAMES = {
+  catwall: 'Covered Cedar Catio & Climbing Steps',
+  alcove: 'Timber & Stone Dog Pavilion',
+  dining: 'Limestone Outdoor Hydration Station',
+  litter: 'Screened Cedar & Gravel Relief Zone',
+  sofa: 'Outdoor Timber Daybed & Terrace Rug',
+  panelling: 'Cedar Privacy Screen & Stone Border',
+};
+
+const THEME = {
+  neobaroque: {
+    id: 'neobaroque', name: 'Modern Neo-Baroque',
+    floor: 'walnut', wall: [52,62,92], plaster: [58,68,98],
+    dado: 'walnut', trim: 'brass', metal: 'brass',
+    velvet: [36,40,82], linen: [40,44,86],
+    stone: 'darkMarble', rugA: [78,28,38], rugB: [32,34,64],
+    grass: null, paver: 'darkMarble', cedar: 'walnut',
+    cushion: [96,28,42], ceramic: [236,228,214],
+  },
+  warmwood: {
+    id: 'warmwood', name: 'Warm Wood & Linen',
+    floor: 'oak', wall: [232,214,190], plaster: [240,226,206],
+    dado: 'oak', trim: 'brass', metal: 'brass',
+    velvet: [214,196,170], linen: [214,196,170],
+    stone: 'travertine', rugA: [176,92,64], rugB: [210,186,150],
+    paver: 'travertine', cedar: 'cedar',
+    cushion: [176,92,64], ceramic: [244,236,220],
+  },
+  mineral: {
+    id: 'mineral', name: 'Minimal Mineral',
+    floor: 'travertine', wall: [228,224,216], plaster: [236,232,224],
+    dado: 'mineral', trim: 'black', metal: 'black',
+    velvet: [210,208,202], linen: [210,208,202],
+    stone: 'limestone', rugA: [186,182,174], rugB: [226,222,214],
+    paver: 'limestone', cedar: 'mineralWood',
+    cushion: [64,64,66], ceramic: [242,240,234],
+  },
+};
+
+const state = {
+  space: 'living', size: 'M', units: 'm', theme: 'neobaroque', view: 'perspective',
+  elements: {
+    catwall:    { on:true, place:'left',  variant:'grand' },
+    alcove:     { on:true, place:'back',  variant:'grand' },
+    dining:     { on:true, place:'left',  variant:'compact' },
+    litter:     { on:true, place:'back',  variant:'compact' },
+    sofa:       { on:true, place:'center',variant:'grand' },
+    panelling:  { on:true, place:'walls', variant:'classic' },
+  },
+};
+
+const M2FT = 3.280839895;
+const M2SQFT = 10.7639104167;
+const L2GAL = 0.264172052;
+
+let renderer, scene, persp, ortho, camera, controls, world, lights = {};
+let mats = {};
+const texCache = new Map();
+const stage = () => document.getElementById('studio-stage');
+
+function dim() {
+  const sp = SPACES[state.space];
+  const sz = sp.sizes[state.size];
+  return {
+    w: sz.w, d: sz.d,
+    h: sp.ceiling || sp.enclosure,
+    ceiling: sp.ceiling || 0,
+    enclosure: sp.enclosure || 0,
+    isGarden: state.space === 'garden',
+    name: sp.name,
+  };
+}
+function fmtLen(m, digits=2) {
+  if (state.units === 'ft') {
+    const ft = m * M2FT;
+    const whole = Math.floor(ft + 1e-9);
+    const inch = Math.round((ft - whole) * 12);
+    const i = inch === 12 ? 0 : inch;
+    const w = inch === 12 ? whole + 1 : whole;
+    return `${w}′${i}″`;
+  }
+  return `${m.toFixed(digits)} m`;
+}
+function fmtArea(m2, digits=1) {
+  return state.units === 'ft' ? `${(m2*M2SQFT).toFixed(digits)} sq ft` : `${m2.toFixed(digits)} m²`;
+}
+
+/* ---------- procedural textures ---------- */
+function hash(ix, iy) {
+  const n = Math.sin(ix * 127.1 + iy * 311.7) * 43758.5453123;
+  return n - Math.floor(n);
+}
+function noise(x, y) {
+  const ix = Math.floor(x), iy = Math.floor(y);
+  const fx = x - ix, fy = y - iy;
+  const ux = fx * fx * (3 - 2 * fx), uy = fy * fy * (3 - 2 * fy);
+  return (
+    (hash(ix, iy) * (1 - ux) + hash(ix + 1, iy) * ux) * (1 - uy) +
+    (hash(ix, iy + 1) * (1 - ux) + hash(ix + 1, iy + 1) * ux) * uy
+  );
+}
+function fbm(x, y, oct=5) {
+  let v = 0, a = 0.5, f = 1;
+  for (let i = 0; i < oct; i++) { v += a * noise(x * f, y * f); f *= 2; a *= 0.5; }
+  return v;
+}
+function mix(a, b, t) { return a + (b - a) * t; }
+function rgb(r,g,b){ return `rgb(${r|0},${g|0},${b|0})`; }
+
+function makeCanvas(size, paint) {
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  paint(ctx, size);
+  return c;
+}
+function toTex(canvas, { color = true, rx = 1, ry = 1 } = {}) {
+  const t = new THREE.CanvasTexture(canvas);
+  t.colorSpace = color ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(rx, ry);
+  t.anisotropy = 8;
+  t.needsUpdate = true;
+  return t;
+}
+function cached(key, fn) {
+  if (!texCache.has(key)) texCache.set(key, fn());
+  return texCache.get(key);
+}
+
+function paintWood(ctx, size, pal, herringbone) {
+  const [br,bg,bb] = pal.base, [dr,dg,db] = pal.dark, [hr,hg,hb] = pal.hi;
+  ctx.fillStyle = rgb(br,bg,bb);
+  ctx.fillRect(0,0,size,size);
+  if (herringbone) {
+    const n = 10, s = size / n;
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        const flip = (i + j) % 2 === 0;
+        const v = 0.82 + hash(i, j) * 0.28;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(i*s - 1, j*s - 1, s + 2, s + 2);
+        ctx.clip();
+        ctx.translate(i*s + s/2, j*s + s/2);
+        ctx.rotate(flip ? Math.PI/4 : -Math.PI/4);
+        const img = ctx.createLinearGradient(-s, 0, s, 0);
+        img.addColorStop(0, rgb(dr*v, dg*v, db*v));
+        img.addColorStop(0.45, rgb(mix(br,hr,v-0.82)*v, mix(bg,hg,v-0.82)*v, mix(bb,hb,v-0.82)*v));
+        img.addColorStop(1, rgb(dr*v*0.9, dg*v*0.9, db*v*0.9));
+        ctx.fillStyle = img;
+        ctx.fillRect(-s, -s*0.28, s*2, s*0.56);
+        ctx.strokeStyle = 'rgba(20,12,6,0.35)';
+        ctx.lineWidth = 1.2;
+        ctx.strokeRect(-s, -s*0.28, s*2, s*0.56);
+        ctx.strokeStyle = 'rgba(80,50,20,0.18)';
+        for (let g = -s; g < s; g += 3) {
+          ctx.globalAlpha = 0.15 + noise(g*0.08, i+j) * 0.25;
+          ctx.beginPath();
+          ctx.moveTo(g, -s*0.28);
+          ctx.bezierCurveTo(g+2, 0, g-2, 0, g+1, s*0.28);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+    }
+  } else {
+    const boards = 8, bw = size / boards;
+    for (let i = 0; i < boards; i++) {
+      const v = 0.88 + hash(i, 3) * 0.22;
+      ctx.fillStyle = rgb(br*v, bg*v, bb*v);
+      ctx.fillRect(i*bw, 0, bw-1.5, size);
+      ctx.strokeStyle = 'rgba(20,12,6,0.28)';
+      ctx.beginPath(); ctx.moveTo((i+1)*bw-1,0); ctx.lineTo((i+1)*bw-1,size); ctx.stroke();
+      ctx.strokeStyle = 'rgba(90,55,22,0.2)';
+      for (let y = 0; y < size; y += 2) {
+        ctx.globalAlpha = 0.12 + noise(i, y*0.05) * 0.3;
+        ctx.beginPath();
+        const x = i*bw + 2 + noise(i*2, y*0.02)* (bw-4);
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + (noise(i,y)-0.5)*2, y+2);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+  }
+}
+function woodMaps(kind, herringbone, rx, ry) {
+  const palettes = {
+    walnut: { base:[92,58,32], dark:[52,30,16], hi:[140,96,58] },
+    oak:    { base:[166,118,64], dark:[120,78,40], hi:[210,168,110] },
+    cedar:  { base:[150,92,52], dark:[98,54,28], hi:[196,132,78] },
+    mineralWood: { base:[168,160,148], dark:[110,104,96], hi:[210,204,194] },
+  };
+  const pal = palettes[kind] || palettes.walnut;
+  const key = `wood:${kind}:${herringbone}:${rx}:${ry}`;
+  return cached(key, () => {
+    const map = toTex(makeCanvas(1024, (ctx,s)=>paintWood(ctx,s,pal,herringbone)), {rx, ry});
+    const bump = toTex(makeCanvas(512, (ctx,s)=>{
+      ctx.fillStyle='#888'; ctx.fillRect(0,0,s,s);
+      paintWood(ctx,s,{base:[140,140,140],dark:[90,90,90],hi:[200,200,200]},herringbone);
+    }), {color:false, rx, ry});
+    const rough = toTex(makeCanvas(512, (ctx,s)=>{
+      ctx.fillStyle='#c8c8c8'; ctx.fillRect(0,0,s,s);
+      for (let i=0;i<s;i+=2) for (let j=0;j<s;j+=2) {
+        const n = fbm(i*0.04,j*0.08,3);
+        const v = 150 + n*80;
+        ctx.fillStyle = `rgb(${v|0},${v|0},${v|0})`;
+        ctx.fillRect(i,j,2,2);
+      }
+    }), {color:false, rx, ry});
+    return { map, bump, rough };
+  });
+}
+
+function stoneMaps(kind, rx, ry) {
+  const specs = {
+    darkMarble: { base:[28,28,32], vein:[210,210,214], vein2:[160,150,130], pit:false },
+    travertine: { base:[214,200,176], vein:[190,176,152], vein2:[232,220,198], pit:true },
+    limestone:  { base:[212,208,198], vein:[186,182,172], vein2:[232,228,220], pit:true },
+  };
+  const pal = specs[kind] || specs.darkMarble;
+  const key = `stone:${kind}:${rx}:${ry}`;
+  return cached(key, () => {
+    const map = toTex(makeCanvas(1024, (ctx,s)=>{
+      const [r,g,b] = pal.base;
+      ctx.fillStyle = rgb(r,g,b); ctx.fillRect(0,0,s,s);
+      for (let y=0;y<s;y++) {
+        for (let x=0;x<s;x+=2) {
+          const n = fbm(x*0.006, y*0.006, 4);
+          const v = (n-0.5)*18;
+          ctx.fillStyle = rgb(r+v,g+v,b+v);
+          ctx.fillRect(x,y,2,1);
+        }
+      }
+      const veins = 14;
+      for (let i=0;i<veins;i++) {
+        const col = i%2 ? pal.vein : pal.vein2;
+        ctx.strokeStyle = `rgba(${col[0]},${col[1]},${col[2]},${kind==='darkMarble'?0.55:0.28})`;
+        ctx.lineWidth = kind==='darkMarble' ? 1+hash(i,1)*2.5 : 2+hash(i,2)*4;
+        ctx.beginPath();
+        let x = hash(i,4)*s, y = hash(i,5)*s;
+        ctx.moveTo(x,y);
+        for (let k=0;k<18;k++) {
+          x += (fbm(i,k*0.3)-0.5)*80;
+          y += 20 + (fbm(k,i)-0.45)*30;
+          ctx.lineTo(x,y);
+        }
+        ctx.stroke();
+      }
+      if (pal.pit) {
+        for (let i=0;i<400;i++) {
+          const x=hash(i,8)*s, y=hash(i,9)*s, rad=0.6+hash(i,10)*2.2;
+          ctx.fillStyle=`rgba(90,80,60,${0.12+hash(i,11)*0.25})`;
+          ctx.beginPath(); ctx.ellipse(x,y,rad*1.6,rad,0,0,6.28); ctx.fill();
+        }
+      }
+    }), {rx,ry});
+    const bump = toTex(makeCanvas(512,(ctx,s)=>{
+      ctx.fillStyle='#9a9a9a'; ctx.fillRect(0,0,s,s);
+      for (let i=0;i<s;i+=2) for (let j=0;j<s;j+=2) {
+        const n=fbm(i*0.03,j*0.03,4); const v=130+n*80;
+        ctx.fillStyle=`rgb(${v|0},${v|0},${v|0})`; ctx.fillRect(i,j,2,2);
+      }
+    }), {color:false,rx,ry});
+    const rough = toTex(makeCanvas(256,(ctx,s)=>{
+      ctx.fillStyle = kind==='darkMarble' ? '#4a4a4a' : '#c0c0c0';
+      ctx.fillRect(0,0,s,s);
+      for (let i=0;i<s;i+=2) for (let j=0;j<s;j+=2) {
+        const n=fbm(i*0.08,j*0.08,2); const v=(kind==='darkMarble'?70:170)+n*60;
+        ctx.fillStyle=`rgb(${v|0},${v|0},${v|0})`; ctx.fillRect(i,j,2,2);
+      }
+    }), {color:false,rx,ry});
+    return {map, bump, rough};
+  });
+}
+
+function metalMaps(kind) {
+  const key = `metal:${kind}`;
+  return cached(key, () => {
+    const map = toTex(makeCanvas(512,(ctx,s)=>{
+      const grad = ctx.createLinearGradient(0,0,s,s*0.2);
+      if (kind==='black') {
+        grad.addColorStop(0,'#2a2a2c'); grad.addColorStop(0.5,'#5a5a5e'); grad.addColorStop(1,'#1a1a1c');
+      } else {
+        grad.addColorStop(0,'#8a6a32'); grad.addColorStop(0.35,'#e8d09a'); grad.addColorStop(0.6,'#C9A96E'); grad.addColorStop(1,'#6a4e22');
+      }
+      ctx.fillStyle=grad; ctx.fillRect(0,0,s,s);
+      for (let y=0;y<s;y++) {
+        ctx.globalAlpha = 0.08 + noise(0,y*0.4)*0.18;
+        ctx.fillStyle = kind==='black' ? '#ddd' : '#fff6d8';
+        ctx.fillRect(0,y,s,1);
+      }
+      ctx.globalAlpha=1;
+    }), {rx:2, ry:1});
+    const rough = toTex(makeCanvas(256,(ctx,s)=>{
+      ctx.fillStyle='#4a4a4a'; ctx.fillRect(0,0,s,s);
+      for (let y=0;y<s;y++) {
+        const v = 60 + noise(1,y*0.3)*50;
+        ctx.fillStyle=`rgb(${v|0},${v|0},${v|0})`;
+        ctx.fillRect(0,y,s,1);
+      }
+    }), {color:false, rx:2, ry:1});
+    return {map, rough};
+  });
+}
+
+function fabricMaps(rgbCol, kind, rx, ry) {
+  const key = `fab:${kind}:${rgbCol.join(',')}:${rx}:${ry}`;
+  return cached(key, () => {
+    const map = toTex(makeCanvas(512,(ctx,s)=>{
+      const [r,g,b]=rgbCol;
+      ctx.fillStyle=rgb(r,g,b); ctx.fillRect(0,0,s,s);
+      if (kind==='velvet') {
+        for (let x=0;x<s;x++) {
+          const n=fbm(x*0.08, 2, 3);
+          ctx.fillStyle=`rgba(0,0,0,${0.04+n*0.1})`;
+          ctx.fillRect(x,0,1,s);
+        }
+        for (let i=0;i<1200;i++) {
+          ctx.fillStyle=`rgba(255,255,255,${0.02+hash(i,1)*0.04})`;
+          ctx.fillRect(hash(i,2)*s, hash(i,3)*s, 1, 2+hash(i,4)*3);
+        }
+      } else if (kind==='rug') {
+        const step=4;
+        for (let y=0;y<s;y+=step) for (let x=0;x<s;x+=step) {
+          const on=(x/step+y/step)%2===0;
+          const v=on?0.88:1.08;
+          ctx.fillStyle=rgb(r*v,g*v,b*v);
+          ctx.fillRect(x,y,step-0.5,step-0.5);
+        }
+      } else {
+        // linen / grasscloth
+        for (let y=0;y<s;y+=2) {
+          ctx.fillStyle=`rgba(0,0,0,${0.03+noise(y,1)*0.06})`;
+          ctx.fillRect(0,y,s,1);
+        }
+        for (let x=0;x<s;x+=3) {
+          ctx.fillStyle=`rgba(255,255,255,${0.03+noise(x,2)*0.05})`;
+          ctx.fillRect(x,0,1,s);
+        }
+      }
+    }), {rx,ry});
+    const bump = toTex(makeCanvas(256,(ctx,s)=>{
+      ctx.fillStyle='#999'; ctx.fillRect(0,0,s,s);
+      for (let i=0;i<s;i++) {
+        const v=120+noise(i,4)*80;
+        ctx.fillStyle=`rgb(${v|0},${v|0},${v|0})`;
+        ctx.fillRect(i,0,1,s);
+      }
+    }), {color:false,rx,ry});
+    const rough = toTex(makeCanvas(128,(ctx,s)=>{
+      ctx.fillStyle = kind==='velvet' ? '#d8d8d8' : '#e8e8e8';
+      ctx.fillRect(0,0,s,s);
+    }), {color:false,rx,ry});
+    return {map, bump, rough};
+  });
+}
+
+function sisalMap() {
+  return cached('sisal', () => toTex(makeCanvas(512,(ctx,s)=>{
+    ctx.fillStyle='#c4a06a'; ctx.fillRect(0,0,s,s);
+    for (let x=0;x<s;x+=2) {
+      const v=0.75+noise(x*0.2,1)*0.4;
+      ctx.strokeStyle=`rgba(${140*v|0},${100*v|0},${50*v|0},0.85)`;
+      ctx.beginPath();
+      ctx.moveTo(x,0);
+      for (let y=0;y<=s;y+=8) ctx.lineTo(x+(noise(x,y)-0.5)*2,y);
+      ctx.stroke();
+    }
+    for (let y=0;y<s;y+=18) {
+      ctx.strokeStyle='rgba(80,50,20,0.25)';
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(s,y+2); ctx.stroke();
+    }
+  }), {rx:1, ry:3}));
+}
+function grassMaps() {
+  return cached('grass', () => {
+    const map = toTex(makeCanvas(1024,(ctx,s)=>{
+      ctx.fillStyle='#3a6a32'; ctx.fillRect(0,0,s,s);
+      for (let i=0;i<s;i+=2) for (let j=0;j<s;j+=2) {
+        const n=fbm(i*0.02,j*0.02,4);
+        const r=40+n*30, g=90+n*70, b=30+n*20;
+        ctx.fillStyle=rgb(r,g,b); ctx.fillRect(i,j,2,2);
+      }
+      ctx.strokeStyle='rgba(20,40,10,0.25)';
+      for (let i=0;i<5000;i++) {
+        const x=hash(i,1)*s, y=hash(i,2)*s;
+        ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+(hash(i,3)-0.5)*3, y-2-hash(i,4)*4); ctx.stroke();
+      }
+    }), {rx:4, ry:4});
+    const bump = toTex(makeCanvas(512,(ctx,s)=>{
+      ctx.fillStyle='#888'; ctx.fillRect(0,0,s,s);
+      for (let i=0;i<8000;i++) {
+        const v=100+hash(i,5)*120;
+        ctx.fillStyle=`rgb(${v|0},${v|0},${v|0})`;
+        ctx.fillRect(hash(i,6)*s, hash(i,7)*s, 1, 3);
+      }
+    }), {color:false, rx:4, ry:4});
+    return {map, bump};
+  });
+}
+function paverMaps(kind, rx, ry) {
+  const stone = stoneMaps(kind, 1, 1);
+  return cached(`paver:${kind}:${rx}:${ry}`, () => {
+    const map = toTex(makeCanvas(1024,(ctx,s)=>{
+      ctx.fillStyle='#6a655c'; ctx.fillRect(0,0,s,s);
+      const n=4, pad=6, tile=(s-(n+1)*pad)/n;
+      const src = document.createElement('canvas');
+      // draw from stone by resampling color field
+      for (let i=0;i<n;i++) for (let j=0;j<n;j++) {
+        const v=0.92+hash(i,j)*0.14;
+        const img=ctx.createLinearGradient(0,0,tile,tile);
+        if (kind==='darkMarble') {
+          img.addColorStop(0, rgb(30*v,30*v,34*v));
+          img.addColorStop(1, rgb(50*v,50*v,56*v));
+        } else {
+          img.addColorStop(0, rgb(210*v,196*v,172*v));
+          img.addColorStop(1, rgb(230*v,216*v,192*v));
+        }
+        const x=pad+i*(tile+pad), y=pad+j*(tile+pad);
+        ctx.fillStyle=img; ctx.fillRect(x,y,tile,tile);
+        // faint vein
+        ctx.strokeStyle='rgba(255,255,255,0.12)';
+        ctx.beginPath(); ctx.moveTo(x+10,y+hash(i,j)*tile); ctx.lineTo(x+tile-8,y+hash(j,i)*tile); ctx.stroke();
+      }
+    }), {rx, ry});
+    return { map, bump: stone.bump, rough: stone.rough };
+  });
+}
+function wallpaperMaps(wallRGB) {
+  const key=`wp:${wallRGB.join(',')}`;
+  return cached(key, () => {
+    const map = toTex(makeCanvas(512,(ctx,s)=>{
+      const [r,g,b]=wallRGB;
+      ctx.fillStyle=rgb(r,g,b); ctx.fillRect(0,0,s,s);
+      for (let x=0;x<s;x+=3) {
+        const n=fbm(x*0.15, 1, 2);
+        ctx.fillStyle=`rgba(0,0,0,${0.04+n*0.06})`;
+        ctx.fillRect(x,0,1.2,s);
+        ctx.fillStyle=`rgba(255,255,255,${0.03+n*0.04})`;
+        ctx.fillRect(x+1,0,0.7,s);
+      }
+      for (let y=0;y<s;y+=7) {
+        ctx.fillStyle=`rgba(0,0,0,${0.03+noise(y,2)*0.04})`;
+        ctx.fillRect(0,y,s,1);
+      }
+    }), {rx:3, ry:2});
+    const bump = toTex(makeCanvas(256,(ctx,s)=>{
+      ctx.fillStyle='#888'; ctx.fillRect(0,0,s,s);
+      for (let x=0;x<s;x+=3) {
+        ctx.fillStyle='#bbb'; ctx.fillRect(x,0,1,s);
+        ctx.fillStyle='#666'; ctx.fillRect(x+1,0,1,s);
+      }
+    }), {color:false, rx:3, ry:2});
+    return {map, bump};
+  });
+}
+
+function buildMaterials() {
+  const T = THEME[state.theme];
+  const floorKind = T.floor;
+  const floor = floorKind==='travertine' || floorKind==='limestone'
+    ? stoneMaps(floorKind==='travertine'?'travertine':'limestone', 2, 2)
+    : woodMaps(floorKind, true, 3, 2);
+  const dado = T.dado==='mineral' ? stoneMaps('limestone', 1, 1) : woodMaps(T.dado==='oak'?'oak':'walnut', false, 2, 1);
+  const wall = wallpaperMaps(T.wall);
+  const plaster = wallpaperMaps(T.plaster);
+  const metal = metalMaps(T.metal);
+  const velvet = fabricMaps(T.velvet, 'velvet', 2, 2);
+  const linen = fabricMaps(T.linen, 'linen', 2, 2);
+  const rug = fabricMaps(T.rugA, 'rug', 4, 3);
+  const stone = stoneMaps(T.stone, 1, 1);
+  const grass = grassMaps();
+  const paver = paverMaps(T.paver, 2, 2);
+  const cedar = woodMaps(T.cedar, false, 1, 2);
+  const sisal = sisalMap();
+
+  const phys = (opts) => new THREE.MeshPhysicalMaterial(opts);
+  const std = (opts) => new THREE.MeshStandardMaterial(opts);
+
+  mats = {
+    floor: std({ map: floor.map, bumpMap: floor.bump, bumpScale: 0.04, roughnessMap: floor.rough, roughness: 0.48, metalness: 0.02 }),
+    dado: std({ map: dado.map, bumpMap: dado.bump, bumpScale: 0.03, roughness: 0.5, metalness: 0.04 }),
+    wall: std({ map: wall.map, bumpMap: wall.bump, bumpScale: 0.012, roughness: 0.78, metalness: 0 }),
+    plaster: std({ map: plaster.map, bumpMap: plaster.bump, bumpScale: 0.008, roughness: 0.82, metalness: 0 }),
+    metal: std({ map: metal.map, roughnessMap: metal.rough, metalness: T.metal==='black'?0.7:0.85, roughness: T.metal==='black'?0.42:0.28, envMapIntensity: 1.1 }),
+    velvet: phys({ map: velvet.map, bumpMap: velvet.bump, bumpScale: 0.02, roughness: 0.82, metalness: 0, sheen: 1, sheenRoughness: 0.45, sheenColor: new THREE.Color(...T.velvet.map(v=>v/255)) }),
+    linen: std({ map: linen.map, bumpMap: linen.bump, bumpScale: 0.02, roughness: 0.86, metalness: 0 }),
+    rug: std({ map: rug.map, bumpMap: rug.bump, bumpScale: 0.03, roughness: 0.9, metalness: 0 }),
+    stone: std({ map: stone.map, bumpMap: stone.bump, bumpScale: 0.03, roughnessMap: stone.rough, roughness: 0.42, metalness: 0.04 }),
+    grass: std({ map: grass.map, bumpMap: grass.bump, bumpScale: 0.05, roughness: 0.92, metalness: 0 }),
+    paver: std({ map: paver.map, bumpMap: paver.bump, bumpScale: 0.035, roughnessMap: paver.rough, roughness: 0.5, metalness: 0.03 }),
+    cedar: std({ map: cedar.map, bumpMap: cedar.bump, bumpScale: 0.03, roughness: 0.62, metalness: 0.02 }),
+    sisal: std({ map: sisal, bumpScale: 0.04, roughness: 0.88, metalness: 0 }),
+    ceramic: std({ color: new THREE.Color(...T.ceramic.map(v=>v/255)), roughness: 0.22, metalness: 0.05 }),
+    cushion: phys({ color: new THREE.Color(...T.cushion.map(v=>v/255)), roughness: 0.8, metalness: 0, sheen: 0.8, sheenColor: new THREE.Color(...T.cushion.map(v=>v/255)) }),
+    glass: new THREE.MeshPhysicalMaterial({ color: 0xd8e8ff, roughness: 0.06, metalness: 0, transparent: true, opacity: 0.32, emissive: 0xfff4dc, emissiveIntensity: 0.85 }),
+    mullion: std({ map: metal.map, metalness: T.metal==='black'?0.7:0.85, roughness: 0.3 }),
+    foliage: std({ color: 0x3d6a38, roughness: 0.86, metalness: 0 }),
+    soil: std({ color: 0x3a2a1c, roughness: 0.95, metalness: 0 }),
+    gravel: std({ color: 0x8a8376, roughness: 0.9, metalness: 0 }),
+    ground: new THREE.ShadowMaterial({ opacity: 0.28 }),
+    edge: std({ color: 0x1a120c, roughness: 0.7, metalness: 0 }),
+  };
+}
+
+/* ---------- mesh helpers ---------- */
+function addBox(parent, mat, w,h,d, x,y,z, opt={}) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mat);
+  m.position.set(x,y,z);
+  if (opt.rotY) m.rotation.y = opt.rotY;
+  if (opt.rotX) m.rotation.x = opt.rotX;
+  if (opt.rotZ) m.rotation.z = opt.rotZ;
+  m.castShadow = opt.cast !== false;
+  m.receiveShadow = opt.receive !== false;
+  parent.add(m);
+  return m;
+}
+function addCyl(parent, mat, rTop, rBot, h, x,y,z, opt={}) {
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(rTop, rBot, h, opt.seg || 24), mat);
+  m.position.set(x,y,z);
+  if (opt.rotX) m.rotation.x = opt.rotX;
+  if (opt.rotZ) m.rotation.z = opt.rotZ;
+  m.castShadow = opt.cast !== false;
+  m.receiveShadow = true;
+  parent.add(m);
+  return m;
+}
+function addSlab(parent, mat, w, d, thick, y, bevel=0.02) {
+  const sh = new THREE.Shape();
+  const hw=w/2, hd=d/2;
+  sh.moveTo(-hw, -hd); sh.lineTo(hw, -hd); sh.lineTo(hw, hd); sh.lineTo(-hw, hd); sh.closePath();
+  const geo = new THREE.ExtrudeGeometry(sh, { depth: thick, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 2 });
+  geo.rotateX(-Math.PI/2);
+  const m = new THREE.Mesh(geo, mat);
+  m.position.y = y;
+  m.castShadow = true; m.receiveShadow = true;
+  parent.add(m);
+  return m;
+}
+
+function clearWorld() {
+  if (!world) return;
+  world.traverse((o) => {
+    if (o.geometry) o.geometry.dispose();
+  });
+  while (world.children.length) world.remove(world.children[0]);
+}
+
+function wallSlot(wall, key, inset) {
+  const { w, d } = dim();
+  const keys = ['catwall','alcove','dining','litter'].filter((k) => state.elements[k].on && state.elements[k].place === wall);
+  const idx = Math.max(0, keys.indexOf(key));
+  const n = Math.max(1, keys.length);
+  const t = (idx + 1) / (n + 1);
+  if (wall === 'left') {
+    return { x: -w/2 + inset, z: mix(d/2 - 0.55, -d/2 + 0.55, t), rotY: Math.PI/2 };
+  }
+  return { x: mix(-w/2 + 0.55, w/2 - 0.55, t), z: -d/2 + inset, rotY: 0 };
+}
+
+/* ---------- architecture ---------- */
+function buildInteriorShell() {
+  const { w, d, h } = dim();
+  const T = THEME[state.theme];
+  const g = new THREE.Group();
+  world.add(g);
+
+  addSlab(g, mats.floor, w + 0.12, d + 0.12, 0.1, -0.1, 0.022);
+
+  const dadoH = state.elements.panelling.on ? (state.elements.panelling.variant === 'tall' ? 1.18 : 0.92) : 0;
+  const thick = 0.07;
+  const winW = Math.min(2.15, w * 0.4);
+  const winH = Math.min(1.65, h * 0.58);
+  const sill = 0.88;
+  const wallMat = state.elements.panelling.on ? mats.wall : mats.plaster;
+
+  // Left wall (solid)
+  addBox(g, wallMat, thick, h, d, -w/2 - thick/2, h/2, 0, {cast:false});
+  // Back wall with window opening — five panels
+  const zBack = -d/2 - thick/2;
+  const side = (w - winW) / 2;
+  addBox(g, wallMat, side, h, thick, -w/2 + side/2, h/2, zBack, {cast:false});
+  addBox(g, wallMat, side, h, thick,  w/2 - side/2, h/2, zBack, {cast:false});
+  addBox(g, wallMat, winW, sill, thick, 0, sill/2, zBack, {cast:false});
+  const head = h - (sill + winH);
+  addBox(g, wallMat, winW, head, thick, 0, sill + winH + head/2, zBack, {cast:false});
+
+  // Window: glass + mullions + jambs
+  const glass = addBox(g, mats.glass, winW - 0.06, winH - 0.06, 0.03, 0, sill + winH/2, -d/2 + 0.01, {cast:false});
+  glass.receiveShadow = false;
+  // frame
+  const fw = 0.05;
+  addBox(g, mats.mullion, winW + 0.04, fw, 0.07, 0, sill, -d/2 + 0.02);
+  addBox(g, mats.mullion, winW + 0.04, fw, 0.07, 0, sill + winH, -d/2 + 0.02);
+  addBox(g, mats.mullion, fw, winH + 0.04, 0.07, -winW/2, sill + winH/2, -d/2 + 0.02);
+  addBox(g, mats.mullion, fw, winH + 0.04, 0.07,  winW/2, sill + winH/2, -d/2 + 0.02);
+  addBox(g, mats.mullion, fw*0.7, winH, 0.05, 0, sill + winH/2, -d/2 + 0.025);
+  addBox(g, mats.mullion, winW, fw*0.7, 0.05, 0, sill + winH/2, -d/2 + 0.025);
+  addBox(g, mats.mullion, winW, fw*0.7, 0.05, 0, sill + winH*0.25, -d/2 + 0.025);
+  addBox(g, mats.mullion, winW, fw*0.7, 0.05, 0, sill + winH*0.75, -d/2 + 0.025);
+
+  // Baseboards, chair rail, cornice on the two walls
+  const trim = mats.metal;
+  const wood = mats.dado;
+  // left
+  addBox(g, wood, 0.04, 0.12, d, -w/2 + 0.02, 0.06, 0, {cast:false});
+  addBox(g, trim, 0.03, 0.02, d, -w/2 + 0.025, 0.13, 0, {cast:false});
+  addBox(g, wood, 0.05, 0.08, d, -w/2 + 0.02, h - 0.05, 0, {cast:false});
+  // back (split around window at sill height only for baseboard)
+  addBox(g, wood, w, 0.12, 0.04, 0, 0.06, -d/2 + 0.02, {cast:false});
+  addBox(g, trim, w, 0.02, 0.03, 0, 0.13, -d/2 + 0.025, {cast:false});
+  addBox(g, wood, w, 0.08, 0.05, 0, h - 0.05, -d/2 + 0.02, {cast:false});
+
+  if (state.elements.panelling.on) {
+    // Dado panels on left and back (skip window)
+    addBox(g, mats.dado, 0.03, dadoH - 0.14, d - 0.1, -w/2 + 0.03, (dadoH - 0.14)/2 + 0.12, 0, {cast:false});
+    // fluted suggestion: bump is on material; add a chair rail
+    addBox(g, mats.metal, 0.035, 0.03, d, -w/2 + 0.04, dadoH, 0, {cast:false});
+    addBox(g, mats.dado, w - 0.1, dadoH - 0.14, 0.03, 0, (dadoH - 0.14)/2 + 0.12, -d/2 + 0.03, {cast:false});
+    addBox(g, mats.metal, w, 0.03, 0.035, 0, dadoH, -d/2 + 0.04, {cast:false});
+    // a few applied panel frames on the left dado
+    const frames = 3;
+    for (let i = 0; i < frames; i++) {
+      const z = mix(-d/2 + 0.55, d/2 - 0.55, (i+0.5)/frames);
+      const fh = dadoH - 0.32, fw2 = d * 0.18;
+      // simple recessed frame (four sticks)
+      addBox(g, mats.metal, 0.02, fh, 0.02, -w/2 + 0.045, 0.2 + fh/2, z - fw2/2, {cast:false});
+      addBox(g, mats.metal, 0.02, fh, 0.02, -w/2 + 0.045, 0.2 + fh/2, z + fw2/2, {cast:false});
+      addBox(g, mats.metal, 0.02, 0.02, fw2, -w/2 + 0.045, 0.2 + fh, z, {cast:false});
+      addBox(g, mats.metal, 0.02, 0.02, fw2, -w/2 + 0.045, 0.2, z, {cast:false});
+    }
+  }
+
+  // Sconce fixtures
+  addCyl(g, mats.metal, 0.04, 0.05, 0.08, -w/2 + 0.08, 1.58, d*0.18, {seg:12});
+  addCyl(g, mats.metal, 0.015, 0.015, 0.1, -w/2 + 0.08, 1.5, d*0.18, {seg:8});
+  addCyl(g, mats.metal, 0.04, 0.05, 0.08, -w/2 + 0.08, 1.58, -d*0.12, {seg:12});
+  addCyl(g, mats.metal, 0.04, 0.05, 0.08, w*0.28, 1.58, -d/2 + 0.08, {seg:12});
+
+  // Exterior hint beyond the window: a thin dark plane
+  addBox(g, mats.edge, 10, 6, 0.05, 0, 2.0, -d/2 - 4.5, {cast:false, receive:false});
+
+  return { winW, winH, sill };
+}
+
+function buildGardenShell() {
+  const { w, d, h } = dim();
+  const g = new THREE.Group();
+  world.add(g);
+  // Beveled ground slab under everything
+  addSlab(g, mats.edge, w + 0.2, d + 0.2, 0.1, -0.11, 0.02);
+  const terraceD = d * 0.48;
+  // terrace at the back (house side)
+  addBox(g, mats.paver, w, 0.06, terraceD, 0, 0.03, -d/2 + terraceD/2);
+  addBox(g, mats.grass, w, 0.05, d - terraceD, 0, 0.025, -d/2 + terraceD + (d-terraceD)/2);
+  // stone border if panelling on
+  if (state.elements.panelling.on) {
+    addBox(g, mats.stone, w, 0.08, 0.22, 0, 0.06, -d/2 + terraceD, {cast:false});
+    addBox(g, mats.stone, 0.22, 0.08, d, -w/2 + 0.11, 0.06, 0, {cast:false});
+  }
+  // Cedar fence: back + left, plus short returns
+  const slatW = 0.09, gap = 0.03, fenceH = h;
+  const buildFence = (length, cx, cz, rotY) => {
+    const fg = new THREE.Group();
+    fg.position.set(cx, 0, cz);
+    fg.rotation.y = rotY;
+    const n = Math.max(4, Math.round(length / (slatW + gap)));
+    const start = -length/2 + slatW/2;
+    addBox(fg, mats.cedar, length + 0.1, 0.1, 0.08, 0, 0.12, 0);
+    addBox(fg, mats.cedar, length + 0.1, 0.08, 0.08, 0, fenceH - 0.08, 0);
+    addBox(fg, mats.cedar, 0.08, fenceH, 0.08, -length/2, fenceH/2, 0);
+    addBox(fg, mats.cedar, 0.08, fenceH, 0.08,  length/2, fenceH/2, 0);
+    for (let i = 0; i < n; i++) {
+      addBox(fg, mats.cedar, slatW, fenceH - 0.16, 0.025, start + i*(slatW+gap), fenceH/2, 0);
+    }
+    g.add(fg);
+  };
+  buildFence(w, 0, -d/2, 0);
+  buildFence(d, -w/2, 0, Math.PI/2);
+  // short returns so the enclosure reads
+  buildFence(Math.min(1.4, w*0.22), w/2, -d/2 + Math.min(0.7, d*0.12), Math.PI/2);
+  buildFence(Math.min(1.2, d*0.2), -w/2 + Math.min(0.6, w*0.1), d/2, 0);
+
+  // Planters
+  const plant = (x,z) => {
+    addBox(g, mats.stone, 0.55, 0.38, 0.55, x, 0.22, z);
+    addBox(g, mats.soil, 0.44, 0.06, 0.44, x, 0.42, z, {cast:false});
+    const bush = new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 12), mats.foliage);
+    bush.position.set(x, 0.62, z);
+    bush.castShadow = true; bush.receiveShadow = true;
+    g.add(bush);
+  };
+  plant(-w/2 + 0.7, -d/2 + 0.7);
+  plant( w/2 - 0.7, -d/2 + 0.7);
+  plant(-w/2 + 0.7,  d/2 - 0.7);
+  return { terraceD };
+}
+
+/* ---------- furniture families ---------- */
+function addCatWall(parent, garden) {
+  const grand = state.elements.catwall.variant === 'grand';
+  const wall = state.elements.catwall.place;
+  const inset = garden ? 0.55 : 0.32;
+  const p = wallSlot(wall, 'catwall', inset);
+  const g = new THREE.Group();
+  g.position.set(p.x, 0, p.z);
+  g.rotation.y = p.rotY;
+  parent.add(g);
+  if (garden) {
+    const h = grand ? 1.85 : 1.5;
+    // covered catio
+    addBox(g, mats.cedar, 1.15, 0.08, 0.7, 0, h, 0);
+    addBox(g, mats.cedar, 0.07, h, 0.07, -0.5, h/2, -0.28);
+    addBox(g, mats.cedar, 0.07, h, 0.07,  0.5, h/2, -0.28);
+    addBox(g, mats.cedar, 0.07, h, 0.07, -0.5, h/2,  0.28);
+    addBox(g, mats.cedar, 0.07, h, 0.07,  0.5, h/2,  0.28);
+    // slatted roof
+    for (let i=0;i<7;i++) addBox(g, mats.cedar, 1.15, 0.025, 0.07, 0, h+0.04, -0.28 + i*0.1, {cast:false});
+    // steps / shelves
+    const steps = grand ? 5 : 3;
+    for (let i=0;i<steps;i++) {
+      addBox(g, mats.cedar, 0.55, 0.05, 0.36, (i%2===0?-0.2:0.2), 0.32+i*(h-0.5)/steps, 0);
+    }
+    addBox(g, mats.linen, 0.5, 0.05, 0.4, 0, h-0.06, 0);
+  } else {
+    const postH = grand ? 2.35 : 1.95;
+    addCyl(g, mats.sisal, 0.07, 0.07, postH, 0.15, postH/2, 0, {seg:20});
+    addCyl(g, mats.metal, 0.075, 0.075, 0.04, 0.15, 0.02, 0, {seg:16});
+    addCyl(g, mats.metal, 0.075, 0.075, 0.04, 0.15, postH, 0, {seg:16});
+    const shelves = grand ? 4 : 3;
+    for (let i=0;i<shelves;i++) {
+      const y = 0.55 + i * ((postH-0.5)/shelves);
+      const x = (i%2===0 ? -0.15 : 0.28);
+      addBox(g, mats.dado, grand?1.15:0.9, 0.045, 0.32, x, y, 0);
+      addBox(g, mats.metal, 0.02, 0.08, 0.18, x - 0.3, y-0.05, -0.02);
+      addBox(g, mats.metal, 0.02, 0.08, 0.18, x + 0.3, y-0.05, -0.02);
+      addBox(g, mats.velvet, (grand?0.4:0.32), 0.03, 0.22, x, y+0.035, 0, {cast:false});
+    }
+    if (grand) {
+      // suspended bridge
+      addBox(g, mats.dado, 0.9, 0.03, 0.16, 0.05, 1.35, 0.18);
+      addCyl(g, mats.metal, 0.008, 0.008, 0.45, -0.3, 1.55, 0.18, {seg:8});
+      addCyl(g, mats.metal, 0.008, 0.008, 0.45,  0.4, 1.55, 0.18, {seg:8});
+    }
+  }
+}
+
+function addAlcove(parent, garden) {
+  const grand = state.elements.alcove.variant === 'grand';
+  const wall = state.elements.alcove.place;
+  const p = wallSlot(wall, 'alcove', garden ? 0.7 : 0.28);
+  const g = new THREE.Group();
+  g.position.set(p.x, 0, p.z);
+  g.rotation.y = p.rotY;
+  parent.add(g);
+  const W = grand ? 1.85 : 1.4;
+  const H = grand ? 0.92 : 0.82;
+  const D = garden ? 0.85 : 0.46;
+  if (garden) {
+    addBox(g, mats.stone, W, 0.12, D, 0, 0.06, 0);
+    addBox(g, mats.cedar, W, 0.08, D, 0, H, 0);
+    addBox(g, mats.cedar, 0.07, H, 0.07, -W/2+0.04, H/2, -D/2+0.04);
+    addBox(g, mats.cedar, 0.07, H, 0.07,  W/2-0.04, H/2, -D/2+0.04);
+    addBox(g, mats.cedar, 0.07, H, 0.07, -W/2+0.04, H/2,  D/2-0.04);
+    addBox(g, mats.cedar, 0.07, H, 0.07,  W/2-0.04, H/2,  D/2-0.04);
+    // arched niche suggestion: back + sides + velvet bed
+    addBox(g, mats.cedar, W-0.2, H-0.2, 0.04, 0, (H-0.2)/2+0.1, -D/2+0.12);
+    addBox(g, mats.velvet, W-0.4, 0.08, D-0.3, 0, 0.16, 0.04);
+    addCyl(g, mats.cedar, (W-0.3)/2, (W-0.3)/2, 0.05, 0, H-0.18, -D/2+0.14, {rotX:Math.PI/2, seg:16, cast:false});
+  } else {
+    // fluted console body
+    addBox(g, mats.dado, W, H, D, 0, H/2, 0);
+    // flute strips on face
+    const flutes = grand ? 11 : 9;
+    for (let i=0;i<flutes;i++) {
+      const x = mix(-W/2+0.08, W/2-0.08, (i+0.5)/flutes);
+      addBox(g, mats.dado, 0.03, H-0.12, 0.02, x, H/2, D/2+0.008, {cast:false});
+    }
+    addBox(g, mats.metal, W+0.02, 0.025, D+0.02, 0, H, 0);
+    addBox(g, mats.metal, W+0.02, 0.02, D+0.02, 0, 0.02, 0);
+    // arched niche cut visually: dark recess + velvet + brass arch
+    const nw = grand ? 0.78 : 0.62, nh = grand ? 0.55 : 0.46;
+    addBox(g, mats.velvet, nw, nh, 0.08, 0, 0.14+nh/2, D/2-0.06, {cast:false});
+    addBox(g, mats.cushion, nw-0.1, 0.07, 0.28, 0, 0.16, D/2-0.05);
+    // brass arch as a thin torus-like half: use boxes + cylinder
+    addBox(g, mats.metal, 0.025, nh, 0.025, -nw/2, 0.14+nh/2, D/2+0.01);
+    addBox(g, mats.metal, 0.025, nh, 0.025,  nw/2, 0.14+nh/2, D/2+0.01);
+    addBox(g, mats.metal, nw+0.02, 0.025, 0.025, 0, 0.14+nh, D/2+0.01);
+  }
+}
+
+function addDining(parent, garden) {
+  const grand = state.elements.dining.variant === 'grand';
+  const wall = state.elements.dining.place;
+  const p = wallSlot(wall, 'dining', garden ? 0.5 : 0.32);
+  const g = new THREE.Group();
+  g.position.set(p.x, 0, p.z);
+  g.rotation.y = p.rotY;
+  parent.add(g);
+  const W = grand ? 1.15 : 0.88, D = grand ? 0.5 : 0.42;
+  if (garden) {
+    addBox(g, mats.stone, W, 0.18, D, 0, 0.09, 0);
+    addBox(g, mats.stone, W+0.04, 0.04, D+0.04, 0, 0.2, 0);
+  } else {
+    addBox(g, mats.dado, W, 0.12, D, 0, 0.06, 0);
+    addBox(g, mats.stone, W+0.04, 0.035, D+0.04, 0, 0.135, 0);
+  }
+  const bowl = (x) => {
+    addCyl(g, mats.ceramic, 0.09, 0.07, 0.05, x, 0.18, 0, {seg:20});
+    addCyl(g, mats.metal, 0.095, 0.095, 0.012, x, 0.205, 0, {seg:20});
+    const inner = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 10, 0, Math.PI*2, 0, Math.PI/2), mats.ceramic);
+    inner.rotation.x = Math.PI;
+    inner.position.set(x, 0.205, 0);
+    g.add(inner);
+  };
+  bowl(-0.16); bowl(0.16);
+}
+
+function addLitter(parent, garden) {
+  const grand = state.elements.litter.variant === 'grand';
+  const wall = state.elements.litter.place;
+  const p = wallSlot(wall, 'litter', garden ? 0.6 : 0.28);
+  const g = new THREE.Group();
+  g.position.set(p.x, 0, p.z);
+  g.rotation.y = p.rotY;
+  parent.add(g);
+  const W = grand ? 1.55 : 1.2, H = 0.78, D = garden ? 0.7 : 0.44;
+  if (garden) {
+    addBox(g, mats.cedar, W, H, D, 0, H/2, 0);
+    // screen slats on front, opening at one side
+    for (let i=0;i<8;i++) addBox(g, mats.cedar, 0.05, H-0.15, 0.02, -W/2+0.2+i*0.12, H/2, D/2+0.01, {cast:false});
+    addBox(g, mats.gravel, W-0.2, 0.04, D-0.16, 0.05, 0.04, 0, {cast:false});
+    addBox(g, mats.cedar, 0.08, H, 0.08, -W/2, H/2, D/2);
+    addBox(g, mats.cedar, 0.08, H, 0.08,  W/2, H/2, D/2);
+  } else {
+    addBox(g, mats.dado, W, H, D, 0, H/2, 0);
+    addBox(g, mats.metal, W+0.01, 0.02, D+0.01, 0, H, 0);
+    // doors / pulls
+    addBox(g, mats.metal, 0.012, 0.09, 0.012, -0.18, H*0.55, D/2+0.01);
+    addBox(g, mats.metal, 0.012, 0.09, 0.012,  0.18, H*0.55, D/2+0.01);
+    // discreet side portal
+    addBox(g, mats.edge, 0.05, 0.28, 0.22, -W/2+0.01, 0.2, D/2-0.12, {cast:false});
+  }
+}
+
+function addSofa(parent, garden) {
+  const { w, d } = dim();
+  const grand = state.elements.sofa.variant === 'grand';
+  const g = new THREE.Group();
+  const SW = grand ? Math.min(2.45, w*0.48) : Math.min(1.85, w*0.4);
+  const SD = grand ? 0.92 : 0.8;
+  const rugW = SW + 0.7, rugD = SD + 1.05;
+  if (state.elements.sofa.place === 'left') {
+    g.position.set(-w/2 + 1.15, 0, 0.15);
+    g.rotation.y = Math.PI/2;
+  } else if (garden) {
+    g.position.set(0.2, 0, -d/2 + d*0.28);
+  } else {
+    g.position.set(0.15, 0, d*0.12);
+  }
+  parent.add(g);
+  addBox(g, mats.rug, rugW, 0.025, rugD, 0, 0.02, 0.1, {cast:false});
+  if (garden) {
+    addBox(g, mats.cedar, SW, 0.12, SD, 0, 0.14, 0);
+    addBox(g, mats.linen, SW-0.1, 0.08, SD-0.1, 0, 0.22, 0);
+    addBox(g, mats.cedar, SW, 0.45, 0.08, 0, 0.4, -SD/2+0.04);
+    addBox(g, mats.cushion, 0.32, 0.18, 0.32, -SW*0.28, 0.34, 0.05);
+    addBox(g, mats.cushion, 0.32, 0.18, 0.32,  SW*0.28, 0.34, 0.05);
+  } else {
+    addBox(g, mats.velvet, SW, 0.38, SD, 0, 0.28, 0);
+    addBox(g, mats.velvet, SW-0.12, 0.12, SD-0.16, 0, 0.5, 0.04);
+    addBox(g, mats.velvet, SW, 0.48, 0.16, 0, 0.62, -SD/2+0.08);
+    addBox(g, mats.velvet, 0.16, 0.46, SD, -SW/2+0.08, 0.48, 0);
+    addBox(g, mats.velvet, 0.16, 0.46, SD,  SW/2-0.08, 0.48, 0);
+    addBox(g, mats.cushion, 0.28, 0.22, 0.28, -SW*0.22, 0.58, 0.08);
+    addBox(g, mats.cushion, 0.28, 0.22, 0.28,  SW*0.22, 0.58, 0.08);
+    // floor lamp
+    addCyl(g, mats.metal, 0.12, 0.14, 0.03, SW/2+0.28, 0.03, -0.1, {seg:16});
+    addCyl(g, mats.metal, 0.015, 0.015, 1.42, SW/2+0.28, 0.74, -0.1, {seg:10});
+    const shadeMat = mats.linen.clone();
+    shadeMat.emissive = new THREE.Color(0xffe0b0);
+    shadeMat.emissiveIntensity = 0.45;
+    addCyl(g, shadeMat, 0.16, 0.22, 0.22, SW/2+0.28, 1.5, -0.1, {seg:16});
+  }
+}
+
+/* ---------- lights ---------- */
+function placeLights() {
+  const { w, d, h, isGarden } = dim();
+  lights.hemi.intensity = isGarden ? 1.05 : 0.82;
+  lights.sun.intensity = isGarden ? 2.7 : 2.35;
+  lights.sun.position.set(w * 0.2, h * 1.4, isGarden ? d * 0.6 : -d/2 - 3.2);
+  lights.sun.target.position.set(0, 0.2, isGarden ? 0 : -d * 0.1);
+  lights.sun.target.updateMatrixWorld();
+  if (lights.fill) {
+    lights.fill.position.set(w * 0.85, h * 1.15, d * 0.95);
+    lights.fill.intensity = isGarden ? 0.45 : 0.75;
+  }
+  const shadowSpan = Math.max(w, d) * 0.7;
+  const cam = lights.sun.shadow.camera;
+  cam.left = cam.bottom = -shadowSpan;
+  cam.right = cam.top = shadowSpan;
+  cam.near = 0.5; cam.far = Math.max(w,d,h)*4 + 6;
+  cam.updateProjectionMatrix();
+  lights.sconceL.position.set(-w/2 + 0.18, 1.55, d*0.18);
+  lights.sconceL2.position.set(-w/2 + 0.18, 1.55, -d*0.12);
+  lights.sconceB.position.set(w*0.28, 1.55, -d/2 + 0.18);
+  lights.lamp.position.set(w*0.28, isGarden ? 1.2 : 1.48, d*0.05);
+  const interior = !isGarden;
+  lights.sconceL.intensity = interior ? 1.15 : 0.35;
+  lights.sconceL2.intensity = interior ? 0.95 : 0.25;
+  lights.sconceB.intensity = interior ? 1.05 : 0.2;
+  lights.lamp.intensity = interior ? 1.35 : 0.4;
+  lights.sconceL.visible = lights.sconceL2.visible = lights.sconceB.visible = lights.lamp.visible = true;
+}
+
+function rebuild() {
+  buildMaterials();
+  clearWorld();
+  const { isGarden } = dim();
+  // large shadow-catching ground
+  const { w, d } = dim();
+  addBox(world, mats.ground, Math.max(14, w*3), 0.02, Math.max(14, d*3), 0, -0.13, 0, {cast:false});
+  if (isGarden) buildGardenShell();
+  else buildInteriorShell();
+  const furn = new THREE.Group();
+  world.add(furn);
+  if (state.elements.catwall.on) addCatWall(furn, isGarden);
+  if (state.elements.alcove.on) addAlcove(furn, isGarden);
+  if (state.elements.dining.on) addDining(furn, isGarden);
+  if (state.elements.litter.on) addLitter(furn, isGarden);
+  if (state.elements.sofa.on) addSofa(furn, isGarden);
+  placeLights();
+  applyView(state.view === 'reset' ? 'perspective' : state.view);
+  updateReadouts();
+  syncLabels();
+}
+
+/* ---------- camera ---------- */
+function sizeCameras() {
+  const el = stage();
+  const aspect = Math.max(0.5, el.clientWidth / Math.max(1, el.clientHeight));
+  persp.aspect = aspect;
+  persp.updateProjectionMatrix();
+  const { w, d } = dim();
+  const span = Math.max(w, d) * 0.78;
+  ortho.left = -span * aspect;
+  ortho.right = span * aspect;
+  ortho.top = span;
+  ortho.bottom = -span;
+  ortho.near = 0.1;
+  ortho.far = 80;
+  ortho.updateProjectionMatrix();
+}
+
+function applyView(kind) {
+  const { w, d, h } = dim();
+  if (kind === 'reset') kind = 'perspective';
+  state.view = kind;
+  sizeCameras();
+  if (kind === 'plan') {
+    camera = ortho;
+    ortho.position.set(0, Math.max(h * 4, 10), 0);
+    ortho.up.set(0, 0, -1);
+    ortho.lookAt(0, 0, 0);
+    controls.object = camera;
+    controls.enableRotate = false;
+    controls.target.set(0, 0, 0);
+  } else {
+    camera = persp;
+    controls.object = camera;
+    persp.up.set(0, 1, 0);
+    if (kind === 'elevation') {
+      persp.position.set(0, h * 0.58, d / 2 + Math.max(d, w) * 0.65);
+      controls.target.set(0, h * 0.42, 0);
+      controls.enableRotate = false;
+    } else {
+      persp.position.set(w * 0.58, h * 0.98, d * 0.78);
+      controls.target.set(0, h * 0.36, -d * 0.06);
+      controls.enableRotate = true;
+    }
+    persp.lookAt(controls.target);
+  }
+  controls.minPolarAngle = 0.06;
+  controls.maxPolarAngle = Math.PI / 2 - 0.09;
+  controls.minDistance = Math.max(2.0, Math.min(w, d) * 0.4);
+  controls.maxDistance = Math.max(w, d, h) * 2.6;
+  controls.update();
+  document.querySelectorAll('[data-view]').forEach((btn) => {
+    const v = btn.getAttribute('data-view');
+    btn.setAttribute('aria-pressed', String(v === kind || (kind==='perspective' && v==='reset' ? false : v===kind)));
+  });
+  document.querySelectorAll('[data-view]').forEach((btn) => {
+    const v = btn.getAttribute('data-view');
+    btn.setAttribute('aria-pressed', String(v === state.view));
+  });
+}
+
+/* ---------- quantities & brief ---------- */
+function quantities() {
+  const { w, d, h, isGarden, ceiling, enclosure } = dim();
+  const floor = w * d;
+  const winW = isGarden ? 0 : Math.min(2.15, w * 0.4);
+  const winH = isGarden ? 0 : Math.min(1.65, h * 0.58);
+  const windowA = winW * winH;
+  const wallH = isGarden ? enclosure : ceiling;
+  const netWall = Math.max(0, 2 * (w + d) * wallH - windowA);
+  const dado = (!isGarden && state.elements.panelling.on) ? (state.elements.panelling.variant === 'tall' ? 1.18 : 0.92) : 0;
+  const paperArea = isGarden ? 0 : Math.max(0, 2 * (w + d) * (wallH - dado) - windowA);
+  const terrace = isGarden ? w * d * 0.48 : 0;
+  const flooring = (isGarden ? terrace : floor) * 1.10;
+  const liters = netWall * 2 / 10;
+  const gallons = liters * L2GAL;
+  const rolls = paperArea > 0 ? Math.ceil(paperArea * 1.10 / 5.3) : 0;
+  return { w, d, h, floor, netWall, flooring, liters, gallons, rolls, paperArea, windowA, terrace, isGarden, wallH };
+}
+
+function schedule() {
+  const rows = [];
+  const garden = dim().isGarden;
+  for (const [key, el] of Object.entries(state.elements)) {
+    if (!el.on) continue;
+    const name = garden ? GARDEN_NAMES[key] : EL_NAMES[key];
+    const place = el.place === 'left' ? (garden ? 'Left fence' : 'Left wall') :
+                  el.place === 'back' ? (garden ? 'Back fence' : 'Back wall') :
+                  el.place === 'center' ? (garden ? 'On the terrace' : 'Facing the window') : 'Both walls';
+    const variant = el.variant.charAt(0).toUpperCase() + el.variant.slice(1);
+    const meas = elementMeasure(key, el.variant, garden);
+    rows.push({ key, name, place, variant, meas });
+  }
+  return rows;
+}
+
+function elementMeasure(key, variant, garden) {
+  const grand = variant === 'grand' || variant === 'tall';
+  const table = {
+    catwall: garden ? (grand ? '1.15 × 0.70 m · 1.85 m high' : '1.15 × 0.70 m · 1.50 m high') : (grand ? 'Shelves 1.15 m · post 2.35 m' : 'Shelves 0.90 m · post 1.95 m'),
+    alcove: garden ? (grand ? '1.85 × 0.85 × 0.92 m' : '1.40 × 0.85 × 0.82 m') : (grand ? '1.85 × 0.46 × 0.92 m' : '1.40 × 0.46 × 0.82 m'),
+    dining: garden ? (grand ? '1.15 × 0.50 × 0.22 m' : '0.88 × 0.42 × 0.22 m') : (grand ? '1.15 × 0.50 × 0.17 m' : '0.88 × 0.42 × 0.17 m'),
+    litter: garden ? (grand ? '1.55 × 0.70 × 0.78 m' : '1.20 × 0.70 × 0.78 m') : (grand ? '1.55 × 0.44 × 0.78 m' : '1.20 × 0.44 × 0.78 m'),
+    sofa: garden ? (grand ? 'Daybed up to 2.45 m · rug +0.70 m' : 'Daybed up to 1.85 m · rug +0.70 m') : (grand ? 'Sofa up to 2.45 m · rug +0.70 m' : 'Sofa up to 1.85 m · rug +0.70 m'),
+    panelling: garden ? 'Cedar screen to enclosure height · stone border 0.22 m' : (grand ? 'Tall dado 1.18 m + wallpaper above' : 'Classic dado 0.92 m + wallpaper above'),
+  };
+  return table[key];
+}
+
+function qtyRows(q) {
+  const rows = [
+    ['Floor area', fmtArea(q.floor)],
+    [q.isGarden ? 'Enclosure wall area (net)' : 'Net wall area', fmtArea(q.netWall)],
+  ];
+  if (q.isGarden) {
+    rows.push(['Terrace pavers, +10% cutting margin', fmtArea(q.flooring)]);
+    rows.push(['Lawn (remainder of the plot)', fmtArea(q.floor - q.terrace)]);
+  } else {
+    rows.push(['Flooring, +10% cutting margin', fmtArea(q.flooring)]);
+  }
+  rows.push(['Paint, 2 coats (10 m²/L per coat)', `${q.liters.toFixed(1)} L · ${q.gallons.toFixed(1)} US gal`]);
+  if (!q.isGarden) rows.push(['Claw-resistant wallpaper rolls (5.3 m² + 10% match)', `${q.rolls} roll${q.rolls===1?'':'s'}`]);
+  else if (state.elements.panelling.on) rows.push(['Cedar privacy screen', `Enclosure ${fmtLen(q.wallH)} on two principal sides`]);
+  return rows;
+}
+
+function fillDl(el, rows) {
+  el.innerHTML = rows.map(([dt,dd]) => `<dt>${dt}</dt><dd>${dd}</dd>`).join('');
+}
+
+function updateReadouts() {
+  const q = quantities();
+  const { name } = dim();
+  const ceilLabel = q.isGarden ? `enclosure ${fmtLen(q.wallH)}` : `ceiling ${fmtLen(q.h)}`;
+  document.getElementById('st-dim-readout').textContent =
+    `${name} · ${state.size} · ${fmtLen(q.w)} × ${fmtLen(q.d)} · ${ceilLabel} · ${fmtArea(q.floor)}`;
+  fillDl(document.getElementById('st-calc-dl'), qtyRows(q));
+  document.getElementById('st-schedule').innerHTML = schedule().map((r) =>
+    `<li><strong>${r.name}</strong> — ${r.variant}, ${r.place}. ${r.meas}</li>`
+  ).join('') || '<li>No pet-architecture elements are currently active.</li>';
+}
+
+function syncLabels() {
+  const garden = dim().isGarden;
+  const pack = garden ? NOTES.garden : NOTES.interior;
+  document.querySelectorAll('[data-el-note]').forEach((p) => {
+    p.textContent = pack[p.getAttribute('data-el-note')] || '';
+  });
+  const press = (sel, val) => {
+    document.querySelectorAll(sel).forEach((btn) => {
+      const key = Object.keys(btn.dataset)[0];
+      const v = btn.getAttribute(`data-${Object.keys(btn.dataset)[0]}`);
+      // handled per group below
+    });
+  };
+  document.querySelectorAll('[data-space]').forEach((b)=>b.setAttribute('aria-pressed', String(b.dataset.space===state.space)));
+  document.querySelectorAll('[data-size]').forEach((b)=>b.setAttribute('aria-pressed', String(b.dataset.size===state.size)));
+  document.querySelectorAll('[data-units]').forEach((b)=>b.setAttribute('aria-pressed', String(b.dataset.units===state.units)));
+  document.querySelectorAll('[data-theme]').forEach((b)=>b.setAttribute('aria-pressed', String(b.dataset.theme===state.theme)));
+  document.querySelectorAll('[data-toggle]').forEach((b)=>{
+    const on = state.elements[b.dataset.toggle].on;
+    b.setAttribute('aria-pressed', String(on));
+    b.textContent = on ? 'On' : 'Off';
+    b.closest('.st-el')?.classList.toggle('is-off', !on);
+  });
+}
+
+function planSvg() {
+  const q = quantities();
+  const { w, d, isGarden } = q;
+  const W = 420, H = 260, pad = 28;
+  const sx = (W - pad*2) / w, sy = (H - pad*2) / d;
+  const s = Math.min(sx, sy);
+  const ox = (W - w*s)/2, oy = (H - d*s)/2;
+  const X = (x) => ox + (x + w/2) * s;
+  const Y = (z) => oy + (z + d/2) * s;
+  const gold = '#C9A96E';
+  let fur = '';
+  schedule().forEach((row, i) => {
+    // schematic footprints, not exact — a small annotated tick per element
+  });
+  // furniture footprints (schematic)
+  const boxes = [];
+  if (state.elements.sofa.on) boxes.push({x:0.15,z: isGarden ? -d/2+d*0.28 : d*0.12, w:2.2, d:1.4, label:'Sofa / Daybed'});
+  let svg = `<svg viewBox="0 0 ${W} ${H+70}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Plan and elevation schematic">
+    <rect x="${X(-w/2)}" y="${Y(-d/2)}" width="${w*s}" height="${d*s}" fill="#0b1325" stroke="${gold}" stroke-width="1.5"/>
+    ${isGarden?'':`<rect x="${X(-Math.min(2.15,w*0.4)/2)}" y="${Y(-d/2)-3}" width="${Math.min(2.15,w*0.4)*s}" height="6" fill="${gold}" />`}
+    <text x="${W/2}" y="${oy-8}" text-anchor="middle" fill="${gold}" font-size="11" font-family="Inter, system-ui" letter-spacing="1.5">PLAN · ${fmtLen(w)} × ${fmtLen(d)}</text>`;
+  boxes.forEach((b)=>{
+    svg += `<rect x="${X(b.x-b.w/2)}" y="${Y(b.z-b.d/2)}" width="${b.w*s}" height="${b.d*s}" fill="rgba(201,169,110,0.18)" stroke="${gold}" stroke-width="0.8"/>`;
+  });
+  // elevation
+  const eY = H + 8, eH = 56, eh = (eH-8);
+  const scaleH = eh / Math.max(q.wallH, 0.1);
+  svg += `<text x="${W/2}" y="${eY+8}" text-anchor="middle" fill="${gold}" font-size="11" font-family="Inter, system-ui" letter-spacing="1.5">ELEVATION · ${q.isGarden?'enclosure':'ceiling'} ${fmtLen(q.wallH)}</text>
+    <rect x="${X(-w/2)}" y="${eY+14 + eh - q.wallH*scaleH}" width="${w*s}" height="${q.wallH*scaleH}" fill="#101A30" stroke="${gold}" stroke-width="1"/>`;
+  if (!isGarden) {
+    const winW=Math.min(2.15,w*0.4), winH=Math.min(1.65,q.h*0.58), sill=0.88;
+    svg += `<rect x="${X(-winW/2)}" y="${eY+14 + eh - (sill+winH)*scaleH}" width="${winW*s}" height="${winH*scaleH}" fill="rgba(207,228,255,0.35)" stroke="${gold}" stroke-width="0.7"/>`;
+  }
+  svg += `</svg>`;
+  return svg;
+}
+
+function openBrief() {
+  const q = quantities();
+  const { name } = dim();
+  document.getElementById('st-brief-room').textContent =
+    `${name}, size ${state.size}. ${fmtLen(q.w)} × ${fmtLen(q.d)}, ${q.isGarden ? 'enclosure' : 'ceiling'} ${fmtLen(q.wallH)}. Floor area ${fmtArea(q.floor)}. Theme: ${THEME[state.theme].name}.`;
+  document.getElementById('st-brief-plan').innerHTML = planSvg();
+  fillDl(document.getElementById('st-brief-qty'), qtyRows(q));
+  document.getElementById('st-brief-sched').innerHTML = schedule().map((r) =>
+    `<li><strong>${r.name}</strong> — ${r.variant}, ${r.place}. ${r.meas}</li>`
+  ).join('') || '<li>No pet-architecture elements are currently active.</li>';
+  renderer.render(scene, camera);
+  const snap = document.getElementById('st-brief-snap');
+  snap.src = renderer.domElement.toDataURL('image/jpeg', 0.86);
+  const modal = document.getElementById('st-brief');
+  modal.hidden = false;
+  document.getElementById('st-close-brief').focus();
+}
+function closeBrief() {
+  document.getElementById('st-brief').hidden = true;
+}
+
+/* ---------- init ---------- */
+function bindUI() {
+  document.querySelectorAll('[data-space]').forEach((b)=>b.addEventListener('click',()=>{ state.space=b.dataset.space; rebuild(); }));
+  document.querySelectorAll('[data-size]').forEach((b)=>b.addEventListener('click',()=>{ state.size=b.dataset.size; rebuild(); }));
+  document.querySelectorAll('[data-units]').forEach((b)=>b.addEventListener('click',()=>{ state.units=b.dataset.units; updateReadouts(); syncLabels(); }));
+  document.querySelectorAll('[data-theme]').forEach((b)=>b.addEventListener('click',()=>{ state.theme=b.dataset.theme; rebuild(); }));
+  document.querySelectorAll('[data-view]').forEach((b)=>b.addEventListener('click',()=>{ applyView(b.dataset.view); }));
+  document.querySelectorAll('[data-toggle]').forEach((b)=>b.addEventListener('click',()=>{
+    const k=b.dataset.toggle; state.elements[k].on = !state.elements[k].on; rebuild();
+  }));
+  document.querySelectorAll('[data-place]').forEach((s)=>s.addEventListener('change',()=>{
+    state.elements[s.dataset.place].place = s.value; rebuild();
+  }));
+  document.querySelectorAll('[data-variant]').forEach((s)=>s.addEventListener('change',()=>{
+    state.elements[s.dataset.variant].variant = s.value; rebuild();
+  }));
+  document.getElementById('st-open-brief').addEventListener('click', openBrief);
+  document.getElementById('st-close-brief').addEventListener('click', closeBrief);
+  document.getElementById('st-close-brief-2').addEventListener('click', closeBrief);
+  document.getElementById('st-print-brief').addEventListener('click', () => window.print());
+  document.getElementById('st-brief').addEventListener('click', (e) => { if (e.target.id==='st-brief') closeBrief(); });
+  window.addEventListener('keydown', (e) => { if (e.key==='Escape') closeBrief(); });
+}
+
+function init() {
+  const el = stage();
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x070D1A);
+  scene.fog = new THREE.Fog(0x070D1A, 12, 32);
+
+  persp = new THREE.PerspectiveCamera(42, 1, 0.08, 80);
+  ortho = new THREE.OrthographicCamera(-5,5,5,-5,0.1,80);
+  camera = persp;
+
+  renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(el.clientWidth, el.clientHeight, false);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.28;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
+  el.appendChild(renderer.domElement);
+
+  lights.hemi = new THREE.HemisphereLight(0xd5e2f4, 0x4a3824, 0.82);
+  scene.add(lights.hemi);
+  lights.sun = new THREE.DirectionalLight(0xffe6c4, 2.35);
+  lights.sun.castShadow = true;
+  lights.sun.shadow.mapSize.set(2048, 2048);
+  lights.sun.shadow.bias = -0.00035;
+  lights.sun.shadow.normalBias = 0.02;
+  scene.add(lights.sun);
+  scene.add(lights.sun.target);
+  lights.fill = new THREE.DirectionalLight(0xc5d4ee, 0.7);
+  lights.fill.castShadow = false;
+  lights.fill.position.set(4, 3.2, 5);
+  scene.add(lights.fill);
+  const mkPt = (color, intensity, distance) => {
+    const p = new THREE.PointLight(color, intensity, distance, 2);
+    scene.add(p);
+    return p;
+  };
+  lights.sconceL = mkPt(0xffcc88, 1.15, 4.5);
+  lights.sconceL2 = mkPt(0xffcc88, 0.95, 4.2);
+  lights.sconceB = mkPt(0xffd6a0, 1.05, 4.5);
+  lights.lamp = mkPt(0xffc07a, 1.35, 5.0);
+
+  world = new THREE.Group();
+  scene.add(world);
+
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.06;
+  controls.enablePan = true;
+  controls.screenSpacePanning = false;
+  controls.maxPolarAngle = Math.PI / 2 - 0.09;
+  controls.minPolarAngle = 0.06;
+
+  bindUI();
+  rebuild();
+
+  const ro = new ResizeObserver(() => {
+    const e = stage();
+    renderer.setSize(e.clientWidth, e.clientHeight, false);
+    sizeCameras();
+    controls.update();
+  });
+  ro.observe(el);
+
+  const tick = () => {
+    requestAnimationFrame(tick);
+    controls.update();
+    renderer.render(scene, camera);
+  };
+  tick();
+
+  window.__studio = {
+    state, renderer, scene, get camera(){ return camera; },
+    setSpace(v){ state.space=v; rebuild(); },
+    setSize(v){ state.size=v; rebuild(); },
+    setTheme(v){ state.theme=v; rebuild(); },
+    setView(v){ applyView(v); },
+    setUnits(v){ state.units=v; updateReadouts(); syncLabels(); },
+    openBrief, closeBrief, rebuild, quantities,
+  };
+}
+
+init();
