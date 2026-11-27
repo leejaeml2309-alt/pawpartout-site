@@ -147,7 +147,8 @@ img{max-width:100%;height:auto}
 .pp-feature .ph img{position:absolute;inset:23.5%;width:53%;height:53%;object-fit:cover;object-position:50% 46%;border-radius:50%;box-shadow:0 0 0 2px #efbfb0}
 .pp-feature h2{margin:4px 0 8px;font:400 clamp(1.9rem,3.6vw,2.8rem)/1.1 var(--disp);color:var(--head)}
 .pp-feature p{margin:0 0 16px;color:#cfd4df}
-.pp-doors{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px}
+.pp-doors{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;align-items:stretch;grid-auto-rows:1fr}
+.pp-doors > li,.pp-door{height:100%}
 .pp-door{display:flex;flex-direction:column;align-items:center;text-align:center;text-decoration:none;color:var(--ink);padding:0 6px 10px}
 .pp-door .hx{position:relative;width:min(190px,100%);aspect-ratio:1/1.1547;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:linear-gradient(160deg,var(--m));transition:transform .2s}
 .pp-door .hx::before{content:"";position:absolute;inset:2px;clip-path:inherit;background:radial-gradient(circle at 50% 35%,#fffaf0,#efe3cc 60%,#d8c7a8)}
@@ -209,3 +210,34 @@ img{max-width:100%;height:auto}
  .pp-foot-in>div:first-child{grid-column:1/-1}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+
+/* ===== Paw Shop 8-category shelves, 2026-11-27 (local preview) ===== */
+.pp-copy{padding:16px 20px 14px}
+.pp-notes{padding:0 20px 14px;display:flex;flex-direction:column;gap:14px}
+.pp-notes .pp-tip,
+.pp-notes .pp-caution{margin:0}
+.pp-body > .pp-size{margin:0;padding:0 20px 14px;align-self:start}
+.pp-body > .pp-actions{margin-top:0;padding:0 20px 20px;align-self:start;display:flex;flex-wrap:nowrap;align-items:center}
+.pp-caution{margin:0 0 14px;padding:12px 14px;border-radius:12px;font-size:.86rem;color:#d7dbe4;background:#3a220514;border:1px solid #d9b76555;line-height:1.5}
+.pp-caution strong{color:var(--mt);font-weight:600}
+.pp-shelf-nav{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px 18px;
+  margin:40px 0 8px;padding:20px 12px 8px;border-top:1px solid #ffffff22;
+}
+.pp-shelf-nav a{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:48px;padding:0 22px;border-radius:99px;text-decoration:none;
+  font:600 .9rem var(--text);letter-spacing:.04em;color:var(--head);
+  border:1.5px solid var(--mt);background:#050e2699;
+}
+.pp-shelf-nav a:hover{filter:brightness(1.08);border-color:var(--head)}
+.pp-grid{align-items:stretch}
+.pp-grid > .pp-card{height:100%}
+@supports (grid-template-rows:subgrid){
+  @media (min-width:721px){
+    .pp-grid > .pp-card{display:grid;grid-template-rows:subgrid;grid-row:span 5;height:auto}
+    .pp-card-in{display:grid;grid-template-rows:subgrid;grid-row:1 / span 5;min-height:0}
+    .pp-body{display:grid;grid-template-rows:subgrid;grid-row:span 4;padding:0;flex:unset;min-height:0}
+  }
+}
