@@ -1,6 +1,6 @@
 /* Paw News — luxury print gazette, 2026-11-27
    Self-hosted Playfair Display + IBM Plex Mono (SIL OFL, same families as Google Fonts).
-   Ivory broadsheet on Pawpartout navy. Three-level architecture: six rubric doors, category pages, articles. Times newsprint grain. */
+   Ivory broadsheet on Pawpartout navy. Three-level architecture: six rubric doors, category pages, articles. Times newsprint grain and printed broadsheet columns. */
 
 @font-face{font-family:"Playfair Display";src:url(/fonts/playfair-display-500.woff2) format("woff2");font-weight:500;font-style:normal;font-display:swap}
 @font-face{font-family:"Playfair Display";src:url(/fonts/playfair-display-500-italic.woff2) format("woff2");font-weight:500;font-style:italic;font-display:swap}
@@ -549,7 +549,7 @@
     radial-gradient(ellipse at 50% 42%, transparent 52%, rgba(72,52,28,0.07) 100%),
     linear-gradient(180deg, rgba(255,250,240,0.28) 0%, transparent 16%, transparent 84%, rgba(84,60,32,0.06) 100%);
 }
-.gazette > *:not(.gazette-fiber):not(.gazette-vignette){
+.gazette > *:not(.gazette-fiber):not(.gazette-vignette):not(.gazette-print){
   position:relative;
   z-index:1;
 }
@@ -613,4 +613,44 @@
   background:var(--rc);
   border-color:color-mix(in srgb, var(--rc) 70%, #e8c05a);
   color:#f8f4ea;
+}
+
+
+/* Printed broadsheet columns (self-hosted SVG, original copy) */
+.gazette-print{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  opacity:0.135;
+  background-image:url(/news/broadsheet-print-bg.svg?v=20261127print);
+  background-repeat:repeat-y;
+  background-position:center top;
+  background-size:100% auto;
+  mix-blend-mode:multiply;
+}
+/* Soft paper wash under the masthead so PAW NEWS / edition bar stay razor-sharp */
+.masthead{position:relative}
+.masthead::before{
+  content:"";
+  position:absolute;
+  left:6%;
+  right:6%;
+  top:2%;
+  bottom:-4%;
+  background:radial-gradient(ellipse at 50% 42%, rgba(248,244,234,0.82) 0%, rgba(246,241,228,0.50) 46%, transparent 74%);
+  pointer-events:none;
+  z-index:0;
+}
+.masthead > *{position:relative;z-index:1}
+/* Category sheets: keep the print in the margins, fade the centre */
+.gazette-cat .gazette-print{
+  opacity:0.11;
+  -webkit-mask-image:radial-gradient(ellipse 72% 60% at 50% 36%, transparent 0%, transparent 38%, #000 76%);
+  mask-image:radial-gradient(ellipse 72% 60% at 50% 36%, transparent 0%, transparent 38%, #000 76%);
+}
+/* Foreground cards stay solid so column type never fights the door typography */
+.an-card{
+  background-color:var(--paper-hi);
+  background-image:linear-gradient(color-mix(in srgb, var(--rt) 52%, var(--paper-hi)));
 }
