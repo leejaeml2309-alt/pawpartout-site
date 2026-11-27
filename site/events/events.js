@@ -6,7 +6,6 @@
   const shownEl = document.getElementById('ev-shown');
   const resetBtn = document.querySelector('.ev-reset');
   const emptyEl = document.querySelector('.ev-empty');
-  const TOTAL = cards.length;
 
   const state = { category: 'all', country: 'all', species: 'all' };
 

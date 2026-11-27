@@ -1,4 +1,4 @@
-/* Pawpartout Events & festivals, 2026-11-27 (local preview) */
+/* Pawpartout Events & festivals, 2026-11-27 (local preview, card polish) */
 @font-face{font-family:"Playfair Display";src:url(/fonts/playfair-display-700.woff2) format("woff2");font-weight:700;font-style:normal;font-display:swap}
 @font-face{font-family:"Playfair Display";src:url(/fonts/playfair-display-900.woff2) format("woff2");font-weight:900;font-style:normal;font-display:swap}
 @font-face{font-family:"IBM Plex Mono";src:url(/fonts/ibm-plex-mono-500.woff2) format("woff2");font-weight:500;font-style:normal;font-display:swap}
@@ -146,32 +146,43 @@
 .ev-card.cat-festivals{--ev-accent:#e0b08a}
 .ev-card.cat-sports{--ev-accent:#c5d0dc}
 
-/* Fixed slots so every band in a row shares a 0.000px baseline */
+/* Two-row badge bar: category/country/species on row 1, audience on its own row 2.
+   No wrapping, no orphaned PUBLIC. */
 .ev-badges{
   display:flex;
-  flex-wrap:wrap;
-  align-content:flex-start;
+  flex-direction:column;
+  justify-content:flex-start;
   gap:6px;
-  height:56px;
-  flex:0 0 56px;
-  overflow:hidden;
+  height:50px;
+  flex:0 0 50px;
   margin:0 0 12px;
+  overflow:hidden;
+}
+.ev-badges-main,
+.ev-badges-aud{
+  display:flex;
+  flex-wrap:nowrap;
+  align-items:center;
+  gap:6px;
+  height:22px;
+  flex:0 0 22px;
+  min-width:0;
 }
 .ev-b{
   display:inline-flex;
   align-items:center;
+  flex:0 0 auto;
   height:22px;
-  padding:0 8px;
+  padding:0 7px;
   border-radius:999px;
   border:1px solid rgba(255,255,255,0.16);
   background:rgba(7,16,40,0.55);
-  font:500 0.62rem/1 var(--ev-mono);
-  letter-spacing:0.06em;
+  font:500 9px/1 var(--ev-mono);
+  letter-spacing:0.04em;
   text-transform:uppercase;
   color:#d7deea;
   white-space:nowrap;
-  max-width:100%;
-  overflow:hidden;
+  overflow:visible;
 }
 .ev-b-cat{border-color:color-mix(in srgb, var(--ev-accent) 70%, transparent);color:#f4ead0}
 .ev-b-country{border-color:rgba(197,208,220,0.35)}
@@ -182,13 +193,13 @@
   border-color:#e0b14a;
   color:var(--ev-amber-ink);
   font-weight:600;
-  letter-spacing:0.05em;
+  letter-spacing:0.04em;
 }
 
 .ev-title{
   margin:0 0 10px;
-  height:48px;
-  flex:0 0 48px;
+  height:50px;
+  flex:0 0 50px;
   overflow:hidden;
   font-family:var(--ev-serif);
   font-weight:700;
@@ -202,25 +213,24 @@
   line-clamp:2;
 }
 
-.ev-meta{margin:0 0 10px;flex:0 0 56px;height:56px;overflow:hidden}
+.ev-meta{margin:0 0 10px;flex:0 0 132px;height:132px;overflow:hidden}
 .ev-loc,
-.ev-dates{
+.ev-dates,
+.ev-pets{
   margin:0;
   font:500 0.72rem/18px var(--ev-mono);
   color:#c5cedc;
   overflow:hidden;
 }
 .ev-loc{
-  height:18px;
+  height:20px;
+  flex:0 0 20px;
   white-space:nowrap;
-  text-overflow:ellipsis;
 }
-.ev-dates{
-  height:36px;
-  display:-webkit-box;
-  -webkit-box-orient:vertical;
-  -webkit-line-clamp:2;
-  line-clamp:2;
+.ev-dates,
+.ev-pets{
+  height:56px;
+  flex:0 0 56px;
 }
 .ev-k{
   display:inline;
@@ -231,6 +241,7 @@
   font-size:0.62rem;
 }
 
+/* Complete sentences — no line-clamp, no ellipsis. Height is locked after measure. */
 .ev-sum{
   margin:0 0 14px;
   height:60px;
@@ -239,10 +250,6 @@
   font-size:14px;
   line-height:20px;
   color:#cfd4df;
-  display:-webkit-box;
-  -webkit-box-orient:vertical;
-  -webkit-line-clamp:3;
-  line-clamp:3;
 }
 
 .ev-go{
