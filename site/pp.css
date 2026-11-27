@@ -249,3 +249,74 @@ img{max-width:100%;height:auto}
     .pp-body{display:grid;grid-template-rows:subgrid;grid-row:span 4;padding:0;flex:unset;min-height:0}
   }
 }
+
+
+/* ===== Paw Shop holiday invitation, 2026-11-27 (local preview) =====
+   A bare line and one button on the navy field — no card, no banner, no box. */
+.pp-gifts-invite{
+  display:grid;
+  grid-template-columns:auto auto auto;
+  grid-template-rows:auto auto;
+  align-items:center;
+  justify-items:center;
+  justify-content:center;
+  width:max-content;
+  max-width:100%;
+  margin:4px auto 36px;
+  column-gap:clamp(12px,2vw,22px);
+  row-gap:14px;
+  background:none;
+  border:0;
+  padding:0;
+}
+.pp-gifts-invite .orn{
+  width:clamp(70px,11vw,118px);
+  height:auto;
+  overflow:visible;
+  pointer-events:none;
+}
+.pp-gifts-invite .orn-h{display:none}
+.pp-gifts-invite .orn-v{display:block}
+.pp-gifts-invite .orn-l{grid-column:1;grid-row:1 / span 2}
+.pp-gifts-invite .orn-r{grid-column:3;grid-row:1 / span 2;transform:scaleX(-1)}
+.pp-gifts-invite-line{
+  grid-column:2;grid-row:1;
+  margin:0;
+  max-width:42rem;
+  font:400 clamp(1.02rem,1.35vw,1.22rem)/1.4 var(--disp);
+  color:var(--head);
+  letter-spacing:.015em;
+  text-align:center;
+  text-wrap:balance;
+}
+@media (min-width:721px){
+  .pp-gifts-invite-line{white-space:nowrap;max-width:none}
+}
+.pp-gifts-invite-btn{
+  grid-column:2;grid-row:2;
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:48px;padding:0 26px;
+  border-radius:99px;text-decoration:none;
+  font:600 .92rem/1 var(--text);letter-spacing:.03em;
+  color:#071330;
+  background:linear-gradient(170deg,var(--mbtn));
+  box-shadow:inset 0 1px 0 #fff8,inset 0 -2px 0 #0003,0 6px 16px #0005;
+}
+.pp-gifts-invite-btn:hover{filter:brightness(1.08)}
+.pp-gifts-invite-btn:focus-visible{outline:2px solid #f3d98f;outline-offset:3px}
+@media (max-width:720px){
+  .pp-gifts-invite{
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+    margin:0 0 28px;
+  }
+  .pp-gifts-invite .orn-v{display:none}
+  .pp-gifts-invite .orn-h{display:block}
+  .pp-gifts-invite .orn{
+    width:min(240px,88vw);height:42px;
+    grid-column:auto;grid-row:auto;transform:none;
+  }
+  .pp-gifts-invite .orn-l{order:0}
+  .pp-gifts-invite-line{order:1;font-size:1.08rem;white-space:normal;max-width:22rem}
+  .pp-gifts-invite-btn{order:2;width:auto;max-width:100%}
+  .pp-gifts-invite .orn-r{order:3;transform:none}
+}
