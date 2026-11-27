@@ -1,6 +1,6 @@
 /* Paw News — luxury print gazette, 2026-11-27
    Self-hosted Playfair Display + IBM Plex Mono (SIL OFL, same families as Google Fonts).
-   Ivory broadsheet on Pawpartout navy. Three-level architecture: six rubric doors, category pages, articles. Times newsprint grain. */
+   Ivory broadsheet on Pawpartout navy. Three-level architecture: six rubric doors, category pages, articles. Times newsprint grain and printed broadsheet columns. */
 
 @font-face{font-family:"Playfair Display";src:url(/fonts/playfair-display-500.woff2) format("woff2");font-weight:500;font-style:normal;font-display:swap}
 @font-face{font-family:"Playfair Display";src:url(/fonts/playfair-display-500-italic.woff2) format("woff2");font-weight:500;font-style:italic;font-display:swap}
@@ -21,12 +21,12 @@
   --newsbody:Georgia, "Times New Roman", Palatino, "Palatino Linotype", serif;
 }
 
-.r-stories{--rc:#a35628;--rt:#f3e6dc}
-.r-rescues{--rc:#24614b;--rt:#e1ede7}
-.r-science{--rc:#1d5970;--rt:#e0ecf1}
-.r-seasons{--rc:#8c2e38;--rt:#f2e1e3}
-.r-design {--rc:#946916;--rt:#f3ebd6}
-.r-sports{--rc:#2c4276;--rt:#e3e7f0}
+.r-stories{--rc:#a35628;--rt:#f3e6dc;--card:#f5ece3}
+.r-rescues{--rc:#24614b;--rt:#e1ede7;--card:#ecf0e8}
+.r-science{--rc:#1d5970;--rt:#e0ecf1;--card:#ebf0ee}
+.r-seasons{--rc:#8c2e38;--rt:#f2e1e3;--card:#f5eae6}
+.r-design {--rc:#946916;--rt:#f3ebd6;--card:#f5efdf}
+.r-sports{--rc:#2c4276;--rt:#e3e7f0;--card:#ededed}
 
 .pp-wrap > .pp-crumbs{margin-bottom:16px}
 
@@ -188,20 +188,27 @@
   height:100%;
   width:100%;
   min-width:0;
+  position:relative;
+  z-index:2;
+  isolation:isolate;
+  opacity:1;
   text-decoration:none;
   color:var(--charcoal);
-  background:color-mix(in srgb, var(--rt) 42%, var(--paper-hi));
-  border:1px solid var(--rule);
+  background-color:var(--card, var(--paper-hi));
+  background-image:none;
+  border:1px solid rgba(12, 23, 48, 0.14);
   border-top:3px solid var(--rc);
   border-radius:0;
   padding:16px 18px 16px;
-  box-shadow:none;
+  box-shadow:0 2px 10px rgba(12, 23, 48, 0.08);
 }
 .an-card:hover,
 .an-card:focus-visible{
-  background:var(--rt);
-  border-color:color-mix(in srgb, var(--rc) 45%, var(--rule));
+  background-color:var(--rt);
+  background-image:none;
+  border-color:rgba(12, 23, 48, 0.18);
   border-top-color:var(--rc);
+  box-shadow:0 3px 14px rgba(12, 23, 48, 0.11);
 }
 .an-card:focus-visible{outline:2px solid var(--rc);outline-offset:3px}
 
@@ -549,9 +556,15 @@
     radial-gradient(ellipse at 50% 42%, transparent 52%, rgba(72,52,28,0.07) 100%),
     linear-gradient(180deg, rgba(255,250,240,0.28) 0%, transparent 16%, transparent 84%, rgba(84,60,32,0.06) 100%);
 }
-.gazette > *:not(.gazette-fiber):not(.gazette-vignette){
+.gazette > *:not(.gazette-fiber):not(.gazette-vignette):not(.gazette-print){
   position:relative;
   z-index:1;
+}
+/* When the printed columns are showing, drop the milky fiber/vignette wash so type stays razor-sharp */
+.gazette:has(.gazette-print) .gazette-fiber,
+.gazette:has(.gazette-print) .gazette-vignette{
+  opacity:0;
+  visibility:hidden;
 }
 
 /* The Times thick-thin double rules framing the edition bar */
@@ -613,4 +626,55 @@
   background:var(--rc);
   border-color:color-mix(in srgb, var(--rc) 70%, #e8c05a);
   color:#f8f4ea;
+}
+
+
+/* Printed broadsheet columns (self-hosted SVG, original copy) */
+.gazette-print{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  opacity:0.26;
+  background-image:url(/news/broadsheet-print-bg.svg?v=20261127sepia);
+  background-repeat:repeat-y;
+  background-position:center top;
+  background-size:100% auto;
+  mix-blend-mode:normal;
+}
+/* Tight, clean paper halo behind PAW NEWS + the edition bar only — not a cloudy wash over the columns */
+.masthead{position:relative}
+.masthead::before{content:none;display:none}
+.mast-title,
+.edition{
+  position:relative;
+  z-index:1;
+  isolation:isolate;
+}
+.mast-title::before,
+.edition::before{
+  content:"";
+  position:absolute;
+  left:8%;
+  right:8%;
+  top:12%;
+  bottom:8%;
+  background:radial-gradient(ellipse at 50% 50%, rgba(248,244,234,0.58) 0%, rgba(248,244,234,0.20) 48%, transparent 74%);
+  pointer-events:none;
+  z-index:-1;
+}
+/* Category sheets: print stays visible in the margins, fades under the article cards */
+.gazette-cat .gazette-print{
+  opacity:0.22;
+  -webkit-mask-image:radial-gradient(ellipse 72% 60% at 50% 36%, transparent 0%, transparent 38%, #000 76%);
+  mask-image:radial-gradient(ellipse 72% 60% at 50% 36%, transparent 0%, transparent 38%, #000 76%);
+}
+/* Foreground cards stay 100% opaque and slightly lifted so column type never fights the door typography */
+.an-card{
+  position:relative;
+  z-index:2;
+  isolation:isolate;
+  opacity:1;
+  background-color:var(--card, var(--paper-hi));
+  background-image:none;
 }
