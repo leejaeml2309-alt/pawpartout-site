@@ -1,0 +1,439 @@
+/* 24/7 vet emergencies — local preview, 2026-11-27 */
+
+.page-vet{--coral:#e05a4f;--coral-d:#b63d35;--coral-s:#f4c7c2;--amber:#e0a24b;--amber-s:#f3d7a6;--ok-line:1px solid #d9b76555}
+
+.page-vet .vet-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:10px;min-height:58px}
+.page-vet .vet-top .foot-brand{min-height:48px}
+.vet-back{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:99px;border:1px solid #d9b76555;color:var(--au-l);text-decoration:none;font-size:.86rem;white-space:nowrap}
+.vet-back:hover{border-color:var(--au-l);color:#fff6cf}
+
+.vet-hero{text-align:center;padding:36px 0 18px}
+.vet-icon{width:64px;height:64px;margin:0 auto 12px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 30%,#18407f,#071637 80%) padding-box,var(--gold-ring) border-box;
+  border:4px solid transparent;
+  box-shadow:0 0 0 1px #3a2205,inset 0 0 0 1px #3a2205,inset 0 2px 1px #fff3c466,0 6px 14px #000b}
+.vet-icon svg{width:82%;height:82%;overflow:visible}
+.vet-badge{display:inline-flex;align-items:center;min-height:32px;margin:8px 0 0;padding:0 14px;border-radius:99px;border:1px solid #c6d0dc88;color:#e4ebf3;font:700 .72rem var(--text);letter-spacing:.14em;text-transform:uppercase}
+.vet-hero h1{margin:.2em 0 .2em;font-size:clamp(2rem,4.2vw,3.2rem)}
+.vet-hero .lede{margin:0 auto;max-width:38rem}
+
+.vet-command{padding:8px 0 28px}
+.vet-banner{display:grid;grid-template-columns:1.3fr .9fr;gap:22px 28px;align-items:stretch;border-radius:20px;padding:24px 26px;background:linear-gradient(180deg,#0e2452,#0a1a3c);border:1px solid #d9b76555}
+.cmd-find h2{margin:0 0 8px;font-size:clamp(1.25rem,2vw,1.55rem)}
+.cmd-note,.cmd-fee{margin:0 0 14px;color:var(--mut);font-size:.9rem}
+.cmd-k{margin:0 0 10px;font:700 .68rem var(--text);letter-spacing:.16em;text-transform:uppercase;color:var(--au)}
+.cmd-calls{display:flex;flex-direction:column;gap:10px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 20px;border-radius:99px;border:2px solid transparent;text-decoration:none;font:700 .92rem var(--text);cursor:pointer;text-align:center}
+.btn-maps{width:100%;color:#071330;background:linear-gradient(170deg,#f3e1a8,#d4a13a 55%,#b8892c);box-shadow:inset 0 1px 0 #fff8,0 8px 20px #0006;letter-spacing:.01em;font-size:1.02rem}
+.btn-maps:hover{filter:brightness(1.05);color:#071330}
+.btn-place{flex:none;color:#f6dc8a;background:linear-gradient(#0b1f47,#0b1f47) padding-box,var(--gold-ring) border-box;min-height:48px}
+.btn-place:hover{color:#fff6cf}
+.btn-call{flex-direction:column;gap:0;align-items:flex-start;width:100%;min-height:64px;padding:10px 18px;border-radius:16px;color:#f7f0de;background:#06102a;border:1px solid #d9b76566;text-align:left}
+.btn-call:hover{border-color:var(--au-l);color:#fff}
+.btn-call .btn-k{font:700 .68rem var(--text);letter-spacing:.12em;text-transform:uppercase;color:var(--au-l)}
+.btn-call .btn-n{font:400 1.35rem/1.2 var(--disp);color:inherit}
+.line-card .btn-call{width:auto;display:inline-flex;flex-direction:row;align-items:center;min-height:48px;border-radius:99px;padding:0 18px;margin:0 0 12px}
+.line-card .btn-call .btn-k{display:none}
+.btn-ghost,.btn-print{min-height:46px;color:#f6dc8a;background:linear-gradient(#0b1f47,#0b1f47) padding-box,var(--gold-ring) border-box}
+.btn-ghost:hover,.btn-print:hover{color:#fff6cf}
+
+.vet-place{margin-top:16px}
+.vet-place label{display:block;margin:0 0 8px;font-size:.86rem;color:var(--mut)}
+.place-row{display:flex;flex-wrap:wrap;gap:8px}
+.place-row input{flex:1;min-width:200px;min-height:48px;padding:0 14px;border-radius:12px;border:1px solid #ffffff2a;background:#050e26;color:var(--head);font:400 1rem var(--text)}
+.place-row input::placeholder{color:#8b93a6;opacity:.9}
+
+.sec-h{text-align:center;margin:0 0 22px}
+.sec-h h2{margin:0 0 8px;font-size:clamp(1.45rem,2.2vw,2rem)}
+.sec-lede{margin:0 auto;max-width:42rem}
+.vet-lines{padding:12px 0 40px}
+.line-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
+.line-card{background:linear-gradient(180deg,#0e2452,#0a1a3c);border:var(--ok-line);border-radius:16px;padding:22px}
+.line-card h3{margin:0 0 4px;font-size:1.3rem;color:var(--head)}
+.line-meta{margin:0 0 14px;font:700 .68rem var(--text);letter-spacing:.12em;text-transform:uppercase;color:var(--au)}
+.line-card p{margin:0 0 10px}
+.line-card .off{margin:12px 0 0;font-size:.9rem}
+.line-card .off a{color:var(--au-l)}
+.veccs-card{margin-top:20px}
+.why-not{margin:22px auto 0;max-width:46rem;padding:14px 16px;border-left:3px solid var(--au);color:var(--ink);background:#ffffff08;border-radius:0 12px 12px 0}
+
+.vet-triage{padding:8px 0 48px}
+.triage-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
+.triage{border-radius:16px;padding:22px 22px 16px;background:linear-gradient(180deg,#0e2452,#0a1a3c)}
+.triage h3{margin:0 0 12px;font-size:1.4rem}
+.triage ul{margin:0;padding:0 0 0 1.1rem}
+.triage li{margin:0 0 8px}
+.triage.go-now{border:1.5px solid var(--coral);box-shadow:inset 3px 0 0 var(--coral)}
+.triage.go-now h3{color:#f3b3ad}
+.call-tonight{border:1.5px solid var(--amber);box-shadow:inset 3px 0 0 var(--amber)}
+.call-tonight h3{color:var(--amber-s)}
+.disclaimer{margin:22px auto 0;max-width:40rem;text-align:center;color:var(--mut);font-size:.95rem}
+.disclaimer strong{color:var(--head);font-weight:600}
+
+.vet-card-sec{padding:0 0 72px}
+.card-shell{display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:stretch}
+.e-card,.phrases{background:linear-gradient(180deg,#0e2452,#0a1a3c);border:var(--ok-line);border-radius:16px;padding:22px}
+.f-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+.f{margin:0}
+.f-wide{grid-column:1/-1}
+.f label{display:block;margin:0 0 4px;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--au-l)}
+.f input,.f select,.f textarea{width:100%;box-sizing:border-box;min-height:44px;padding:8px 12px;border-radius:10px;border:1px solid #ffffff2a;background:#050e26;color:var(--head);font:400 1rem var(--text)}
+.f textarea{min-height:68px;resize:vertical}
+.weight-row{display:flex;gap:8px;align-items:center}
+.weight-row input{flex:1}
+.units{display:flex;gap:6px;flex:none}
+.u{display:inline-flex;cursor:pointer;margin:0}
+.u input{position:absolute;opacity:0;width:1px;height:1px;overflow:hidden}
+.u span{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:0 12px;border-radius:99px;border:1px solid #ffffff2a;color:var(--ink);font:600 .82rem var(--text)}
+.u input:checked + span{border-color:var(--au);color:var(--au-l);background:#d4a13a22}
+.u input:focus-visible + span{outline:2px solid var(--au-l);outline-offset:2px}
+.save-note{margin:14px 0 10px;font-size:.86rem;color:var(--mut)}
+.card-actions{display:flex;flex-wrap:wrap;gap:10px;margin:0}
+
+.phrases-h{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:0 0 8px}
+.phrases-h h3{margin:0;font-size:1.25rem;color:var(--head)}
+.lang{display:flex;flex-wrap:wrap;gap:6px}
+.lang-btn{min-height:40px;padding:0 12px;border-radius:99px;border:1px solid #ffffff2a;background:transparent;color:var(--ink);font:600 .82rem var(--text);cursor:pointer}
+.lang-btn.is-on{border-color:var(--au);color:var(--au-l);background:#d4a13a22}
+.lang-hint{width:100%;margin:0 0 10px;font-size:.8rem;color:var(--mut)}
+.phrase-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.phrase-list li{margin:0;padding:12px 14px;border-radius:12px;background:#06102a99;border:1px solid #ffffff10;font-size:1.12rem;line-height:1.35;color:var(--head)}
+
+.vet-foot{justify-content:center;gap:4px 24px;text-align:center}
+.vet-foot a{color:var(--au-l);text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
+.vet-foot a:hover{color:var(--au)}
+.opt-switch a{min-width:32px;justify-content:center;padding:0 8px;border-radius:99px;border:1px solid #d9b76555;margin:0 2px}
+
+/* ===== Option A — coral urgency banner (recommended) ===== */
+[data-vet="a"] .vet-banner{background:var(--coral);border:0;color:#fff8f6;box-shadow:0 16px 40px #e05a4f33}
+[data-vet="a"] .cmd-find h2,[data-vet="a"] .cmd-k{color:#fff8f6}
+[data-vet="a"] .cmd-note,[data-vet="a"] .cmd-fee,[data-vet="a"] .vet-place label{color:#ffece9}
+[data-vet="a"] .vet-banner .btn-maps{background:#071330;color:#f7f0de;box-shadow:0 8px 20px #0004}
+[data-vet="a"] .vet-banner .btn-maps:hover{color:#fff;filter:none;background:#0a1a3c}
+[data-vet="a"] .vet-banner .btn-place{color:#071330;background:#fff8f6;border:0}
+[data-vet="a"] .vet-banner .btn-place:hover{color:#071330;filter:brightness(1.04)}
+[data-vet="a"] .place-row input{background:#6f2a26;border-color:#ffd2cc88;color:#fff8f6}
+[data-vet="a"] .place-row input::placeholder{color:#f3c7c2}
+[data-vet="a"] .vet-banner .btn-call{background:#6f2a26;border-color:#ffd2cc88;color:#fff8f6}
+[data-vet="a"] .vet-banner .btn-call .btn-k{color:#ffd2cc}
+[data-vet="a"] .vet-banner .btn-call:hover{background:#5a221f;border-color:#fff}
+
+/* ===== Option B — high-contrast split command bar ===== */
+[data-vet="b"] .vet-hero{padding:16px 0 6px}
+[data-vet="b"] .vet-hero .lede{display:none}
+[data-vet="b"] .vet-hero h1{font-size:clamp(1.7rem,3vw,2.4rem);margin:0}
+[data-vet="b"] .vet-command{padding:4px 0 20px}
+[data-vet="b"] .vet-banner{grid-template-columns:1fr 1fr;gap:0;padding:0;background:transparent;border:0;overflow:hidden;box-shadow:0 18px 40px #0008}
+[data-vet="b"] .cmd-find{padding:22px 24px;background:#0a1c42;border:1.5px solid #f0d58c;border-right:0;border-radius:18px 0 0 18px}
+[data-vet="b"] .cmd-calls{padding:22px 24px;background:#071330;border:1.5px solid var(--coral);border-radius:0 18px 18px 0;justify-content:center}
+[data-vet="b"] .btn-maps{min-height:64px;font-size:1.08rem;background:var(--coral);color:#fff8f6;box-shadow:none}
+[data-vet="b"] .btn-maps:hover{background:var(--coral-d);color:#fff}
+[data-vet="b"] .btn-call{background:#140b12;border-color:#e05a4f88;min-height:72px}
+[data-vet="b"] .btn-call .btn-n{font-size:1.5rem}
+
+/* ===== Option C — minimalist navy & warm amber-coral ===== */
+[data-vet="c"] .vet-hero{padding:48px 0 28px}
+[data-vet="c"] .vet-banner{background:transparent;border:0;padding:0;gap:28px}
+[data-vet="c"] .cmd-find,[data-vet="c"] .cmd-calls{padding:28px 26px;border-radius:18px;background:linear-gradient(180deg,#0c1c40,#081430);border:1px solid #e0a24b55;box-shadow:inset 0 0 0 1px #e05a4f22}
+[data-vet="c"] .btn-maps{background:transparent;color:#f6dc8a;border:2px solid transparent;background:linear-gradient(#0b1f47,#0b1f47) padding-box,var(--gold-ring) border-box;box-shadow:none}
+[data-vet="c"] .btn-maps:hover{color:#fff6cf}
+[data-vet="c"] .line-card,.e-card,.phrases,[data-vet="c"] .triage{border-color:#e0a24b55;box-shadow:inset 0 0 0 1px #e05a4f18}
+[data-vet="c"] .triage.go-now,[data-vet="c"] .triage.call-tonight{box-shadow:none}
+[data-vet="c"] .triage.go-now{border-color:#e05a4f88}
+[data-vet="c"] .triage.call-tonight{border-color:#e0a24b88}
+
+@media (max-width:860px){
+  .vet-banner,.line-grid,.triage-grid,.card-shell,.f-grid{grid-template-columns:1fr}
+  [data-vet="b"] .vet-banner{grid-template-columns:1fr}
+  .f-wide{grid-column:auto}
+  [data-vet="b"] .cmd-find,[data-vet="b"] .cmd-calls{border:1.5px solid var(--coral);border-radius:16px}
+  [data-vet="b"] .cmd-find{border-color:#f0d58c;margin-bottom:12px}
+  .vet-hero{padding-top:24px}
+  .btn-maps{min-height:56px}
+}
+@media (max-width:640px){
+  .page-vet .vet-top{padding-top:6px}
+  .vet-back{padding:0 12px;font-size:.8rem}
+  .place-row input,.btn-place{width:100%}
+  .phrase-list li{font-size:1.05rem}
+}
+
+@media print{
+  .vet-top,.vet-hero,.vet-command,.vet-lines,.vet-triage,.vfoot,.skip,.opt-switch,.card-actions,.lang{display:none!important}
+  body, .page-vet{background:#fff;color:#111}
+  .vet-card-sec{padding:0}
+  .card-shell{display:block}
+  .e-card,.phrases{background:#fff;border:1px solid #bbb;color:#111;break-inside:avoid;margin-bottom:16px}
+  .f label,.line-meta,.cmd-k{color:#444}
+  .f input,.f select,.f textarea{border:1px solid #ccc;background:#fff;color:#111}
+  .phrase-list li{border:1px solid #ddd;background:#fff;color:#111}
+  .save-note{color:#444}
+}
+
+[data-vet="a"] .opt-switch a[href="?opt=a"],[data-vet="b"] .opt-switch a[href="?opt=b"],[data-vet="c"] .opt-switch a[href="?opt=c"]{border-color:var(--au);color:var(--au);}
+
+[data-vet="b"] .place-row{flex-direction:column;align-items:stretch}
+[data-vet="b"] .place-row input,[data-vet="b"] .btn-place{width:100%}
+.place-row input{font-size:.92rem}
+@media (max-width:640px){
+  .vet-hero{padding:14px 0 8px}
+  .vet-hero .lede{font-size:.92rem;margin-top:4px}
+  .vet-icon{margin-bottom:8px}
+  .place-row input{font-size:.84rem}
+}
+
+/* ===== 24/7 azimuthal map, Option B variants (local preview) ===== */
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+.az-wrap{display:none}
+[data-map="1"] .az-wrap,
+[data-map="2"] .az-wrap,
+[data-map="3"] .az-wrap{display:block}
+.az-map svg{display:block;width:100%;height:auto}
+.az-caption{display:none;margin:6px 0 0;text-align:center;font:700 .62rem var(--text);letter-spacing:.16em;text-transform:uppercase;color:var(--au)}
+.az-tip{position:absolute;z-index:3;left:50%;bottom:18%;transform:translate(-50%,0);min-width:8.5rem;padding:7px 12px;border-radius:99px;background:#071330;border:1px solid #e8cb8c;color:#fff6cf;font:700 .72rem var(--text);letter-spacing:.04em;text-align:center;pointer-events:none;box-shadow:0 8px 20px #0008}
+.az-country-hint{display:none;margin:10px 0 0;font-size:.86rem;color:var(--au-l)}
+[data-map="3"] .az-country-hint:not([hidden]){display:block}
+.az-na{outline:none}
+[data-map="1"] .az-na,[data-map="2"] .az-na{pointer-events:none}
+
+/* Pulse pin */
+.az-ripple{transform-box:fill-box;transform-origin:center;animation:az-radar 2.8s ease-out infinite}
+.az-ripple-b{animation-delay:1.4s}
+@keyframes az-radar{
+  0%{transform:scale(.7);opacity:.6}
+  100%{transform:scale(5.2);opacity:0}
+}
+.az-wrap.is-ping .az-ripple{animation-duration:1.5s}
+.az-wrap.is-ping .az-core{filter:drop-shadow(0 0 3px #e05347)}
+@media (prefers-reduced-motion:reduce){
+  .az-ripple{animation:none;opacity:0}
+  .az-wrap.is-ping .az-core{filter:none}
+}
+
+/* --- Variant 1: atmospheric radar watermark (recommended) --- */
+[data-map="1"][data-vet="b"] .cmd-find{position:relative;overflow:hidden}
+[data-map="1"] .az-wrap{
+  position:absolute;right:-14%;top:50%;transform:translateY(-50%);
+  width:min(360px,78%);margin:0;pointer-events:none;z-index:0;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 26%,#000 100%);
+  mask-image:linear-gradient(90deg,transparent 0%,#000 26%,#000 100%);
+}
+[data-map="1"] .az-caption,[data-map="1"] .az-tip{display:none}
+[data-map="1"] .cmd-find-body{position:relative;z-index:1}
+[data-map="1"] .cmd-find h2,
+[data-map="1"] .cmd-note,
+[data-map="1"] .vet-place label{
+  text-shadow:0 0 10px #0a1c42,0 1px 0 #071330aa,0 0 22px #0a1c42
+}
+[data-map="1"] .place-row input,
+[data-map="1"] .btn-maps,
+[data-map="1"] .btn-place{position:relative;z-index:1}
+
+/* --- Variant 2: compass medallion to the left --- */
+[data-map="2"][data-vet="b"] .cmd-find{
+  display:grid;grid-template-columns:148px 1fr;gap:2px 18px;align-items:center
+}
+[data-map="2"] .az-wrap{
+  grid-row:1/-1;width:148px;justify-self:center;position:relative;z-index:1
+}
+[data-map="2"] .az-map{filter:drop-shadow(0 8px 18px #0008)}
+[data-map="2"] .az-caption{display:block}
+[data-map="2"] .az-tip{display:none}
+
+/* --- Variant 3: clickable globe showcase above the split bar --- */
+[data-map="3"][data-vet="b"] .vet-banner{
+  display:grid;grid-template-columns:1fr 1fr;
+  grid-template-areas:"map map" "find calls"
+}
+[data-map="3"][data-vet="b"] .cmd-find{display:contents;padding:0;background:transparent;border:0;border-radius:0}
+[data-map="3"] .az-wrap{
+  grid-area:map;width:auto;margin:0;padding:14px 16px 8px;
+  display:flex;flex-direction:column;align-items:center;
+  background:#0a1c42;border:1.5px solid #f0d58c;border-bottom:0;
+  border-radius:18px 18px 0 0;position:relative;z-index:1
+}
+[data-map="3"] .az-map{width:min(236px,56vw);filter:drop-shadow(0 10px 22px #0007);cursor:default}
+[data-map="3"] .az-caption{display:block}
+[data-map="3"][data-vet="b"] .cmd-find-body{
+  grid-area:find;padding:18px 24px 22px;background:#0a1c42;
+  border:1.5px solid #f0d58c;border-right:0;border-radius:0 0 0 18px
+}
+[data-map="3"][data-vet="b"] .cmd-calls{grid-area:calls;border-radius:0 0 18px 0}
+[data-map="3"] .az-map svg .az-ocean,
+[data-map="3"] .az-map svg .az-graticule,
+[data-map="3"] .az-map svg .az-graticule *,
+[data-map="3"] .az-map svg .az-world,
+[data-map="3"] .az-map svg .az-antarctica,
+[data-map="3"] .az-map svg .az-na-glow,
+[data-map="3"] .az-map svg .az-pin,
+[data-map="3"] .az-map svg .az-pin *,
+[data-map="3"] .az-map svg .az-ring-outer,
+[data-map="3"] .az-map svg .az-ring-mid,
+[data-map="3"] .az-map svg .az-ring-inner,
+[data-map="3"] .az-map svg line,
+[data-map="3"] .az-map svg polygon{pointer-events:none}
+[data-map="3"] .az-map svg .az-na,
+[data-map="3"] .az-map svg .az-na *{cursor:pointer;pointer-events:auto}
+[data-map="3"] .az-na path{transition:fill .2s ease,stroke .2s ease,filter .2s ease}
+[data-map="3"] .az-na:hover path,
+[data-map="3"] .az-na:focus-visible path,
+[data-map="3"] .az-na.is-on path{
+  fill:rgba(230,198,130,.66);stroke:#f3e1a8;filter:drop-shadow(0 0 3px #e8cb8c99)
+}
+[data-map="3"] .az-na:focus-visible{outline:2px solid #e8cb8c;outline-offset:2px}
+
+[data-map="1"] .map-switch a[href*="map=1"],
+[data-map="2"] .map-switch a[href*="map=2"],
+[data-map="3"] .map-switch a[href*="map=3"]{border-color:var(--au);color:var(--au)}
+
+@media (max-width:860px){
+  [data-map="1"] .az-wrap{width:min(280px,90%);right:-10%;top:auto;bottom:-18%;transform:none;opacity:.95}
+  [data-map="2"][data-vet="b"] .cmd-find{grid-template-columns:1fr;justify-items:stretch;text-align:left}
+  [data-map="2"] .az-wrap{grid-row:auto;width:128px;justify-self:center;margin:0 auto 10px}
+  [data-map="3"][data-vet="b"] .vet-banner{
+    grid-template-columns:1fr;grid-template-areas:"map" "find" "calls"
+  }
+  [data-map="3"] .az-wrap{border-radius:16px 16px 0 0;padding:12px 12px 6px}
+  [data-map="3"] .az-map{width:min(200px,70vw)}
+  [data-map="3"][data-vet="b"] .cmd-find-body{
+    border:1.5px solid #f0d58c;border-radius:0 0 16px 16px;margin-bottom:12px
+  }
+  [data-map="3"][data-vet="b"] .cmd-calls{border-radius:16px}
+}
+@media (max-width:640px){
+  [data-map="1"] .az-wrap{width:min(250px,96%);right:-14%;bottom:-22%}
+  [data-map="2"] .az-wrap{width:118px}
+}
+@media print{
+  .az-wrap,.map-switch{display:none!important}
+}
+
+/* ===== Final command box (Marc art direction, 2026-11-27) ===== */
+.page-vet{--coral:#e05347;--coral-d:#c4453c;--coral-s:#f4c7c2}
+
+.page-vet .vet-top{min-height:52px;padding-top:6px}
+.vet-hero{text-align:center;padding:10px 0 8px}
+.vet-icon{width:52px;height:52px;margin:0 auto 8px}
+.vet-hero h1{margin:0;font-size:clamp(1.55rem,2.8vw,2.15rem)}
+.vet-badge{margin:0 0 6px}
+.vet-command{padding:0 0 22px}
+
+.vet-box{
+  border-radius:20px;overflow:hidden;
+  background:#071330;
+  border:1.5px solid #d9b76566;
+  box-shadow:0 18px 44px #0008
+}
+.vet-box-h{
+  margin:0;text-align:center;
+  padding:20px 24px 18px;
+  background:linear-gradient(180deg,#e86b61 0%,#e05347 48%,#d2473e 100%);
+  color:#fff8f6
+}
+.vet-box-h h2{
+  margin:0;color:#fff8f6;
+  font:400 clamp(1.45rem,2.6vw,2.05rem)/1.2 var(--disp);
+  text-wrap:balance
+}
+.vet-box-h h2::after{
+  content:"";display:block;width:76px;height:1px;margin:12px auto 0;
+  background:linear-gradient(90deg,transparent,#f0d58c,#fff3c0,#f0d58c,transparent)
+}
+.vet-box-grid{display:grid;grid-template-columns:1fr 1fr;align-items:stretch}
+.cmd-find{
+  padding:18px 22px 20px;background:#0a1c42;
+  border-right:1px solid #d9b76533;
+  display:flex;flex-direction:column
+}
+.cmd-calls{
+  padding:18px 22px 20px;background:#071330;
+  display:flex;flex-direction:column;justify-content:center;gap:10px
+}
+.vet-place{margin:0;display:flex;flex-direction:column;flex:1}
+.vet-search-label{display:block;margin:0 0 8px;font-size:.82rem;color:var(--mut)}
+.vet-search{
+  width:100%;box-sizing:border-box;min-height:52px;padding:0 16px;
+  border-radius:12px;border:1.5px solid #d9b76566;background:#050e26;
+  color:var(--head);font:400 1rem var(--text)
+}
+.vet-search::placeholder{color:#8b93a6;opacity:.95}
+.vet-search:focus{outline:none;border-color:var(--au-l);box-shadow:0 0 0 3px #d4a13a33}
+.vet-search-ex{margin:6px 0 0;font-size:.78rem;color:var(--mut)}
+
+.vet-globe-btn{
+  appearance:none;-webkit-appearance:none;
+  display:flex;flex-direction:column;align-items:center;
+  width:100%;margin:12px 0 0;padding:4px 4px 0;
+  border:0;background:transparent;cursor:pointer;color:inherit;
+  font:inherit
+}
+.vet-globe-btn .az-map{
+  display:block;width:min(236px,86%);height:auto;
+  transition:transform .22s ease,filter .22s ease;
+  filter:drop-shadow(0 8px 18px #0008)
+}
+.vet-globe-btn .az-map svg{display:block;width:100%;height:auto}
+.vet-globe-btn:hover .az-map,
+.vet-globe-btn:focus-visible .az-map{
+  transform:translateY(-3px);
+  filter:drop-shadow(0 0 8px #f0d58c88) drop-shadow(0 12px 22px #0007)
+}
+.vet-globe-btn:hover .az-ring-outer,
+.vet-globe-btn:focus-visible .az-ring-outer{
+  filter:drop-shadow(0 0 2.5px #fff3c0)
+}
+.vet-globe-btn:focus-visible{outline:none}
+.vet-globe-btn:focus-visible .az-map{outline:2px solid var(--au-l);outline-offset:4px;border-radius:50%}
+.globe-caption{
+  display:inline-flex;align-items:center;justify-content:center;
+  position:relative;z-index:2;margin-top:16px;
+  min-height:38px;padding:0 16px;border-radius:99px;
+  background:linear-gradient(170deg,#f3e1a8,#d4a13a 55%,#b8892c);
+  color:#071330;font:700 .84rem var(--text);
+  box-shadow:0 6px 16px #0006
+}
+.globe-caption-mob{display:none}
+.globe-hint{margin:10px 0 0;font-size:.82rem;color:var(--mut);text-align:center}
+
+.cmd-calls .btn-call{width:100%}
+.cmd-fee{margin:2px 0 0;color:var(--mut);font-size:.88rem}
+.cmd-veccs{margin:8px 0 0}
+.cmd-veccs a{
+  display:inline-flex;align-items:center;min-height:40px;
+  color:var(--au-l);text-decoration:none;font-size:.9rem;
+  border-bottom:1px solid #d9b76555
+}
+.cmd-veccs a:hover{color:var(--au);border-color:var(--au)}
+
+.az-ripple{transform-box:fill-box;transform-origin:center;animation:az-radar 2.8s ease-out infinite;pointer-events:none}
+.az-ripple-b{animation-delay:1.4s}
+@keyframes az-radar{
+  0%{transform:scale(.8);opacity:.6}
+  100%{transform:scale(3.8);opacity:0}
+}
+.vet-globe-btn.is-ping .az-ripple{animation-duration:1.4s}
+@media (prefers-reduced-motion:reduce){
+  .az-ripple{animation:none;opacity:0}
+  .vet-globe-btn .az-map{transition:none}
+}
+
+@media (max-width:860px){
+  .vet-box-grid{grid-template-columns:1fr}
+  .cmd-find{border-right:0;border-bottom:1px solid #d9b76533;padding:16px 16px 18px}
+  .cmd-calls{padding:16px 16px 18px;justify-content:flex-start}
+  .vet-box-h{padding:16px 16px 14px}
+  .vet-box-h h2{font-size:clamp(1.25rem,6.2vw,1.7rem)}
+  .vet-globe-btn .az-map{width:min(220px,78%)}
+  .globe-caption-desk{display:none}
+  .globe-caption-mob{display:inline}
+  .vet-hero{padding:8px 0 6px}
+}
+@media (max-width:640px){
+  .vet-search{font-size:.84rem;padding:0 12px}
+  .vet-globe-btn .az-map{width:min(200px,84%)}
+}
+@media print{
+  .vet-top,.vet-hero,.vet-command,.vfoot,.skip{display:none!important}
+}
