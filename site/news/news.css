@@ -1,6 +1,6 @@
 /* Paw News — luxury print gazette, 2026-11-27
    Self-hosted Playfair Display + IBM Plex Mono (SIL OFL, same families as Google Fonts).
-   Ivory broadsheet on Pawpartout navy. Thematic rubric colors on cards and articles. */
+   Ivory broadsheet on Pawpartout navy. Three-level architecture: section doors, category pages, articles. */
 
 @font-face{font-family:"Playfair Display";src:url(/fonts/playfair-display-500.woff2) format("woff2");font-weight:500;font-style:normal;font-display:swap}
 @font-face{font-family:"Playfair Display";src:url(/fonts/playfair-display-500-italic.woff2) format("woff2");font-weight:500;font-style:italic;font-display:swap}
@@ -415,3 +415,111 @@
 }
 .an-sources a:hover{filter:brightness(0.86)}
 .an-sources a:focus-visible{outline:2px solid var(--rc);outline-offset:2px}
+
+
+/* ——— Level 1: section doors ——— */
+.an-door-num{
+  margin:0 0 10px;
+  height:1.2em;
+  overflow:hidden;
+  font-family:var(--typewriter);
+  font-weight:600;
+  font-size:13px;
+  line-height:1.2;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:var(--rc);
+}
+.an-door-title{
+  margin:0 0 12px;
+  height:calc(1.18em * 2);
+  overflow:hidden;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  line-clamp:2;
+  font-family:var(--serif);
+  font-weight:700;
+  font-size:1.5rem;
+  line-height:1.18;
+  letter-spacing:0;
+  color:var(--charcoal);
+  text-wrap:balance;
+}
+.an-door-desc{
+  margin:0 0 14px;
+  height:calc(1.5em * 3);
+  overflow:hidden;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:3;
+  line-clamp:3;
+  font-family:var(--newsbody);
+  font-weight:400;
+  font-size:0.95rem;
+  line-height:1.5;
+  color:rgba(24,26,32,0.92);
+}
+.an-door-count{
+  display:block;
+  margin:0;
+  height:1.35em;
+  overflow:hidden;
+  white-space:nowrap;
+  font-family:var(--typewriter);
+  font-weight:500;
+  font-size:11px;
+  line-height:1.35;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:rgba(24,26,32,0.7);
+}
+
+/* ——— Level 2: category heading ——— */
+.gazette-cat{padding-top:0}
+.cat-head{
+  margin:0 auto 28px;
+  max-width:36rem;
+  text-align:center;
+}
+.cat-head .an-stamp{
+  display:inline-block;
+  width:auto;
+  max-width:100%;
+  height:auto;
+  margin:0 auto 14px;
+  padding:3px 8px 2px;
+  border:1px solid var(--rc);
+  color:var(--rc);
+  -webkit-line-clamp:unset;
+  line-clamp:unset;
+  overflow:visible;
+}
+.cat-head h1{
+  margin:0 0 12px;
+  font-family:var(--serif);
+  font-weight:700;
+  font-size:clamp(2rem, 4vw, 3.1rem);
+  line-height:1.12;
+  letter-spacing:0;
+  color:var(--charcoal);
+  text-wrap:balance;
+}
+.cat-intro{
+  margin:0 0 12px;
+  font-family:var(--newsbody);
+  font-weight:400;
+  font-size:1.05rem;
+  line-height:1.65;
+  color:rgba(24,26,32,0.9);
+}
+.cat-count{
+  margin:0;
+  font-family:var(--typewriter);
+  font-weight:500;
+  font-size:11px;
+  line-height:1.4;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:rgba(24,26,32,0.7);
+}
