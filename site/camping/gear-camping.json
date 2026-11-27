@@ -1,0 +1,144 @@
+{
+  "generated_at": "2026-11-27T14:56:00+09:00",
+  "timezone": "Korea Standard Time (UTC+9)",
+  "scope": "Camping and road-trip gear only; no connection to Paw Shop",
+  "language": "en",
+  "affiliate_tag": "petpolicychec-20",
+  "total_products": 9,
+  "counts": {
+    "by_subtheme": {
+      "Portable Camp Food & Hydration": 3,
+      "Waterproof Camp Comfort": 3,
+      "Camp & Road-Trip Gear": 3
+    },
+    "by_species": {
+      "Dogs": 7,
+      "Dogs & Cats": 1,
+      "Cats": 1
+    }
+  },
+  "duplicates_avoided": [
+    "Ruffwear Bivy Collapsible Dog Bowl",
+    "Petmate Vittles Vault Outback",
+    "Ruffwear Quencher Packable Dog Bowl",
+    "Kurgo Gourd Water Bottle & Bowl",
+    "Kurgo Collaps A Bowl",
+    "Sleepypod Yummy Travel Bowls",
+    "Coolaroo Original Elevated Dog Bed (B000P7JKD6)",
+    "Ruffwear Highlands Dog Pad",
+    "Chuckit! Travel Pillow Bed",
+    "Travel Cat Porta-Pawty Litter Box",
+    "Pet Evac Pak Collapsible Cat Litter Box",
+    "Kurgo Tru-Fit / Sleepypod Clickit / Ruffwear Load Up harnesses"
+  ],
+  "products": [
+    {
+      "name": "Ruffwear Kibble Kaddie Dog Food Carrier",
+      "subtheme": "Portable Camp Food & Hydration",
+      "species": "Dogs",
+      "asin": "B07SKX6RT4",
+      "amazon_url": "https://www.amazon.com/dp/B07SKX6RT4?tag=petpolicychec-20",
+      "waterproof": true,
+      "why_camp_specific": "A 10 L (42-cup) roll-top bag with a waterproof, food-grade odor-sealing liner and a fold-out pour spout, made to carry kibble in a tent, van, or pack without a hard bucket.",
+      "staging_note": "Basalt-gray (or current colorway) nylon roll-top sack, about the size of a small dry bag, with a top spout; stage on a picnic table or tailgate beside an open bag of kibble, woods or camp kitchen in the background."
+    },
+    {
+      "name": "Highwave AutoDogMug Dog Water Bottle with Built-in Bowl, 20 oz",
+      "subtheme": "Portable Camp Food & Hydration",
+      "species": "Dogs",
+      "asin": "B00YNK9VPI",
+      "amazon_url": "https://www.amazon.com/dp/B00YNK9VPI?tag=petpolicychec-20",
+      "waterproof": false,
+      "why_camp_specific": "A one-handed 20 oz hiking bottle with a built-in bowl: squeeze to fill, release to return unused water, and it fits a standard car or bike cup holder on the road.",
+      "staging_note": "Tall BPA-free polypropylene bottle (about 4 x 2.75 x 8.5 in) with an attached bowl at the base and a removable strap; blue is the listing default, with pink, purple, red, and smoke also offered. Stage in a cup holder or on a trail rock with a dog drinking from the bowl.",
+      "price_observed_usd": 20.0
+    },
+    {
+      "name": "Dexas Popware for Pets Collapsible Kennel Bowl",
+      "subtheme": "Portable Camp Food & Hydration",
+      "species": "Dogs",
+      "asin": "B084GXZ856",
+      "amazon_url": "https://www.amazon.com/dp/B084GXZ856?tag=petpolicychec-20",
+      "waterproof": false,
+      "why_camp_specific": "A 2.5-cup collapsible bowl that clips to a kennel door and pivots up to lock flat, so food or water is ready in a crate, hotel room, or car without a loose dish.",
+      "staging_note": "Rectangular plastic kennel cup, about 8.4 x 7.9 in, collapsing to roughly 1.5 in high; often shown in a bright solid color. Stage clipped to a travel crate door or set on a tailgate, either expanded with water or locked flat.",
+      "price_observed_usd": 17.99
+    },
+    {
+      "name": "OneTigris Travel Dog Bed, Waterproof Anti-Slip (Gray)",
+      "subtheme": "Waterproof Camp Comfort",
+      "species": "Dogs",
+      "asin": "B0B6ZJWBZ3",
+      "amazon_url": "https://www.amazon.com/dp/B0B6ZJWBZ3?tag=petpolicychec-20",
+      "waterproof": true,
+      "why_camp_specific": "A portable, washable, explicitly waterproof and anti-slip dog camping mat (about 3.6 x 2.2 ft) that packs for a tent floor, picnic table, or van bunk.",
+      "staging_note": "Rectangular gray cushioned travel mat with an anti-slip backing, large enough for a medium-to-large dog; stage unrolled at a tent doorway or in the back of an SUV with a slight damp-ground contrast to show the waterproof shell.",
+      "price_observed_usd": 35.99
+    },
+    {
+      "name": "Kritter Planet Waterproof Foldable Dog Bed Pad, Portable Travel Pet Mat",
+      "subtheme": "Waterproof Camp Comfort",
+      "species": "Dogs",
+      "asin": "B0FJ1R5S9W",
+      "amazon_url": "https://www.amazon.com/dp/B0FJ1R5S9W?tag=petpolicychec-20",
+      "waterproof": true,
+      "why_camp_specific": "A foldable, explicitly waterproof travel pad with a roll-up design and handles, listed for camping, car seats, and indoor or outdoor use.",
+      "staging_note": "Cushioned rectangular pad with carry handles that rolls or folds into a compact bundle; stage rolled beside a packed tent or unrolled on a picnic bench or campsite table, for a large or medium dog.",
+      "price_observed_usd": 19.99
+    },
+    {
+      "name": "KZ Dotnz Soft Warm Dog Sleeping Bag, Large Portable Waterproof Camping Pet Bed",
+      "subtheme": "Waterproof Camp Comfort",
+      "species": "Dogs",
+      "asin": "B088KKT6LT",
+      "amazon_url": "https://www.amazon.com/dp/B088KKT6LT?tag=petpolicychec-20",
+      "waterproof": true,
+      "why_camp_specific": "A packable dog sleeping bag sold as a large, portable, explicitly waterproof camping and hiking pet bed — a bag, not a household cushion.",
+      "staging_note": "Soft, packable dog sleeping bag (large size) in a muted outdoor color; stage unzipped on a sleeping pad inside a tent vestibule, or packed in its stuff sack next to a hiking pack.",
+      "price_observed_usd": 31.99
+    },
+    {
+      "name": "Coastal Pet Titan Aerial Dog Run Cable Tie Out Zipline, 50'",
+      "subtheme": "Camp & Road-Trip Gear",
+      "species": "Dogs",
+      "asin": "B0002ARRYA",
+      "amazon_url": "https://www.amazon.com/dp/B0002ARRYA?tag=petpolicychec-20",
+      "waterproof": false,
+      "why_camp_specific": "A 50-foot aerial trolley (zipline) kit with a lead line and hardware, so a dog up to 50 pounds can move between two trees at camp without a short ground tie-out.",
+      "staging_note": "Steel cable stretched between two trees with a sliding trolley and lead; often sold in a metallic silver cable with simple hardware. Stage in a wooded campsite, cable high enough to stay off the ground, dog on the run at the edge of camp — never near a water or cliff edge."
+    },
+    {
+      "name": "Paw Ballet Foldable Waterproof Portable Cat and Dog Playpen Kennel Tent",
+      "subtheme": "Camp & Road-Trip Gear",
+      "species": "Dogs & Cats",
+      "asin": "B0CH3C4PFV",
+      "amazon_url": "https://www.amazon.com/dp/B0CH3C4PFV?tag=petpolicychec-20",
+      "waterproof": true,
+      "why_camp_specific": "A foldable, explicitly waterproof mesh playpen/kennel tent with a retractable shade cover and carrying case, for giving a cat or small dog a contained outdoor camp or picnic space.",
+      "staging_note": "Pop-up or fold-out mesh playpen tent with a shade roof and carry bag, sized for a cat or small dog; stage set up on a campsite or picnic lawn with the shade extended, stakes visible, carry bag nearby.",
+      "price_observed_usd": 33.99
+    },
+    {
+      "name": "RIS USA 15.5\" Travel Cat Litter Box with Zipper Top and Handles",
+      "subtheme": "Camp & Road-Trip Gear",
+      "species": "Cats",
+      "asin": "B01H2BZR9S",
+      "amazon_url": "https://www.amazon.com/dp/B01H2BZR9S?tag=petpolicychec-20",
+      "waterproof": false,
+      "why_camp_specific": "A lightweight, made-in-USA canvas travel litter pan that folds small for a van or car and zips closed so used litter stays contained on the road.",
+      "staging_note": "White/yellow 15.5 x 15.5 x 4 in canvas pan with a zipper top and handles; folded it is about 12 x 11 x 2 in. Stage open with a thin layer of litter in a van aisle or hotel-style nook, and show the zipped, folded form packed beside a suitcase.",
+      "price_observed_usd": 35.99
+    }
+  ],
+  "verification_notes": [
+    "Official specs from ruffwear.com (HTTP 200, 27 Nov 2026). Amazon ASIN B07SKX6RT4 confirmed from multiple amazon.com/dp listings for this product; a later direct curl of the Amazon page returned a challenge interstitial rather than full HTML.",
+    "Official highwave.com (HTTP 200) plus a live Amazon product page (in stock, $20.00, sold by Highwave) on 27 Nov 2026; the Amazon product details list ASIN B00YNK9VPI.",
+    "Live Amazon US product page (HTTP 200) on 27 Nov 2026: title, feature bullets, and $17.99 price captured from the HTML.",
+    "Amazon US ProductSearch live listing on 27 Nov 2026: title includes Waterproof and Dog Camping Bed; $35.99, in stock, seller amazon.com.",
+    "Amazon US ProductSearch live listing on 27 Nov 2026: title includes Waterproof Foldable Dog Bed Pad and Perfect for Camping; $19.99, in stock, seller amazon.com.",
+    "Amazon US ProductSearch live listing on 27 Nov 2026: title includes Waterproof Camping Pet Bed; $31.99, in stock, seller amazon.com.",
+    "Live Amazon US product page (HTTP 200) on 27 Nov 2026: full title and feature bullets captured (50 ft, 50 lb capacity, includes lead line and hardware). Visible price strings on the page included $25.64 and $27.99; no single current price was recorded.",
+    "Amazon US ProductSearch live listing on 27 Nov 2026: title includes Waterproof Portable Cat Dog Playpen Kennel Tent and carrying case; $33.99, in stock, seller amazon.com.",
+    "Live Amazon US product page (HTTP 200) on 27 Nov 2026: exact title, $35.99, zipper-top and PVC-coated leak-prevention bullets, and dimensions captured from the HTML. The brand on the page is RIS USA (sometimes listed in search as IRIS)."
+  ]
+}
