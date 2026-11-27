@@ -1,4 +1,4 @@
-/* Pawpartout 3D Pet-Interior Studio V1 — local preview, 2026-11-27 */
+/* Pawpartout 3D Pet-Interior Studio V1.5 — discreet test, 2026-11-27 */
 import * as THREE from './vendor/three.module.min.js';
 import { OrbitControls } from './vendor/OrbitControls.js';
 
@@ -11,39 +11,53 @@ const SPACES = {
 
 const NOTES = {
   interior: {
-    catwall: 'Walnut and brass floating shelves, a sisal-wrapped post, and a suspended bridge.',
+    catwall: 'Walnut and brass floating shelves, a sisal-wrapped post, and a suspended oak bridge — magnetized to the wall.',
+    cattree: 'A leafless sculptural oak tree: a curved solid-oak trunk, forked branches, and round oak pods lined in cream wool felt.',
     alcove: 'A fluted console with an arched dog niche lined in heavy cotton-wool velvet and brushed-brass trim.',
     dining: 'A flush marble-and-wood plinth with twin ceramic bowls in brass rings.',
-    litter: 'An architectural credenza with a discreet side portal and brass pulls.',
+    litter: 'A warm solid-teak cabinet with a tempered-glass lid, a white glazed ceramic basin, and a teak-framed cat portal with brass hinge pins.',
     sofa: 'A sculptural sofa in heavy cotton-wool velvet, set on a wool flat-weave rug.',
     panelling: 'Protective lower wood wainscoting with a textured linen-and-hemp wallcovering above.',
   },
   garden: {
     catwall: 'A covered cedar catio perch with climbing steps against the fence.',
+    cattree: 'A leafless sculptural oak tree for the terrace: curved solid-oak limbs and wool-felt oak pods.',
     alcove: 'A covered timber and stone pavilion for a dog to rest in shade.',
     dining: 'A carved limestone outdoor hydration station with twin bowls.',
-    litter: 'A screened cedar and gravel relief zone, set discreetly to one side.',
+    litter: 'A solid-teak cabinet with a tempered-glass lid and a white glazed ceramic basin, set on the terrace.',
     sofa: 'An outdoor timber daybed and a woven hemp terrace rug.',
     panelling: 'A pet-safe cedar slatted privacy screen and a honed stone border.',
   },
 };
 
 const EL_NAMES = {
-  catwall: 'Architectural Cat Wall & Tree',
+  catwall: 'Architectural Cat Wall',
+  cattree: 'Sculptural Oak Cat Tree',
   alcove: 'Built-In Dog Alcove Console',
   dining: 'Recessed Dining & Water Station',
-  litter: 'Concealed Litter Credenza',
+  litter: 'Teak & Glass Litter Cabinet',
   sofa: 'Cotton-Wool Velvet Sofa & Wool Flat-Weave Rug',
   panelling: 'Wood Wainscoting & Linen-Hemp Wallcovering',
 };
 const GARDEN_NAMES = {
   catwall: 'Covered Cedar Catio & Climbing Steps',
+  cattree: 'Sculptural Oak Cat Tree',
   alcove: 'Timber & Stone Dog Pavilion',
   dining: 'Limestone Outdoor Hydration Station',
-  litter: 'Screened Cedar & Gravel Relief Zone',
+  litter: 'Teak & Glass Litter Cabinet',
   sofa: 'Outdoor Timber Daybed & Terrace Rug',
   panelling: 'Cedar Privacy Screen & Stone Border',
 };
+const MAGNET = {
+  catwall: 'wall',
+  cattree: 'floor',
+  alcove: 'floor',
+  dining: 'floor',
+  litter: 'floor',
+  sofa: 'floor',
+};
+const LAYER_ORDER = ['cattree','litter','catwall','alcove','dining','sofa','panelling'];
+
 
 const THEME = {
   neobaroque: {
@@ -78,13 +92,15 @@ const THEME = {
 const state = {
   space: 'living', size: 'M', units: 'm', theme: 'neobaroque', view: 'perspective',
   elements: {
-    catwall:    { on:true, place:'left',  variant:'grand' },
-    alcove:     { on:true, place:'back',  variant:'grand' },
-    dining:     { on:true, place:'left',  variant:'compact' },
-    litter:     { on:true, place:'back',  variant:'compact' },
-    sofa:       { on:true, place:'center',variant:'grand' },
-    panelling:  { on:true, place:'walls', variant:'classic' },
+    catwall:    { on:true, place:'left',  variant:'grand', visible:true, locked:false, pose:null },
+    cattree:    { on:true, place:'center',variant:'grand', visible:true, locked:false, pose:null },
+    alcove:     { on:true, place:'back',  variant:'grand', visible:true, locked:false, pose:null },
+    dining:     { on:true, place:'left',  variant:'compact', visible:true, locked:false, pose:null },
+    litter:     { on:true, place:'back',  variant:'grand', visible:true, locked:false, pose:null },
+    sofa:       { on:true, place:'center',variant:'grand', visible:true, locked:false, pose:null },
+    panelling:  { on:true, place:'walls', variant:'classic', visible:true, locked:true },
   },
+  selected: null,
 };
 
 const M2FT = 3.280839895;
@@ -93,6 +109,13 @@ const L2GAL = 0.264172052;
 
 let renderer, scene, persp, ortho, camera, controls, world, lights = {};
 let mats = {};
+let furnRoot = null;
+let selRing = null;
+let selectedObj = null;
+const raycaster = new THREE.Raycaster();
+const ndc = new THREE.Vector2();
+const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+let dragging = null;
 const texCache = new Map();
 const stage = () => document.getElementById('studio-stage');
 
@@ -229,6 +252,7 @@ function woodMaps(kind, herringbone, rx, ry) {
     oak:    { base:[166,118,64], dark:[120,78,40], hi:[210,168,110] },
     whiteOak:{ base:[198,170,126], dark:[148,118,80], hi:[232,210,172] },
     cedar:  { base:[150,92,52], dark:[98,54,28], hi:[196,132,78] },
+    teak:   { base:[158,98,40], dark:[98,54,16], hi:[204,142,70] },
     mineralWood: { base:[168,160,148], dark:[110,104,96], hi:[210,204,194] },
   };
   const pal = palettes[kind] || palettes.walnut;
@@ -533,7 +557,10 @@ function buildMaterials() {
   const grass = grassMaps();
   const paver = paverMaps(T.paver, 2, 2);
   const cedar = woodMaps(T.cedar, false, 1, 2);
+  const teak = woodMaps('teak', false, 1, 1);
+  const oak = woodMaps('oak', false, 1, 2);
   const sisal = sisalMap();
+  const feltMaps = fabricMaps([236, 226, 208], 'linen', 1, 1);
 
   const phys = (opts) => new THREE.MeshPhysicalMaterial(opts);
   const std = (opts) => new THREE.MeshStandardMaterial(opts);
@@ -551,6 +578,12 @@ function buildMaterials() {
     grass: std({ map: grass.map, bumpMap: grass.bump, bumpScale: 0.05, roughness: 0.92, metalness: 0 }),
     paver: std({ map: paver.map, bumpMap: paver.bump, bumpScale: 0.035, roughnessMap: paver.rough, roughness: 0.5, metalness: 0.03 }),
     cedar: std({ map: cedar.map, bumpMap: cedar.bump, bumpScale: 0.03, roughness: 0.62, metalness: 0.02 }),
+    teak: std({ map: teak.map, bumpMap: teak.bump, bumpScale: 0.045, roughness: 0.46, metalness: 0.04 }),
+    oak: std({ map: oak.map, bumpMap: oak.bump, bumpScale: 0.04, roughness: 0.5, metalness: 0.03 }),
+    felt: std({ map: feltMaps.map, bumpMap: feltMaps.bump, bumpScale: 0.025, roughness: 0.9, metalness: 0 }),
+    glassLid: phys({ color: 0xcfe4f7, roughness: 0.04, metalness: 0.0, transmission: 0.92, thickness: 0.016, ior: 1.5, transparent: true, opacity: 0.32, envMapIntensity: 1.25 }),
+    ceramicGlaze: std({ color: 0xf6f3ec, roughness: 0.16, metalness: 0.08 }),
+
     sisal: std({ map: sisal, bumpScale: 0.04, roughness: 0.88, metalness: 0 }),
     ceramic: std({ color: new THREE.Color(...T.ceramic.map(v=>v/255)), roughness: 0.22, metalness: 0.05 }),
     cushion: phys({ color: new THREE.Color(...T.cushion.map(v=>v/255)), map: fabricMaps(T.cushion, 'velvet', 2, 2).map, roughness: 0.72, metalness: 0, sheen: 1, sheenRoughness: 0.4, sheenColor: new THREE.Color(0.95,0.86,0.62) }),
@@ -654,7 +687,7 @@ function planWall(wall) {
   }
   const axisLen = wall === 'left' ? d : w;
   const usable = Math.max(0.85, axisLen - marginStart - marginEnd);
-  const keys = ['catwall','alcove','dining','litter'].filter((k) => state.elements[k].on && state.elements[k].place === wall);
+  const keys = ['catwall','alcove','dining'].filter((k) => state.elements[k].on && state.elements[k].place === wall);
   const gap0 = 0.20;
   const pieces = keys.map((k) => ({ k, width: wallPieceWidth(k, isGarden) }));
   const raw = pieces.reduce((s, p) => s + p.width, 0) + Math.max(0, pieces.length - 1) * gap0;
@@ -829,7 +862,20 @@ function buildGardenShell() {
 function tagFurn(g, id) {
   g.userData.role = 'furniture';
   g.userData.id = id;
+  g.userData.magnet = MAGNET[id] || 'floor';
   return g;
+}
+function furnById(id) {
+  if (!world) return null;
+  let found = null;
+  world.traverse((o) => { if (o.userData && o.userData.role === 'furniture' && o.userData.id === id) found = o; });
+  return found;
+}
+function allFurn() {
+  const list = [];
+  if (!world) return list;
+  world.traverse((o) => { if (o.userData && o.userData.role === 'furniture') list.push(o); });
+  return list;
 }
 function addCatWall(parent, garden) {
   const grand = state.elements.catwall.variant === 'grand';
@@ -842,7 +888,7 @@ function addCatWall(parent, garden) {
   g.rotation.y = p.rotY;
   parent.add(g);
   if (garden) {
-    const h = grand ? 1.85 : 1.5;
+    const h = grand ? 1.25 : 1.05;
     // covered catio
     addBox(g, mats.cedar, 1.15*sc, 0.08, 0.7, 0, h, 0);
     addBox(g, mats.cedar, 0.07, h, 0.07, -0.5*sc, h/2, -0.28);
@@ -858,7 +904,7 @@ function addCatWall(parent, garden) {
     }
     addBox(g, mats.linen, 0.5, 0.05, 0.4, 0, h-0.06, 0);
   } else {
-    const postH = grand ? 2.35 : 1.95;
+    const postH = grand ? 1.55 : 1.25;
     addCyl(g, mats.sisal, 0.07, 0.07, postH, 0.15, postH/2, 0, {seg:20});
     addCyl(g, mats.metal, 0.075, 0.075, 0.04, 0.15, 0.02, 0, {seg:16});
     addCyl(g, mats.metal, 0.075, 0.075, 0.04, 0.15, postH, 0, {seg:16});
@@ -873,11 +919,14 @@ function addCatWall(parent, garden) {
     }
     if (grand) {
       // suspended bridge
-      addBox(g, mats.dado, 0.9*sc, 0.03, 0.16, 0.05*sc, 1.35, 0.18);
-      addCyl(g, mats.metal, 0.008, 0.008, 0.45, -0.3*sc, 1.55, 0.18, {seg:8});
-      addCyl(g, mats.metal, 0.008, 0.008, 0.45,  0.4*sc, 1.55, 0.18, {seg:8});
+      addBox(g, mats.dado, 0.9*sc, 0.03, 0.16, 0.05*sc, postH*0.72, 0.18);
+      addCyl(g, mats.metal, 0.008, 0.008, 0.35, -0.3*sc, postH*0.72+0.18, 0.18, {seg:8});
+      addCyl(g, mats.metal, 0.008, 0.008, 0.35,  0.4*sc, postH*0.72+0.18, 0.18, {seg:8});
     }
   }
+  g.userData.pieceH = garden ? (grand ? 1.35 : 1.15) : (grand ? 1.65 : 1.35);
+  g.userData.along = garden ? 1.30 : (grand ? 1.64 : 1.36);
+  g.userData.depth = garden ? 0.70 : 0.40;
 }
 
 function addAlcove(parent, garden) {
@@ -962,31 +1011,126 @@ function addDining(parent, garden) {
 
 function addLitter(parent, garden) {
   const grand = state.elements.litter.variant === 'grand';
-  const wall = state.elements.litter.place;
-  const p = wallSlot(wall, 'litter', garden ? 0.44 : 0.28);
-  const sc = p.scale || 1;
   const g = tagFurn(new THREE.Group(), 'litter');
-  g.position.set(p.x, 0, p.z);
-  g.rotation.y = p.rotY;
   parent.add(g);
-  const W = (grand ? 1.55 : 1.2) * sc, H = 0.78, D = garden ? 0.7 : 0.44;
-  if (garden) {
-    addBox(g, mats.cedar, W, H, D, 0, H/2, 0);
-    // screen slats on front, opening at one side
-    const nSlats = Math.max(3, Math.floor((W - 0.28) / 0.12));
-    for (let i=0;i<nSlats;i++) addBox(g, mats.cedar, 0.05, H-0.15, 0.02, -W/2+0.16+i*0.12, H/2, D/2+0.01, {cast:false});
-    addBox(g, mats.gravel, W-0.2, 0.04, D-0.16, 0.05, 0.04, 0, {cast:false});
-    addBox(g, mats.cedar, 0.08, H, 0.08, -W/2, H/2, D/2);
-    addBox(g, mats.cedar, 0.08, H, 0.08,  W/2, H/2, D/2);
-  } else {
-    addBox(g, mats.dado, W, H, D, 0, H/2, 0);
-    addBox(g, mats.metal, W+0.01, 0.02, D+0.01, 0, H, 0);
-    // doors / pulls
-    addBox(g, mats.metal, 0.012, 0.09, 0.012, -0.18, H*0.55, D/2+0.01);
-    addBox(g, mats.metal, 0.012, 0.09, 0.012,  0.18, H*0.55, D/2+0.01);
-    // discreet side portal
-    addBox(g, mats.edge, 0.05, 0.28, 0.22, -W/2+0.01, 0.2, D/2-0.12, {cast:false});
-  }
+  const W = grand ? 1.12 : 0.94;
+  const D = grand ? 0.62 : 0.54;
+  const H = 0.46;
+  const footH = 0.05;
+  const bodyH = H - footH - 0.02;
+  const teak = mats.teak, brass = mats.metal, glass = mats.glassLid, basin = mats.ceramicGlaze;
+  // brass feet
+  const fx = W/2 - 0.07, fz = D/2 - 0.07;
+  [[-fx,-fz],[fx,-fz],[-fx,fz],[fx,fz]].forEach(([x,z]) => {
+    addCyl(g, brass, 0.018, 0.022, footH, x, footH/2, z, {seg:12});
+  });
+  // teak carcase: floor + four sides, open well so the glass lid and ceramic basin read clearly
+  addBox(g, teak, W, 0.04, D, 0, footH + 0.02, 0);
+  const wallT = 0.045;
+  addBox(g, teak, wallT, bodyH, D, -W/2 + wallT/2, footH + bodyH/2, 0);
+  addBox(g, teak, wallT, bodyH, D,  W/2 - wallT/2, footH + bodyH/2, 0);
+  addBox(g, teak, W, bodyH, wallT, 0, footH + bodyH/2, -D/2 + wallT/2);
+  addBox(g, teak, W, bodyH, wallT, 0, footH + bodyH/2,  D/2 - wallT/2);
+  // white glazed ceramic litter basin, visible through the tempered glass lid
+  addCyl(g, basin, 0.20, 0.24, 0.10, 0, footH + 0.11, 0.02, {seg:24});
+  addCyl(g, basin, 0.18, 0.18, 0.016, 0, footH + 0.165, 0.02, {seg:24, cast:false});
+  // teak frame around the tempered glass lid
+  const fw = 0.045, lidY = footH + bodyH + 0.01;
+  addBox(g, teak, W, fw, fw, 0, lidY, -D/2 + fw/2);
+  addBox(g, teak, W, fw, fw, 0, lidY,  D/2 - fw/2);
+  addBox(g, teak, fw, fw, D, -W/2 + fw/2, lidY, 0);
+  addBox(g, teak, fw, fw, D,  W/2 - fw/2, lidY, 0);
+  const lid = addBox(g, glass, W - fw*2 - 0.01, 0.012, D - fw*2 - 0.01, 0, lidY + 0.004, 0, {cast:false});
+  lid.receiveShadow = false;
+  // brass pulls
+  addCyl(g, brass, 0.007, 0.007, 0.11, -0.16, footH + bodyH*0.55, D/2 + 0.012, {rotX:Math.PI/2, seg:10});
+  addCyl(g, brass, 0.007, 0.007, 0.11,  0.16, footH + bodyH*0.55, D/2 + 0.012, {rotX:Math.PI/2, seg:10});
+  // solid teak framed cat-flap portal on the left side, with brass hinge pins
+  const pw = 0.22, ph = 0.26;
+  addBox(g, teak, 0.02, ph + 0.06, pw + 0.06, -W/2 - 0.005, footH + 0.08 + (ph+0.06)/2, 0);
+  addBox(g, mats.edge || teak, 0.012, ph, 0.03, -W/2 - 0.012, footH + 0.11 + ph/2, -pw/2 + 0.02, {cast:false});
+  // flap leaf (teak)
+  addBox(g, teak, 0.014, ph - 0.02, pw - 0.04, -W/2 - 0.022, footH + 0.12 + (ph-0.02)/2, 0.01);
+  addCyl(g, brass, 0.006, 0.006, 0.03, -W/2 - 0.022, footH + 0.12 + ph - 0.02, -pw/2 + 0.04, {rotX:Math.PI/2, seg:8});
+  addCyl(g, brass, 0.006, 0.006, 0.03, -W/2 - 0.022, footH + 0.12 + ph - 0.02,  pw/2 - 0.04, {rotX:Math.PI/2, seg:8});
+  g.userData.along = W;
+  g.userData.depth = D;
+  g.userData.pieceH = H + 0.04;
+  placeDefault(g);
+}
+
+function addTube(parent, mat, pts, radius, tubular=28, radial=10) {
+  const curve = new THREE.CatmullRomCurve3(pts.map((p) => new THREE.Vector3(p[0], p[1], p[2])));
+  const mesh = new THREE.Mesh(new THREE.TubeGeometry(curve, tubular, radius, radial, false), mat);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  parent.add(mesh);
+  return mesh;
+}
+
+function addCatTree(parent, garden) {
+  const grand = state.elements.cattree.variant === 'grand';
+  const g = tagFurn(new THREE.Group(), 'cattree');
+  parent.add(g);
+  const oak = mats.oak;
+  const felt = mats.felt;
+  const H = grand ? 1.92 : 1.55;
+  const s = H / 1.92;
+  // circular oak plinth so the trunk never sinks below the floor
+  addCyl(g, oak, 0.22*s, 0.24*s, 0.07, 0, 0.035, 0, {seg:20});
+  addCyl(g, oak, 0.07, 0.055, 0.08, 0.01, 0.1, 0.01, {seg:14});
+  // curved solid-oak trunk — no foliage
+  addTube(g, oak, [
+    [0.00, 0.10, 0.00],
+    [0.05, 0.48*s, 0.04],
+    [-0.06, 0.95*s, -0.03],
+    [0.04, 1.38*s, 0.05],
+    [0.00, 1.78*s, 0.02],
+    [-0.02, H, 0.00],
+  ], 0.052 * s, 36, 12);
+  // organic forked branches
+  addTube(g, oak, [
+    [-0.02, 1.12*s, 0.00],
+    [-0.20, 1.28*s, -0.08],
+    [-0.36, 1.42*s, -0.06],
+    [-0.46, 1.52*s, 0.03],
+  ], 0.028 * s, 24, 10);
+  addTube(g, oak, [
+    [0.02, 1.22*s, 0.02],
+    [0.22, 1.36*s, 0.10],
+    [0.38, 1.52*s, 0.14],
+    [0.46, 1.68*s, 0.08],
+  ], 0.026 * s, 24, 10);
+  addTube(g, oak, [
+    [0.00, 1.48*s, 0.00],
+    [-0.10, 1.64*s, -0.22],
+    [-0.08, 1.78*s, -0.40],
+    [0.04, 1.82*s, -0.52],
+  ], 0.022 * s, 20, 10);
+  addTube(g, oak, [
+    [0.01, 1.55*s, 0.02],
+    [0.18, 1.70*s, -0.16],
+    [0.22, 1.82*s, -0.28],
+  ], 0.018 * s, 16, 8);
+  // 4 round solid-oak pods / nacelles lined with cream wool felt
+  const pods = grand
+    ? [[-0.44, 1.50*s, 0.05, 0.14], [0.42, 1.62*s, 0.08, 0.13], [-0.05, 1.78*s, -0.40, 0.12], [0.16, 1.80*s, -0.22, 0.11]]
+    : [[-0.38, 1.22, 0.04, 0.12], [0.36, 1.32, 0.07, 0.12], [-0.04, 1.42, -0.32, 0.11]];
+  pods.forEach(([x,y,z,r]) => {
+    const shell = new THREE.Mesh(new THREE.SphereGeometry(r, 20, 14), oak);
+    shell.scale.set(1, 0.52, 1);
+    shell.position.set(x, y, z);
+    shell.castShadow = true; shell.receiveShadow = true;
+    g.add(shell);
+    const pad = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.78, r * 0.78, 0.03, 20), felt);
+    pad.position.set(x, y + r * 0.52 * 0.85, z);
+    pad.castShadow = false; pad.receiveShadow = true;
+    g.add(pad);
+  });
+  g.userData.along = 1.4 * s;
+  g.userData.depth = 1.1 * s;
+  g.userData.pieceH = H + 0.08;
+  placeDefault(g);
 }
 
 function addSofa(parent, garden) {
@@ -1071,17 +1215,22 @@ function rebuild() {
   addBox(world, mats.ground, Math.max(14, w*3), 0.02, Math.max(14, d*3), 0, -0.13, 0, {cast:false});
   if (isGarden) buildGardenShell();
   else buildInteriorShell();
-  const furn = new THREE.Group();
-  world.add(furn);
-  if (state.elements.catwall.on) addCatWall(furn, isGarden);
-  if (state.elements.alcove.on) addAlcove(furn, isGarden);
-  if (state.elements.dining.on) addDining(furn, isGarden);
-  if (state.elements.litter.on) addLitter(furn, isGarden);
-  if (state.elements.sofa.on) addSofa(furn, isGarden);
+  furnRoot = new THREE.Group();
+  world.add(furnRoot);
+  if (state.elements.catwall.on) addCatWall(furnRoot, isGarden);
+  if (state.elements.cattree && state.elements.cattree.on) addCatTree(furnRoot, isGarden);
+  if (state.elements.alcove.on) addAlcove(furnRoot, isGarden);
+  if (state.elements.dining.on) addDining(furnRoot, isGarden);
+  if (state.elements.litter.on) addLitter(furnRoot, isGarden);
+  if (state.elements.sofa.on) addSofa(furnRoot, isGarden);
+  allFurn().forEach((g) => applyPose(g, false));
   placeLights();
   applyView(state.view === 'reset' ? 'perspective' : state.view);
   updateReadouts();
   syncLabels();
+  renderLayers();
+  updateSelectionVisual();
+  updatePlanOverlay();
 }
 
 /* ---------- camera ---------- */
@@ -1106,18 +1255,22 @@ function applyView(kind) {
   if (kind === 'reset') kind = 'perspective';
   state.view = kind;
   sizeCameras();
+  const stageEl = stage();
   if (kind === 'plan') {
     camera = ortho;
-    ortho.position.set(0, Math.max(h * 4, 10), 0);
+    ortho.position.set(0, Math.max(h * 4, 12), 0.0001);
     ortho.up.set(0, 0, -1);
     ortho.lookAt(0, 0, 0);
     controls.object = camera;
     controls.enableRotate = false;
+    controls.enablePan = true;
     controls.target.set(0, 0, 0);
+    stageEl.classList.add('is-plan');
   } else {
     camera = persp;
     controls.object = camera;
     persp.up.set(0, 1, 0);
+    stageEl.classList.remove('is-plan');
     if (kind === 'elevation') {
       persp.position.set(0, h * 0.58, d / 2 + Math.max(d, w) * 0.65);
       controls.target.set(0, h * 0.42, 0);
@@ -1136,12 +1289,10 @@ function applyView(kind) {
   controls.update();
   document.querySelectorAll('[data-view]').forEach((btn) => {
     const v = btn.getAttribute('data-view');
-    btn.setAttribute('aria-pressed', String(v === kind || (kind==='perspective' && v==='reset' ? false : v===kind)));
-  });
-  document.querySelectorAll('[data-view]').forEach((btn) => {
-    const v = btn.getAttribute('data-view');
     btn.setAttribute('aria-pressed', String(v === state.view));
   });
+  updatePlanOverlay();
+  updateSelectionVisual();
 }
 
 /* ---------- quantities & brief ---------- */
@@ -1169,9 +1320,13 @@ function schedule() {
   for (const [key, el] of Object.entries(state.elements)) {
     if (!el.on) continue;
     const name = garden ? GARDEN_NAMES[key] : EL_NAMES[key];
-    const place = el.place === 'left' ? (garden ? 'Left fence' : 'Left wall') :
-                  el.place === 'back' ? (garden ? 'Back fence' : 'Back wall') :
-                  el.place === 'center' ? (garden ? 'On the terrace' : 'Facing the window') : 'Both walls';
+    const magnet = MAGNET[key];
+    const place = key === 'panelling' ? (garden ? 'Both enclosure sides' : 'Both walls') :
+                  magnet === 'wall' ? (el.pose && el.pose.wall ? wallPlaceName(el.pose.wall, garden) :
+                    (el.place === 'left' ? (garden ? 'Left fence' : 'West wall') : (garden ? 'Back fence' : 'North wall'))) :
+                  el.place === 'left' ? (garden ? 'Toward the left fence' : 'Toward the left wall') :
+                  el.place === 'back' ? (garden ? 'Toward the back fence' : 'Toward the back wall') :
+                  (garden ? 'On the terrace' : 'On the floor');
     const variant = el.variant.charAt(0).toUpperCase() + el.variant.slice(1);
     const meas = elementMeasure(key, el.variant, garden);
     rows.push({ key, name, place, variant, meas });
@@ -1182,10 +1337,11 @@ function schedule() {
 function elementMeasure(key, variant, garden) {
   const grand = variant === 'grand' || variant === 'tall';
   const table = {
-    catwall: garden ? (grand ? '1.15 × 0.70 m · 1.85 m high' : '1.15 × 0.70 m · 1.50 m high') : (grand ? 'Shelves 1.15 m · post 2.35 m' : 'Shelves 0.90 m · post 1.95 m'),
+    catwall: garden ? (grand ? '1.15 × 0.70 m · 1.25 m high, wall-mounted' : '1.15 × 0.70 m · 1.05 m high, wall-mounted') : (grand ? 'Shelves 1.15 m · 1.55 m high, wall-mounted' : 'Shelves 0.90 m · 1.25 m high, wall-mounted'),
     alcove: garden ? (grand ? '1.85 × 0.85 × 0.92 m' : '1.40 × 0.85 × 0.82 m') : (grand ? '1.85 × 0.46 × 0.92 m' : '1.40 × 0.46 × 0.82 m'),
     dining: garden ? (grand ? '1.15 × 0.50 × 0.22 m' : '0.88 × 0.42 × 0.22 m') : (grand ? '1.15 × 0.50 × 0.17 m' : '0.88 × 0.42 × 0.17 m'),
-    litter: garden ? (grand ? '1.55 × 0.70 × 0.78 m' : '1.20 × 0.70 × 0.78 m') : (grand ? '1.55 × 0.44 × 0.78 m' : '1.20 × 0.44 × 0.78 m'),
+    litter: garden ? (grand ? '1.12 × 0.62 × 0.46 m · teak, glass, ceramic' : '0.94 × 0.54 × 0.46 m · teak, glass, ceramic') : (grand ? '1.12 × 0.62 × 0.46 m · teak, tempered glass, ceramic basin' : '0.94 × 0.54 × 0.46 m · teak, tempered glass, ceramic basin'),
+    cattree: grand ? 'Sculptural oak tree 1.92 m · four wool-felt oak pods' : 'Sculptural oak tree 1.55 m · three wool-felt oak pods',
     sofa: garden ? (grand ? 'Daybed up to 2.45 m · rug +0.70 m' : 'Daybed up to 1.85 m · rug +0.70 m') : (grand ? 'Sofa up to 2.45 m · rug +0.70 m' : 'Sofa up to 1.85 m · rug +0.70 m'),
     panelling: garden ? 'Cedar screen to enclosure height · stone border 0.22 m' : (grand ? 'Tall dado 1.18 m + linen-hemp wallcovering above' : 'Classic dado 0.92 m + linen-hemp wallcovering above'),
   };
@@ -1370,7 +1526,7 @@ function auditGeometry() {
   for (const it of boxes) {
     if (it.min.y < -0.06) issues.push(`${it.id} sinks below the floor (ymin=${it.min.y.toFixed(3)})`);
     // floor-standing pieces should meet the floor
-    if (['alcove','dining','litter','sofa'].includes(it.id) && it.min.y > 0.12) {
+    if (['alcove','dining','litter','sofa','cattree'].includes(it.id) && it.min.y > 0.12) {
       issues.push(`${it.id} floats above the floor (ymin=${it.min.y.toFixed(3)})`);
     }
     if (it.min.x < -w/2 - slabPad) issues.push(`${it.id} passes through the left wall (xmin=${it.min.x.toFixed(3)}, bound=${(-w/2).toFixed(3)})`);
@@ -1395,21 +1551,578 @@ function auditGeometry() {
   };
 }
 
+
+/* ---------- V1.5 interaction: poses, snap, layers, 2D plan, pointers ---------- */
+function wallPlaceName(wall, garden) {
+  const g = {
+    west: garden ? 'Left fence' : 'West wall',
+    east: garden ? 'Right fence' : 'East wall',
+    north: garden ? 'Back fence' : 'North wall',
+    south: garden ? 'Front edge' : 'South edge',
+  };
+  return g[wall] || wall;
+}
+function innerBounds() {
+  const { w, d } = dim();
+  const pad = 0.05;
+  return { x0: -w/2 + pad, x1: w/2 - pad, z0: -d/2 + pad, z1: d/2 - pad, w, d, pad };
+}
+function pieceTitle(id) {
+  return (dim().isGarden ? GARDEN_NAMES : EL_NAMES)[id] || id;
+}
+function savePose(obj) {
+  const el = state.elements[obj.userData.id];
+  if (!el) return;
+  el.pose = {
+    x: obj.position.x, y: obj.position.y, z: obj.position.z,
+    rotY: obj.rotation.y, wall: obj.userData.wall || null,
+  };
+}
+function defaultPosition(id) {
+  const { w, d, isGarden } = dim();
+  const el = state.elements[id];
+  const magnet = MAGNET[id] || 'floor';
+  if (id === 'cattree') {
+    if (el.place === 'left') return { x: -w/2 + 1.05, y: 0, z: isGarden ? d * 0.22 : -d * 0.02, rotY: 0 };
+    if (isGarden) {
+      const terraceD = d * 0.48;
+      return { x: w * 0.22, y: 0, z: -d/2 + terraceD + 0.95, rotY: 0 };
+    }
+    return { x: -0.05, y: 0, z: -d * 0.10, rotY: 0 };
+  }
+  if (id === 'litter') {
+    if (el.place === 'left') return { x: -w/2 + 0.85, y: 0, z: isGarden ? 0.2 : d * 0.05, rotY: 0 };
+    return { x: w/2 - 0.70, y: 0, z: -d/2 + 0.70, rotY: 0 };
+  }
+  return null; // other pieces keep the position set by their builders
+}
+function placeDefault(g) {
+  const pos = defaultPosition(g.userData.id);
+  if (pos) {
+    g.position.set(pos.x, pos.y, pos.z);
+    g.rotation.y = pos.rotY;
+  }
+}
+function clampFloorItem(obj, magnetSnap=true) {
+  obj.position.y = 0;
+  obj.updateWorldMatrix(true, true);
+  const b = aabbOf(obj);
+  const bnd = innerBounds();
+  let dx = 0, dz = 0;
+  if (b.min.x < bnd.x0) dx += bnd.x0 - b.min.x;
+  if (b.max.x > bnd.x1) dx += bnd.x1 - b.max.x;
+  if (b.min.z < bnd.z0) dz += bnd.z0 - b.min.z;
+  if (b.max.z > bnd.z1) dz += bnd.z1 - b.max.z;
+  obj.position.x += dx;
+  obj.position.z += dz;
+  if (magnetSnap) {
+    obj.updateWorldMatrix(true, true);
+    const b2 = aabbOf(obj);
+    const gaps = {
+      west: b2.min.x - bnd.x0,
+      east: bnd.x1 - b2.max.x,
+      north: b2.min.z - bnd.z0,
+      south: bnd.z1 - b2.max.z,
+    };
+    let best = null, bestG = 0.22;
+    for (const [side, gap] of Object.entries(gaps)) {
+      if (gap >= -0.001 && gap <= bestG) { best = side; bestG = gap; }
+    }
+    if (best && bestG > 0.002) {
+      if (best === 'west') obj.position.x -= bestG;
+      if (best === 'east') obj.position.x += bestG;
+      if (best === 'north') obj.position.z -= bestG;
+      if (best === 'south') obj.position.z += bestG;
+    }
+  }
+  obj.position.y = 0;
+}
+function wallInset(obj, wall) {
+  const { w, d } = dim();
+  obj.updateWorldMatrix(true, true);
+  const b = aabbOf(obj);
+  // depth from group origin to the outward face after current rotation is messy;
+  // use half the AABB span along the wall-normal, plus a hair.
+  if (wall === 'west' || wall === 'east') return (b.max.x - b.min.x) / 2 + 0.02;
+  return (b.max.z - b.min.z) / 2 + 0.02;
+}
+function wallYClamp(obj, y) {
+  const { h } = dim();
+  const pieceH = obj.userData.pieceH || Math.max(0.4, (aabbOf(obj).max.y - aabbOf(obj).min.y));
+  const yMin = 0.35;
+  const yMax = Math.max(yMin, h - pieceH - 0.15);
+  return Math.min(yMax, Math.max(yMin, y));
+}
+function snapWallItem(obj, x, z, y) {
+  const { w, d } = dim();
+  const wall = nearestWall(x, z);
+  obj.userData.wall = wall;
+  const rot = { west: Math.PI/2, east: -Math.PI/2, north: 0, south: Math.PI }[wall];
+  obj.rotation.y = rot;
+  // measure along-wall half-span and depth after rotation
+  obj.position.set(0, 0, 0);
+  obj.updateWorldMatrix(true, true);
+  const local = aabbOf(obj);
+  const along = (wall === 'west' || wall === 'east') ? (local.max.z - local.min.z) / 2 : (local.max.x - local.min.x) / 2;
+  const depth = (wall === 'west' || wall === 'east') ? (local.max.x - local.min.x) / 2 : (local.max.z - local.min.z) / 2;
+  const inset = depth + 0.03;
+  const margin = along + 0.08;
+  let nx = x, nz = z;
+  if (wall === 'west') { nx = -w/2 + inset; nz = clampNum(z, -d/2 + margin, d/2 - margin); }
+  if (wall === 'east') { nx =  w/2 - inset; nz = clampNum(z, -d/2 + margin, d/2 - margin); }
+  if (wall === 'north'){ nz = -d/2 + inset; nx = clampNum(x, -w/2 + margin, w/2 - margin); }
+  if (wall === 'south'){ nz =  d/2 - inset; nx = clampNum(x, -w/2 + margin, w/2 - margin); }
+  obj.position.set(nx, wallYClamp(obj, y == null ? (obj.position.y || 0.35) : y), nz);
+  obj.rotation.y = rot;
+}
+function nearestWall(x, z) {
+  const { w, d } = dim();
+  const dists = {
+    west:  Math.abs(x - (-w/2)),
+    east:  Math.abs(x - ( w/2)),
+    north: Math.abs(z - (-d/2)),
+    south: Math.abs(z - ( d/2)),
+  };
+  return Object.entries(dists).sort((a,b) => a[1] - b[1])[0][0];
+}
+function clampNum(v, a, b) { return Math.min(b, Math.max(a, v)); }
+
+function applyPose(obj, write=false) {
+  const id = obj.userData.id;
+  const el = state.elements[id];
+  if (!el) return;
+  obj.visible = el.visible !== false;
+  const magnet = MAGNET[id] || 'floor';
+  obj.userData.magnet = magnet;
+  if (el.pose) {
+    obj.position.set(el.pose.x, el.pose.y, el.pose.z);
+    obj.rotation.y = el.pose.rotY;
+    if (el.pose.wall) obj.userData.wall = el.pose.wall;
+  } else if (magnet === 'wall') {
+    obj.position.y = 0.35;
+    obj.userData.wall = (el.place === 'left') ? 'west' : 'north';
+  }
+  if (magnet === 'floor') clampFloorItem(obj, !el.pose);
+  else snapWallItem(obj, obj.position.x, obj.position.z, el.pose ? el.pose.y : 0.35);
+  if (write) savePose(obj);
+}
+
+function clientToFloor(clientX, clientY) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  ndc.x = ((clientX - rect.left) / Math.max(1, rect.width)) * 2 - 1;
+  ndc.y = -((clientY - rect.top) / Math.max(1, rect.height)) * 2 + 1;
+  raycaster.setFromCamera(ndc, camera);
+  const hit = new THREE.Vector3();
+  if (!raycaster.ray.intersectPlane(floorPlane, hit)) {
+    // ortho looking straight down already intersects; fallback
+    const p = new THREE.Vector3(ndc.x, ndc.y, 0).unproject(camera);
+    hit.set(p.x, 0, p.z);
+  }
+  hit.y = 0;
+  return hit;
+}
+function worldToClient(x, y, z) {
+  const v = new THREE.Vector3(x, y, z).project(camera);
+  const r = renderer.domElement.getBoundingClientRect();
+  return { x: r.left + (v.x * 0.5 + 0.5) * r.width, y: r.top + (-v.y * 0.5 + 0.5) * r.height };
+}
+function pickFurniture(clientX, clientY) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  ndc.x = ((clientX - rect.left) / Math.max(1, rect.width)) * 2 - 1;
+  ndc.y = -((clientY - rect.top) / Math.max(1, rect.height)) * 2 + 1;
+  raycaster.setFromCamera(ndc, camera);
+  const meshes = [];
+  allFurn().forEach((g) => {
+    if (!g.visible) return;
+    g.traverse((o) => { if (o.isMesh) meshes.push(o); });
+  });
+  const hits = raycaster.intersectObjects(meshes, false);
+  if (!hits.length) return null;
+  let obj = hits[0].object;
+  while (obj && obj.userData.role !== 'furniture') obj = obj.parent;
+  return obj || null;
+}
+
+function selectPiece(id) {
+  if (id && (!state.elements[id] || !state.elements[id].on || MAGNET[id] == null && id === 'panelling')) {
+    if (id === 'panelling') { state.selected = 'panelling'; selectedObj = null; renderLayers(); refreshLayerTools(); updateSelectionVisual(); return; }
+  }
+  state.selected = id;
+  selectedObj = id ? furnById(id) : null;
+  renderLayers();
+  refreshLayerTools();
+  updateSelectionVisual();
+}
+function setVisible(id, v) {
+  const el = state.elements[id];
+  if (!el) return;
+  el.visible = v;
+  const obj = furnById(id);
+  if (obj) obj.visible = v;
+  if (id === 'panelling' && world) rebuild();
+  else { renderLayers(); updateSelectionVisual(); updatePlanOverlay(); }
+}
+function setLocked(id, v) {
+  const el = state.elements[id];
+  if (!el) return;
+  el.locked = v;
+  renderLayers();
+}
+function rotateSelected(deg) {
+  const obj = selectedObj || furnById(state.selected);
+  if (!obj || !state.elements[obj.userData.id] || state.elements[obj.userData.id].locked) return;
+  if ((MAGNET[obj.userData.id] || 'floor') === 'wall') return;
+  obj.rotation.y += (deg * Math.PI) / 180;
+  clampFloorItem(obj, true);
+  savePose(obj);
+  updateSelectionVisual();
+  updatePlanOverlay();
+  refreshLayerTools();
+}
+function setWallHeight(yMeters) {
+  const obj = selectedObj || furnById(state.selected);
+  if (!obj || (MAGNET[obj.userData.id] || 'floor') !== 'wall') return;
+  if (state.elements[obj.userData.id].locked) return;
+  snapWallItem(obj, obj.position.x, obj.position.z, yMeters);
+  savePose(obj);
+  updateSelectionVisual();
+  updatePlanOverlay();
+  refreshLayerTools();
+}
+function resetPosition(id) {
+  const key = id || state.selected;
+  if (!key || !state.elements[key]) return;
+  state.elements[key].pose = null;
+  rebuild();
+  selectPiece(key);
+}
+function movePiece(id, x, z, y) {
+  const obj = furnById(id);
+  if (!obj) return null;
+  const magnet = MAGNET[id] || 'floor';
+  if (magnet === 'floor') {
+    obj.position.set(x, 0, z);
+    clampFloorItem(obj, true);
+  } else {
+    snapWallItem(obj, x, z, y != null ? y : obj.position.y);
+  }
+  savePose(obj);
+  updateSelectionVisual();
+  updatePlanOverlay();
+  return { x: obj.position.x, y: obj.position.y, z: obj.position.z, rotY: obj.rotation.y, wall: obj.userData.wall || null };
+}
+
+function updateSelectionVisual() {
+  if (selRing && selRing.parent) selRing.parent.remove(selRing);
+  selRing = null;
+  const obj = selectedObj && selectedObj.visible ? selectedObj : null;
+  if (!obj || !scene) return;
+  obj.updateWorldMatrix(true, true);
+  const b = aabbOf(obj);
+  const cx = (b.min.x + b.max.x) / 2;
+  const cz = (b.min.z + b.max.z) / 2;
+  const rx = (b.max.x - b.min.x) / 2 + 0.07;
+  const rz = (b.max.z - b.min.z) / 2 + 0.07;
+  const grp = new THREE.Group();
+  const ring = new THREE.Mesh(
+    new THREE.RingGeometry(0.9, 1, 64),
+    new THREE.MeshBasicMaterial({ color: 0xD4B373, side: THREE.DoubleSide, transparent: true, opacity: 0.95, depthTest: false })
+  );
+  ring.rotation.x = -Math.PI / 2;
+  ring.position.set(cx, 0.03, cz);
+  ring.scale.set(rx, 1, rz);
+  ring.renderOrder = 10;
+  grp.add(ring);
+  const pts = [];
+  for (let i = 0; i <= 64; i++) {
+    const t = (i / 64) * Math.PI * 2;
+    pts.push(new THREE.Vector3(cx + rx * Math.cos(t), 0.035, cz + rz * Math.sin(t)));
+  }
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0xE8D09A, depthTest: false }));
+  line.renderOrder = 11;
+  grp.add(line);
+  grp.userData.role = 'selection';
+  scene.add(grp);
+  selRing = grp;
+}
+
+const EYE_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
+const LOCK_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+
+function renderLayers() {
+  const ul = document.getElementById('st-layer-list');
+  if (!ul) return;
+  ul.innerHTML = '';
+  for (const id of LAYER_ORDER) {
+    const el = state.elements[id];
+    if (!el || !el.on) continue;
+    const magnet = MAGNET[id] || (id === 'panelling' ? 'wall' : 'floor');
+    const li = document.createElement('li');
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'st-layer' + (state.selected === id ? ' is-selected' : '');
+    row.dataset.layer = id;
+    row.setAttribute('aria-pressed', String(state.selected === id));
+    row.innerHTML = `<span class="st-layer-name">${pieceTitle(id)}</span><span class="st-layer-badge">${magnet.toUpperCase()}</span>`;
+    const eye = document.createElement('button');
+    eye.type = 'button';
+    eye.className = 'st-ico';
+    eye.dataset.eye = id;
+    eye.setAttribute('aria-label', 'Toggle visibility');
+    eye.setAttribute('aria-pressed', String(el.visible !== false));
+    eye.innerHTML = EYE_SVG;
+    const lock = document.createElement('button');
+    lock.type = 'button';
+    lock.className = 'st-ico';
+    lock.dataset.lock = id;
+    lock.setAttribute('aria-label', 'Lock layer');
+    lock.setAttribute('aria-pressed', String(!!el.locked));
+    lock.innerHTML = LOCK_SVG;
+    row.appendChild(eye);
+    row.appendChild(lock);
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('[data-eye]') || e.target.closest('[data-lock]')) return;
+      selectPiece(id);
+    });
+    eye.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setVisible(id, !(state.elements[id].visible !== false));
+    });
+    lock.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setLocked(id, !state.elements[id].locked);
+    });
+    li.appendChild(row);
+    ul.appendChild(li);
+  }
+  refreshLayerTools();
+}
+function refreshLayerTools() {
+  const tools = document.getElementById('st-layer-tools');
+  if (!tools) return;
+  const id = state.selected;
+  const el = id && state.elements[id];
+  const magnet = id && MAGNET[id];
+  if (!id || !el || !el.on || id === 'panelling') {
+    tools.hidden = true;
+    return;
+  }
+  tools.hidden = false;
+  const angleWrap = document.getElementById('st-angle-wrap');
+  const heightWrap = document.getElementById('st-height-wrap');
+  angleWrap.classList.toggle('is-wall', magnet === 'wall');
+  heightWrap.classList.toggle('is-floor', magnet === 'floor');
+  const obj = furnById(id);
+  const angle = obj ? Math.round((obj.rotation.y * 180) / Math.PI) : 0;
+  const aNorm = ((angle + 180) % 360 + 360) % 360 - 180;
+  const angleInput = document.getElementById('st-angle');
+  const angleVal = document.getElementById('st-angle-val');
+  if (angleInput !== document.activeElement) angleInput.value = String(aNorm);
+  angleVal.textContent = `${aNorm}°`;
+  const hInput = document.getElementById('st-height');
+  const hVal = document.getElementById('st-height-val');
+  const y = obj ? obj.position.y : 0.35;
+  const { h } = dim();
+  const pieceH = obj && obj.userData.pieceH ? obj.userData.pieceH : 1.8;
+  const yMax = Math.max(0.35, h - pieceH - 0.15);
+  hInput.min = '35';
+  hInput.max = String(Math.round(yMax * 100));
+  if (hInput !== document.activeElement) hInput.value = String(Math.round(y * 100));
+  hVal.textContent = fmtLen(y);
+  const locked = !!el.locked;
+  tools.querySelectorAll('button, input').forEach((n) => { if (n.id !== 'st-reset-pos') n.disabled = locked; });
+}
+function bindLayerTools() {
+  document.getElementById('st-rot-ccw').addEventListener('click', () => rotateSelected(-90));
+  document.getElementById('st-rot-cw').addEventListener('click', () => rotateSelected(90));
+  document.getElementById('st-angle').addEventListener('input', (e) => {
+    const obj = selectedObj || furnById(state.selected);
+    if (!obj || (MAGNET[obj.userData.id] || 'floor') === 'wall') return;
+    if (state.elements[obj.userData.id].locked) return;
+    obj.rotation.y = (Number(e.target.value) * Math.PI) / 180;
+    clampFloorItem(obj, true);
+    savePose(obj);
+    document.getElementById('st-angle-val').textContent = `${Math.round(Number(e.target.value))}°`;
+    updateSelectionVisual();
+    updatePlanOverlay();
+  });
+  document.getElementById('st-height').addEventListener('input', (e) => {
+    setWallHeight(Number(e.target.value) / 100);
+  });
+  document.getElementById('st-reset-pos').addEventListener('click', () => resetPosition());
+}
+
+function worldToOverlay(x, z) {
+  const el = stage();
+  const v = new THREE.Vector3(x, 0, z).project(camera);
+  return { x: (v.x * 0.5 + 0.5) * el.clientWidth, y: (-v.y * 0.5 + 0.5) * el.clientHeight };
+}
+function updatePlanOverlay() {
+  const svg = document.getElementById('st-plan-overlay');
+  if (!svg) return;
+  if (state.view !== 'plan') { svg.innerHTML = ''; return; }
+  const el = stage();
+  const wpx = Math.max(1, el.clientWidth), hpx = Math.max(1, el.clientHeight);
+  svg.setAttribute('viewBox', `0 0 ${wpx} ${hpx}`);
+  svg.setAttribute('width', String(wpx));
+  svg.setAttribute('height', String(hpx));
+  const { w, d, isGarden } = dim();
+  const tl = worldToOverlay(-w/2, -d/2);
+  const tr = worldToOverlay( w/2, -d/2);
+  const br = worldToOverlay( w/2,  d/2);
+  const bl = worldToOverlay(-w/2,  d/2);
+  const poly = `${tl.x},${tl.y} ${tr.x},${tr.y} ${br.x},${br.y} ${bl.x},${bl.y}`;
+  const gold = '#D4B373';
+  // window opening on the back (north) wall for interiors
+  const winW = isGarden ? 0 : Math.min(2.15, w * 0.4);
+  const w0 = worldToOverlay(-winW/2, -d/2);
+  const w1 = worldToOverlay( winW/2, -d/2);
+  let marks = '';
+  if (!isGarden) {
+    marks += `<line x1="${w0.x}" y1="${w0.y}" x2="${w1.x}" y2="${w1.y}" stroke="#cfe4ff" stroke-width="5" stroke-linecap="butt"/>`;
+    marks += `<text x="${(w0.x+w1.x)/2}" y="${w0.y - 8}" text-anchor="middle" fill="#cfe4ff" font-size="10" font-family="IBM Plex Mono, ui-monospace, monospace">WINDOW ${fmtLen(winW)}</text>`;
+  }
+  // open south as a door / opening
+  const doorW = Math.min(1.0, w * 0.22);
+  const d0 = worldToOverlay(-doorW/2, d/2);
+  const d1 = worldToOverlay( doorW/2, d/2);
+  marks += `<line x1="${d0.x}" y1="${d0.y}" x2="${d1.x}" y2="${d1.y}" stroke="#070D1A" stroke-width="6"/>`;
+  marks += `<text x="${(d0.x+d1.x)/2}" y="${d0.y + 14}" text-anchor="middle" fill="${gold}" font-size="10" font-family="IBM Plex Mono, ui-monospace, monospace">OPENING</text>`;
+  // dimension strings
+  const midTop = worldToOverlay(0, -d/2);
+  const midLeft = worldToOverlay(-w/2, 0);
+  marks += `<text x="${(tl.x+tr.x)/2}" y="${midTop.y - 16}" text-anchor="middle" fill="${gold}" font-size="12" font-family="IBM Plex Mono, ui-monospace, monospace" letter-spacing="1">${fmtLen(w)}</text>`;
+  marks += `<text x="${midLeft.x - 10}" y="${(tl.y+bl.y)/2}" text-anchor="end" fill="${gold}" font-size="12" font-family="IBM Plex Mono, ui-monospace, monospace" dominant-baseline="middle">${fmtLen(d)}</text>`;
+  let footprints = '';
+  allFurn().forEach((obj) => {
+    if (!obj.visible) return;
+    obj.updateWorldMatrix(true, true);
+    const b = aabbOf(obj);
+    const p1 = worldToOverlay(b.min.x, b.min.z);
+    const p2 = worldToOverlay(b.max.x, b.min.z);
+    const p3 = worldToOverlay(b.max.x, b.max.z);
+    const p4 = worldToOverlay(b.min.x, b.max.z);
+    const sel = state.selected === obj.userData.id;
+    footprints += `<polygon data-piece="${obj.userData.id}" points="${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y}" fill="${sel ? 'rgba(212,179,115,0.32)' : 'rgba(212,179,115,0.14)'}" stroke="${gold}" stroke-width="${sel ? 1.8 : 1}"/>`;
+    const c = worldToOverlay((b.min.x+b.max.x)/2, (b.min.z+b.max.z)/2);
+    const short = {catwall:'Cat Wall',cattree:'Oak Cat Tree',alcove:'Dog Alcove',dining:'Dining',litter:'Teak Cabinet',sofa:'Sofa'}[obj.userData.id] || pieceTitle(obj.userData.id);
+    footprints += `<text x="${c.x}" y="${c.y - 8}" text-anchor="middle" fill="#F4E7C8" font-size="10" font-family="IBM Plex Mono, ui-monospace, monospace">${short}</text>`;
+  });
+  const roomName = `${dim().name} · ${fmtLen(w)} × ${fmtLen(d)}`;
+  svg.innerHTML = `
+    <rect x="0" y="0" width="${wpx}" height="${hpx}" fill="rgba(7,13,26,0.18)"/>
+    <polygon points="${poly}" fill="rgba(12,20,38,0.35)" stroke="${gold}" stroke-width="2"/>
+    ${marks}
+    ${footprints}
+    <text x="${wpx/2}" y="18" text-anchor="middle" fill="${gold}" font-size="11" font-family="IBM Plex Mono, ui-monospace, monospace" letter-spacing="1.4">FLOOR PLAN 2D · ${roomName}</text>
+  `;
+}
+
+function bindPointer() {
+  const el = renderer.domElement;
+  el.style.touchAction = 'none';
+  const onDown = (ev) => {
+    if (ev.button !== undefined && ev.button !== 0) return;
+    const obj = pickFurniture(ev.clientX, ev.clientY);
+    if (!obj) {
+      selectPiece(null);
+      return;
+    }
+    ev.preventDefault();
+    ev.stopPropagation();
+    try { el.setPointerCapture(ev.pointerId); } catch (err) {}
+    selectPiece(obj.userData.id);
+    const locked = !!(state.elements[obj.userData.id] && state.elements[obj.userData.id].locked);
+    if (locked) return;
+    const hit = clientToFloor(ev.clientX, ev.clientY);
+    dragging = {
+      id: obj.userData.id,
+      obj,
+      dx: obj.position.x - hit.x,
+      dz: obj.position.z - hit.z,
+    };
+    controls.enabled = false;
+  };
+  const onMove = (ev) => {
+    if (!dragging) return;
+    ev.preventDefault();
+    const hit = clientToFloor(ev.clientX, ev.clientY);
+    const obj = dragging.obj;
+    const x = hit.x + dragging.dx;
+    const z = hit.z + dragging.dz;
+    if ((MAGNET[obj.userData.id] || 'floor') === 'floor') {
+      obj.position.set(x, 0, z);
+      clampFloorItem(obj, true);
+    } else {
+      snapWallItem(obj, x, z, obj.position.y);
+    }
+    updateSelectionVisual();
+    updatePlanOverlay();
+  };
+  const onUp = (ev) => {
+    if (!dragging) return;
+    ev.preventDefault();
+    savePose(dragging.obj);
+    dragging = null;
+    controls.enabled = true;
+    if (state.view === 'plan' || state.view === 'elevation') controls.enableRotate = false;
+    refreshLayerTools();
+    try { el.releasePointerCapture(ev.pointerId); } catch (err) {}
+  };
+  el.addEventListener('pointerdown', onDown, { capture: true });
+  el.addEventListener('pointermove', onMove);
+  el.addEventListener('pointerup', onUp);
+  el.addEventListener('pointercancel', onUp);
+}
+
+function auditSnap() {
+  const { w, d, h } = dim();
+  const issues = [];
+  const bnd = innerBounds();
+  allFurn().forEach((obj) => {
+    const id = obj.userData.id;
+    const magnet = MAGNET[id] || 'floor';
+    obj.updateWorldMatrix(true, true);
+    const b = aabbOf(obj);
+    if (magnet === 'floor') {
+      if (Math.abs(obj.position.y) > 1e-5) issues.push(`${id} floor y is ${obj.position.y}, expected 0`);
+      if (b.min.y < -0.06) issues.push(`${id} sinks (ymin=${b.min.y})`);
+      if (b.min.x < bnd.x0 - 0.01) issues.push(`${id} clips west wall`);
+      if (b.max.x > bnd.x1 + 0.01) issues.push(`${id} clips east wall`);
+      if (b.min.z < bnd.z0 - 0.01) issues.push(`${id} clips north wall`);
+      if (b.max.z > bnd.z1 + 0.01) issues.push(`${id} clips south wall`);
+    } else {
+      const wall = obj.userData.wall || nearestWall(obj.position.x, obj.position.z);
+      const flush = 0.12;
+      if (wall === 'west' && Math.abs(b.min.x - (-w/2)) > flush) issues.push(`${id} not flush to west (xmin=${b.min.x})`);
+      if (wall === 'east' && Math.abs(b.max.x - (w/2)) > flush) issues.push(`${id} not flush to east`);
+      if (wall === 'north' && Math.abs(b.min.z - (-d/2)) > flush) issues.push(`${id} not flush to north`);
+      if (wall === 'south' && Math.abs(b.max.z - (d/2)) > flush) issues.push(`${id} not flush to south`);
+      if (obj.position.y < 0.35 - 0.02) issues.push(`${id} wall y ${obj.position.y} below 0.35`);
+      const pieceH = obj.userData.pieceH || (b.max.y - b.min.y);
+      if (obj.position.y > h - pieceH - 0.15 + 0.02) issues.push(`${id} wall y above ceiling clamp`);
+    }
+  });
+  return { ok: issues.length === 0, issues };
+}
+
 function bindUI() {
   document.querySelectorAll('[data-space]').forEach((b)=>b.addEventListener('click',()=>{ state.space=b.dataset.space; rebuild(); }));
   document.querySelectorAll('[data-size]').forEach((b)=>b.addEventListener('click',()=>{ state.size=b.dataset.size; rebuild(); }));
-  document.querySelectorAll('[data-units]').forEach((b)=>b.addEventListener('click',()=>{ state.units=b.dataset.units; updateReadouts(); syncLabels(); }));
+  document.querySelectorAll('[data-units]').forEach((b)=>b.addEventListener('click',()=>{ state.units=b.dataset.units; updateReadouts(); syncLabels(); updatePlanOverlay(); refreshLayerTools(); }));
   document.querySelectorAll('[data-theme]').forEach((b)=>b.addEventListener('click',()=>{ state.theme=b.dataset.theme; rebuild(); }));
   document.querySelectorAll('[data-view]').forEach((b)=>b.addEventListener('click',()=>{ applyView(b.dataset.view); }));
   document.querySelectorAll('[data-toggle]').forEach((b)=>b.addEventListener('click',()=>{
     const k=b.dataset.toggle; state.elements[k].on = !state.elements[k].on; rebuild();
   }));
   document.querySelectorAll('[data-place]').forEach((s)=>s.addEventListener('change',()=>{
-    state.elements[s.dataset.place].place = s.value; rebuild();
+    const k=s.dataset.place; state.elements[k].place = s.value; state.elements[k].pose = null; rebuild();
   }));
   document.querySelectorAll('[data-variant]').forEach((s)=>s.addEventListener('change',()=>{
-    state.elements[s.dataset.variant].variant = s.value; rebuild();
+    const k=s.dataset.variant; state.elements[k].variant = s.value; state.elements[k].pose = null; rebuild();
   }));
+  bindLayerTools();
+  bindPointer();
   document.getElementById('st-open-brief').addEventListener('click', openBrief);
   document.getElementById('st-close-brief').addEventListener('click', closeBrief);
   document.getElementById('st-close-brief-2').addEventListener('click', closeBrief);
@@ -1437,6 +2150,8 @@ function init() {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
   el.appendChild(renderer.domElement);
+  renderer.domElement.style.touchAction = 'none';
+  renderer.domElement.style.display = 'block';
 
   lights.hemi = new THREE.HemisphereLight(0xe8f0fa, 0x5a4430, 1.18);
   scene.add(lights.hemi);
@@ -1480,6 +2195,8 @@ function init() {
     renderer.setSize(e.clientWidth, e.clientHeight, false);
     sizeCameras();
     controls.update();
+    updatePlanOverlay();
+    updateSelectionVisual();
   });
   ro.observe(el);
 
@@ -1496,9 +2213,18 @@ function init() {
     setSize(v){ state.size=v; rebuild(); },
     setTheme(v){ state.theme=v; rebuild(); },
     setView(v){ applyView(v); },
-    setUnits(v){ state.units=v; updateReadouts(); syncLabels(); },
+    setUnits(v){ state.units=v; updateReadouts(); syncLabels(); updatePlanOverlay(); refreshLayerTools(); },
     setElement(k, patch){ Object.assign(state.elements[k], patch); rebuild(); },
-    openBrief, closeBrief, rebuild, quantities, auditGeometry, auditCalc, dim,
+    openBrief, closeBrief, rebuild, quantities, auditGeometry, auditCalc, dim, auditSnap,
+    select: selectPiece, getSelection: () => state.selected,
+    setVisible, setLocked, rotateSelected, setWallHeight, resetPosition,
+    getPose: (id) => {
+      const o = furnById(id); if (!o) return null;
+      const b = aabbOf(o);
+      return { x:o.position.x, y:o.position.y, z:o.position.z, rotY:o.rotation.y, magnet:o.userData.magnet, wall:o.userData.wall||null, visible:o.visible, ymin:b.min.y, xmax:b.max.x, xmin:b.min.x, zmin:b.min.z, zmax:b.max.z };
+    },
+    movePiece, worldToClient, clientToFloor,
+    furnById, updatePlanOverlay, renderLayers,
   };
 }
 
