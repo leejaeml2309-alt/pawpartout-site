@@ -2005,7 +2005,7 @@ function updatePlanOverlay() {
     const sel = state.selected === obj.userData.id;
     footprints += `<polygon data-piece="${obj.userData.id}" points="${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y}" fill="${sel ? 'rgba(212,179,115,0.32)' : 'rgba(212,179,115,0.14)'}" stroke="${gold}" stroke-width="${sel ? 1.8 : 1}"/>`;
     const c = worldToOverlay((b.min.x+b.max.x)/2, (b.min.z+b.max.z)/2);
-    const short = {catwall:'Cat Wall',cattree:'Oak Cat Tree',alcove:'Dog Alcove',dining:'Dining',litter:'Teak Cabinet',sofa:'Sofa'}[obj.userData.id] || pieceTitle(obj.userData.id);
+    const short = {catwall:'Cat Wall',cattree:'Oak Cat Tree',alcove:'Dog Alcove',dining:'Dining',litter:'Teak & Glass',sofa:'Sofa'}[obj.userData.id] || pieceTitle(obj.userData.id);
     footprints += `<text x="${c.x}" y="${c.y - 8}" text-anchor="middle" fill="#F4E7C8" font-size="10" font-family="IBM Plex Mono, ui-monospace, monospace">${short}</text>`;
   });
   const roomName = `${dim().name} · ${fmtLen(w)} × ${fmtLen(d)}`;
@@ -2016,6 +2016,26 @@ function updatePlanOverlay() {
     ${footprints}
     <text x="${wpx/2}" y="18" text-anchor="middle" fill="${gold}" font-size="11" font-family="IBM Plex Mono, ui-monospace, monospace" letter-spacing="1.4">FLOOR PLAN 2D · ${roomName}</text>
   `;
+}
+
+function bindNarrowBanner() {
+  const el = document.getElementById('st-narrow-banner');
+  const close = document.getElementById('st-narrow-banner-close');
+  if (!el || !close) return;
+  const key = 'pp-studio-narrow-banner-dismissed';
+  const show = () => {
+    if (window.innerWidth >= 640) { el.hidden = true; return; }
+    if (sessionStorage.getItem(key) === '1') { el.hidden = true; el.classList.add('is-dismissed'); return; }
+    el.hidden = false;
+    el.classList.remove('is-dismissed');
+  };
+  close.addEventListener('click', () => {
+    try { sessionStorage.setItem(key, '1'); } catch (err) {}
+    el.hidden = true;
+    el.classList.add('is-dismissed');
+  });
+  show();
+  window.addEventListener('resize', show);
 }
 
 function bindPointer() {
@@ -2123,6 +2143,7 @@ function bindUI() {
   }));
   bindLayerTools();
   bindPointer();
+  bindNarrowBanner();
   document.getElementById('st-open-brief').addEventListener('click', openBrief);
   document.getElementById('st-close-brief').addEventListener('click', closeBrief);
   document.getElementById('st-close-brief-2').addEventListener('click', closeBrief);
