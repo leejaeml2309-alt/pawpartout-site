@@ -382,13 +382,17 @@
 </footer>
 <script src="vet.js?v=20261127final" defer></script>
 <script>
-if(!location.hash){
+if('scrollRestoration' in history) history.scrollRestoration='manual';
+function pawVetJump(){
+  if(location.hash) return;
   var el=document.getElementById('find');
   if(el){
     var top=el.getBoundingClientRect().top+window.scrollY-12;
     window.scrollTo(0, Math.max(0, top));
   }
 }
+pawVetJump();
+window.addEventListener('load', pawVetJump);
 </script>
 </body>
 </html>
