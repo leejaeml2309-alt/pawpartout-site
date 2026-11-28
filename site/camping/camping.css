@@ -488,3 +488,47 @@ a.cm-card:focus-visible{outline:2px solid #f3d98f;outline-offset:3px}
   font-size:.8rem;
   color:#8f98ab;
 }
+
+
+/* Field Notes: four cards, no orphan cells.
+   Desktop (≥1100px): one 4-column row — at 1280 the wrap is 1124px,
+   so each card is 264px (≥ ~240px) and the series reads as one line.
+   A 2×2 at 1280 would make very wide, short slabs. Mid widths (768 / 1024)
+   stay 2×2; 390 stays one column. */
+.cm-grid.cm-notes{
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  width:calc(2 * round(down, (100% - 22px) / 2, 1px) + 22px);
+  max-width:100%;
+  margin-inline:auto;
+  align-items:stretch;
+}
+@media (min-width:1100px){
+  .cm-grid.cm-notes{
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+    width:calc(4 * round(down, (100% - 66px) / 4, 1px) + 66px);
+  }
+}
+@media (max-width:720px){
+  .cm-grid.cm-notes{
+    grid-template-columns:minmax(0,1fr);
+    width:auto;
+    gap:16px;
+  }
+}
+.cm-notes .cm-title{
+  /* 2 lines at 24px line-height, plus 2px so Playfair descenders are not clipped */
+  line-height:24px;
+  min-height:calc(2 * 24px);
+  height:calc(2 * 24px + 2px);
+  flex:0 0 calc(2 * 24px + 2px);
+  overflow:hidden;
+}
+.cm-notes .cm-note-body{
+  height:auto;
+  min-height:0;
+  flex:1 1 auto;
+  overflow:hidden;
+}
+.cm-grid.cm-notes > li{
+  min-height:var(--cm-note-row, auto);
+}

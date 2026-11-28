@@ -71,4 +71,38 @@
       { group: 'subtheme', attr: 'data-subtheme' }
     ]
   );
+
+  function equalizeNoteCards() {
+    const grid = document.querySelector('.cm-notes');
+    if (!grid) return;
+    const lis = Array.from(grid.querySelectorAll(':scope > li'));
+    if (!lis.length) return;
+    grid.style.removeProperty('--cm-note-row');
+    lis.forEach(function (li) {
+      li.style.minHeight = '';
+      li.style.height = '';
+    });
+    void grid.offsetHeight;
+    var max = 0;
+    lis.forEach(function (li) {
+      var h = li.getBoundingClientRect().height;
+      if (h > max) max = h;
+    });
+    if (max > 0) {
+      grid.style.setProperty('--cm-note-row', Math.ceil(max - 1e-6) + 'px');
+    }
+  }
+
+  var noteEqTimer;
+  function scheduleEqualizeNoteCards() {
+    if (noteEqTimer) window.clearTimeout(noteEqTimer);
+    noteEqTimer = window.setTimeout(equalizeNoteCards, 50);
+  }
+
+  equalizeNoteCards();
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(equalizeNoteCards).catch(function () {});
+  }
+  window.addEventListener('resize', scheduleEqualizeNoteCards);
+
 })();
