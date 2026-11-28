@@ -96,7 +96,7 @@ def footer():
 {rule('gold')}
 <div class="pp-wrap pp-foot-in">
 <ul class="pp-foot-links">
-<li><a href="#contact-TBD">Contact us</a></li>
+<li><a href="mailto:contact@pawpartout.com">Contact us</a></li>
 <li><a href="/privacy/">Privacy</a></li>
 <li><a href="/affiliate-disclosure/">Affiliate disclosure</a></li>
 </ul>
