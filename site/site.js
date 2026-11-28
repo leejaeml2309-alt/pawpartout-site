@@ -406,6 +406,16 @@
     var hh = headerHeight();
     var vh = window.innerHeight;
     var show = !!(b && (b.bottom < hh + 48 || b.top > vh - 48));
+    var foot = document.querySelector('footer');
+    var base = window.matchMedia('(max-width:640px)').matches ? 12 : 16;
+    var bottom = base;
+    if (show && foot) {
+      var fr = foot.getBoundingClientRect();
+      if (fr.top < vh) {
+        bottom = Math.max(base, Math.ceil(vh - fr.top + 12));
+      }
+    }
+    btn.style.setProperty('--rb-bottom', bottom + 'px');
     btn.classList.toggle('is-on', show);
     btn.setAttribute('aria-hidden', show ? 'false' : 'true');
     btn.setAttribute('tabindex', show ? '0' : '-1');
