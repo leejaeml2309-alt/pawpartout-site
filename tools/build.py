@@ -95,15 +95,13 @@ def footer():
     return f'''<footer class="pp-foot">
 {rule('gold')}
 <div class="pp-wrap pp-foot-in">
-<div><a class="pp-brand" href="/"><span class="medal"><picture><source type="image/svg+xml" srcset="/mark.svg"><img src="/mark-64.png" width="42" height="42" alt=""></picture></span><b class="mtext">Pawpartout<span class="tm">™</span></b></a>
-<p class="about">One door to every place we build for travelling and living with cats and dogs.</p></div>
-<div><h2>Explore</h2><ul>
-<li><a href="/">The rosace</a></li><li><a href="/shop/">Paw Shop</a></li><li><a href="/shop/gifts/">Gifts for pets</a></li><li><a href="/books/">Books</a></li></ul></div>
-<div><h2>Our sites &amp; fine print</h2><ul>
-<li><a href="https://petpolicycheck.com/">PetPolicyCheck</a></li><li><a href="https://ticketsntails.com/">Tickets &amp; Tails</a></li>
-<li><a href="/privacy/">Privacy</a></li><li><a href="/affiliate-disclosure/">Affiliate disclosure</a></li></ul></div>
+<ul class="pp-foot-links">
+<li><a href="#contact-TBD">Contact us</a></li>
+<li><a href="/privacy/">Privacy</a></li>
+<li><a href="/affiliate-disclosure/">Affiliate disclosure</a></li>
+</ul>
+<p class="legal">© 2026 Pawpartout™ · No ads, ever.</p>
 </div>
-<div class="pp-wrap"><p class="legal"><span>© 2026 Pawpartout™ · No ads, ever.</span><span>{DISC}</span></p></div>
 </footer>'''
 import re
 def small(h): return re.sub(r'(aria-hidden="true"><use href="#g-)([a-z]+)("/>)',r'\1\2-s\3',h)

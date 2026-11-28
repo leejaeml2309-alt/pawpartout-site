@@ -93,10 +93,12 @@ a.door:hover{border-color:var(--au-l)}
 .placeholder .ph-k{margin-bottom:8px;font:700 .7rem var(--text);letter-spacing:.2em;text-transform:uppercase;color:var(--au)}
 
 .vfoot{border-top:1px solid #d9b76526;background:var(--nv3)}
-.vfoot-in{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;padding-top:18px;padding-bottom:22px;font-size:.82rem;color:var(--mut)}
+.vfoot-in{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;padding-top:18px;padding-bottom:22px;font-size:.82rem;color:var(--mut)}
 .vfoot p{margin:0}
-.vfoot nav{margin-left:auto;display:flex;gap:6px}
-.vfoot nav a{display:inline-flex;align-items:center;min-height:48px;padding:0 8px}
+.vfoot-links,.vfoot nav{margin:0;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:0}
+.vfoot-links a,.vfoot nav a{display:inline-flex;align-items:center;min-height:36px;padding:0;color:var(--mut);text-decoration:none}
+.vfoot-links a:hover,.vfoot nav a:hover{color:#f3d98f}
+.vfoot-links a:not(:last-child)::after,.vfoot nav a:not(:last-child)::after{content:"·";margin:0 14px;color:var(--mut);pointer-events:none}
 .vfoot a{color:var(--mut)}
 
 /* ===== the gold rosace (both variants) ===== */
