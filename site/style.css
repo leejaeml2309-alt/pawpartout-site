@@ -462,32 +462,6 @@ html[data-style="mandala"] .wheel .core{
 }
 
 
-/* ===== Back to the rosace: floating return (homepage) ===== */
-.rosace-back{
-  position:fixed;right:16px;bottom:var(--rb-bottom, 16px);z-index:8;
-  display:inline-flex;align-items:center;gap:8px;
-  min-height:44px;padding:0 16px 0 10px;border-radius:99px;
-  color:var(--head);text-decoration:none;font-size:.82rem;
-  border:1px solid #d6b25e66;background:#050e26e6;
-  backdrop-filter:blur(8px);
-  box-shadow:0 6px 18px #0008,0 0 0 1px #3a220540;
-  opacity:0;pointer-events:none;transform:translateY(10px);
-  transition:opacity .28s ease,transform .28s ease,bottom .28s ease;
-}
-.rosace-back.is-on{opacity:1;pointer-events:auto;transform:none}
-.rosace-back svg{width:22px;height:22px;flex:none}
-.rosace-back:hover{border-color:#f3d98f}
-.rosace-back .sm{display:none}
-@media (max-width:640px){
-  .rosace-back{right:12px;bottom:var(--rb-bottom, 12px);padding:0 12px 0 8px;font-size:.78rem}
-  .rosace-back .lg{display:none}
-  .rosace-back .sm{display:inline}
-}
-@media (prefers-reduced-motion:reduce){
-  .rosace-back{transition:none}
-}
-
-
 /* ===== Books catalogue, 2026-11-27 ===== */
 .page-books .aff-hero{margin:18px auto 0;text-align:center}
 .page-books .aff a,.page-books .aff-hero a{color:var(--au-l);text-decoration:underline;text-underline-offset:2px}

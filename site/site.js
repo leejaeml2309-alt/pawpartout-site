@@ -288,7 +288,7 @@
   });
 })();
 
-/* Centre the rosace in the viewport for #wheel / #rosace and the back-to-rosace button. */
+/* Centre the rosace in the viewport for #wheel / #rosace. */
 (function () {
   'use strict';
 
@@ -351,17 +351,11 @@
     return HASH[(hash || location.hash || '').replace(/^#/, '')] === 1;
   }
 
-  var scrolling = false;
-  var scrollTimer = 0;
-
   function go(smooth) {
     if (!document.getElementById('wheel')) return;
     var y = targetY();
     var useSmooth = !!(smooth && !reduceMotion());
-    scrolling = true;
     window.scrollTo({ top: y, behavior: useSmooth ? 'smooth' : 'auto' });
-    clearTimeout(scrollTimer);
-    scrollTimer = setTimeout(function () { scrolling = false; syncButton(); }, useSmooth ? 700 : 50);
     if (!useSmooth) {
       /* one more pass after layout/fonts */
       requestAnimationFrame(function () {
@@ -399,28 +393,6 @@
     return url.origin === location.origin && norm(here) === norm(there);
   }
 
-  function syncButton() {
-    var btn = document.querySelector('a.rosace-back');
-    if (!btn) return;
-    var b = rosaceBox();
-    var hh = headerHeight();
-    var vh = window.innerHeight;
-    var show = !!(b && (b.bottom < hh + 48 || b.top > vh - 48));
-    var foot = document.querySelector('footer');
-    var base = window.matchMedia('(max-width:640px)').matches ? 12 : 16;
-    var bottom = base;
-    if (show && foot) {
-      var fr = foot.getBoundingClientRect();
-      if (fr.top < vh) {
-        bottom = Math.max(base, Math.ceil(vh - fr.top + 12));
-      }
-    }
-    btn.style.setProperty('--rb-bottom', bottom + 'px');
-    btn.classList.toggle('is-on', show);
-    btn.setAttribute('aria-hidden', show ? 'false' : 'true');
-    btn.setAttribute('tabindex', show ? '0' : '-1');
-  }
-
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[href]');
     if (!a) return;
@@ -440,24 +412,15 @@
   });
   window.addEventListener('resize', function () {
     if (isRosaceHash()) go(false);
-    syncButton();
   });
-  window.addEventListener('scroll', function () {
-    if (!scrolling) syncButton();
-  }, { passive: true });
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () {
-      onLanding();
-      syncButton();
-    });
+    document.addEventListener('DOMContentLoaded', onLanding);
   } else {
     onLanding();
-    syncButton();
   }
   window.addEventListener('load', function () {
     if (isRosaceHash()) go(false);
     reveal();
-    syncButton();
   });
 })();
