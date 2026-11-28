@@ -69,9 +69,9 @@ a.node:hover .dot,a.node:focus-visible .dot{transform:scale(1.08);box-shadow:ins
 .legend .lg-soon::before{content:"";width:12px;height:12px;border-radius:50%;border:1.5px dashed var(--au)}
 
 /* ===== doors list ===== */
-.doors{padding-top:48px}
-.doors h2,.story h2{display:flex;align-items:center;gap:16px;font-size:1.7rem;margin:0 0 18px}
-.doors h2::after,.story h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,#d9b76599,transparent)}
+.doors{padding-top:48px;padding-bottom:64px}
+.doors h2{display:flex;align-items:center;gap:16px;font-size:1.7rem;margin:0 0 18px}
+.doors h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,#d9b76599,transparent)}
 .door-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
 .door{display:flex;align-items:center;gap:14px;min-height:88px;padding:14px 16px;border-radius:12px;text-decoration:none;color:var(--ink);
  background:linear-gradient(180deg,#0e2452,#0a1a3c);border:1px solid #d9b76555;height:100%}
@@ -85,12 +85,6 @@ a.door:hover{border-color:var(--au-l)}
 .door.soon{background:transparent;border-style:dashed}
 .door.soon .dot{color:#c9cfdb;box-shadow:inset 0 0 0 1.5px #d9b76577}
 .door .tag{flex:none;font:700 .6rem var(--text);letter-spacing:.14em;text-transform:uppercase;color:var(--au);border:1px dashed var(--au);border-radius:99px;padding:4px 8px;white-space:nowrap}
-
-/* ===== story placeholder ===== */
-.story{padding-top:52px;padding-bottom:64px}
-.placeholder{padding:26px 24px;border:2px dashed #d9b765aa;border-radius:12px;background:repeating-linear-gradient(135deg,#d9b7650a 0 12px,transparent 12px 24px)}
-.placeholder p{margin:0;color:var(--mut)}
-.placeholder .ph-k{margin-bottom:8px;font:700 .7rem var(--text);letter-spacing:.2em;text-transform:uppercase;color:var(--au)}
 
 .vfoot{border-top:1px solid #d9b76526;background:var(--nv3)}
 .vfoot-in{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;padding-top:18px;padding-bottom:22px;font-size:.82rem;color:var(--mut)}
@@ -133,6 +127,7 @@ a.node:hover .dot,a.node:focus-visible .dot{transform:scale(1.08);box-shadow:0 0
 /* ===== mobile ===== */
 @media (max-width:640px){
  .vwrap{padding:0 16px}
+ .doors{padding-bottom:64px}
  .vbar nav a{font-size:.74rem;padding:0 10px}
  .hero{padding-top:28px}
  .lede{font-size:.95rem}
@@ -148,7 +143,7 @@ a.node:hover .dot,a.node:focus-visible .dot{transform:scale(1.08);box-shadow:0 0
  .node small{font-size:.64rem}
  .door-list{grid-template-columns:1fr}
  .legend{margin-top:34px}
- .doors h2,.story h2{font-size:1.4rem}
+ .doors h2{font-size:1.4rem}
 }
 @media (max-width:370px){
  .vbrand span{font-size:1rem}
@@ -157,8 +152,6 @@ a.node:hover .dot,a.node:focus-visible .dot{transform:scale(1.08);box-shadow:0 0
  .node b{font-size:.74rem}
 }
 
-/* story text (Éditeur) */
-.story-text p{margin:0 0 1em;color:var(--ink);font-size:1.04rem;line-height:1.7;max-width:46rem}
 /* 404 */
 .nf{text-align:center;padding:56px 0 80px}
 .nf .core{position:relative;left:auto;top:auto;transform:none;margin:28px auto 22px;width:150px;height:150px}

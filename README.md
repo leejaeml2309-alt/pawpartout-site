@@ -38,9 +38,8 @@ To open one: in index.html turn its `<div class="node soon">` (wheel) and `<div 
 `<a class="node live" href="…">` / `<a class="door live" href="…">`.
 
 ## Story
-Between `<!-- STORY:START -->` and `<!-- STORY:END -->` in index.html: the EN text of
-WHY-PAWPARTOUT-EXISTS-20261124.md (approved by Marc 24/11), verbatim, with ™ added at its first mention of Pawpartout.
-The FR version is not used. Paragraphs go in `<div class="story-text"><p>…</p></div>`.
+Removed from the Pawpartout homepage (decision 28/11/2026): the founding story belongs only to PetPolicyCheck.
+Do not put a « The story » section, #story anchor, or teaser back on this site.
 
 ## Analytics
 None at launch (decision 24/11/2026): no GA, no tag manager, no ads. Add nothing without a new decision.
